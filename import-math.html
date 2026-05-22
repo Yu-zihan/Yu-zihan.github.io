@@ -1,0 +1,40 @@
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script defer src="/assets/vendor/katex/katex.min.js"></script>
+<script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!window.katex) return;
+
+    // 1) Kodama-emitted math nodes
+    document.querySelectorAll(".math.math-inline").forEach(function (el) {
+      katex.render(el.textContent, el, {
+        displayMode: false,
+        throwOnError: false,
+        strict: false,
+      });
+    });
+
+    document.querySelectorAll(".math.math-display").forEach(function (el) {
+      katex.render(el.textContent, el, {
+        displayMode: true,
+        throwOnError: false,
+        strict: false,
+      });
+    });
+
+    // 2) Raw delimiters fallback ($...$, $$...$$, \(...\), \[...\])
+    if (window.renderMathInElement) {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false },
+          { left: "\\(", right: "\\)", display: false },
+          { left: "\\[", right: "\\]", display: true }
+        ],
+        throwOnError: false
+      });
+    }
+  });
+</script>

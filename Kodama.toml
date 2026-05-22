@@ -1,0 +1,43 @@
+[kodama]
+trees = "trees"
+assets = "assets"
+base-url = "/"
+themes = []
+
+[toc]
+placement = "right"
+sticky = true
+mobile-sticky = true
+max-width = "45ex"
+
+[text]
+edit = "[edit]"
+toc = "Table of Contents"
+references = "References"
+backlinks = "Backlinks"
+
+[build]
+typst-root = "trees"
+short-slug = false
+pretty-urls = false
+footer-mode = "link"
+inline-css = true
+asref = false
+output = "./publish"
+
+[serve]
+edit = "vscode://file/"
+output = "./.cache/publish"
+command = ["python3", "-m", "http.server", "8088", "-b", "127.0.0.1", "-d", "<output>"]
+
+[academic]
+enabled = true
+title = "Zihan Yu (于子涵)"
+description = "PhD student in Computer Science at the University of Manchester."
+intro = "I will share notes and reflections from my study and research here."
+show-recent-posts = true
+show-recent-notes = true
+show-projects = true
+show-reading = true
+max-recent-posts = 5
+max-recent-notes = 5
