@@ -1,0 +1,395 @@
+html.notes-site {
+  background: #fafafa;
+}
+
+html.notes-site body {
+  background: #fafafa;
+  color: #20242c;
+}
+
+html.notes-site a {
+  color: inherit;
+  text-underline-offset: 0.22em;
+}
+
+html.notes-site :root body,
+html.notes-site body {
+  --article-max-width: 78ch !important;
+  --toc-max-width: 24ch !important;
+  --text-color: #20242c !important;
+  --link-color: #20242c !important;
+  --toc-link-color: #5c6575 !important;
+  --background-color: #fafafa !important;
+  --background-color-pre: rgba(40, 95, 104, 0.06) !important;
+  --background-color-code: rgba(40, 95, 104, 0.06) !important;
+  --target-color: #285f68 !important;
+  --hover-color-link: rgba(40, 95, 104, 0.1) !important;
+}
+
+html.notes-list #grid-wrapper {
+  grid-template-areas: "article" !important;
+  grid-template-columns: minmax(0, 860px) !important;
+  justify-content: center;
+  padding: 0 1.25rem;
+}
+
+html.notes-list nav#toc {
+  display: none !important;
+}
+
+html.notes-list #grid-wrapper > article {
+  width: 100%;
+  max-width: 860px !important;
+  margin: 0 auto;
+}
+
+html.notes-list main.academic {
+  max-width: none;
+  margin: 3rem 0 4rem;
+  padding: 0;
+  color: #20242c;
+  font: 18px/1.72 "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+}
+
+html.notes-list main.academic h1 {
+  margin: 0 0 0.4rem;
+  font-size: 2.6rem;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+html.notes-list main.academic header > p {
+  max-width: 42rem;
+  color: #606779;
+}
+
+html.notes-list main.academic nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font: 600 0.92rem/1.4 ui-sans-serif, "Segoe UI", sans-serif;
+}
+
+html.notes-list main.academic nav a {
+  color: #606779;
+  text-decoration: none;
+}
+
+html.notes-list main.academic nav a.is-current {
+  color: #20242c;
+}
+
+html.notes-list main.academic nav a:hover {
+  color: #20242c;
+  text-decoration: none;
+}
+
+html.notes-list main.academic section {
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(31, 36, 48, 0.1);
+}
+
+html.notes-list main.academic .post-list {
+  margin: 0;
+  padding: 0;
+}
+
+html.notes-list main.academic .post-item {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  column-gap: 1.25rem;
+  padding: 1rem 0;
+  border-top: 0;
+}
+
+html.notes-list main.academic .post-item + .post-item {
+  border-top: 1px solid rgba(31, 36, 48, 0.08);
+}
+
+html.notes-list main.academic .post-date {
+  grid-column: 1;
+  color: #737b89;
+  font: 0.92rem/1.4 ui-sans-serif, "Segoe UI", sans-serif;
+}
+
+html.notes-list main.academic .post-item > a {
+  grid-column: 2;
+  font-size: 1.08rem;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+html.notes-list main.academic .post-item > a:hover {
+  text-decoration: underline;
+}
+
+html.notes-list main.academic .post-summary,
+html.notes-list main.academic .post-tags {
+  grid-column: 2;
+  color: #606779;
+}
+
+html.notes-list main.academic .post-tags {
+  display: none;
+}
+
+html.notes-article .header {
+  display: none;
+}
+
+html.notes-article .notes-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1rem;
+  margin: 2.2rem 0 1.4rem;
+  color: #606779;
+  font: 600 0.9rem/1.4 ui-sans-serif, "Segoe UI", sans-serif;
+}
+
+html.notes-article .notes-breadcrumb a {
+  color: #606779;
+  text-decoration: none;
+}
+
+html.notes-article .notes-breadcrumb a:hover {
+  color: #20242c;
+  text-decoration: underline;
+}
+
+html.notes-article .header .logo span {
+  color: #606779;
+  font-size: 0.95rem;
+}
+
+html.notes-article .header .logo span:hover {
+  color: #20242c;
+}
+
+html.notes-article #grid-wrapper {
+  column-gap: 2.2rem;
+  padding: 0 1.25rem;
+}
+
+html.notes-article #grid-wrapper > article {
+  max-width: 78ch !important;
+  color: #20242c;
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, "LXGW WenKai TC", serif;
+}
+
+html.notes-article article > section > details {
+  margin-top: 0;
+}
+
+html.notes-article article > section > details > summary {
+  cursor: default;
+  list-style: none;
+  pointer-events: none;
+}
+
+html.notes-article article > section > details > summary::-webkit-details-marker {
+  display: none;
+}
+
+html.notes-article article > section > details > summary > header {
+  margin-bottom: 1.2rem;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html.notes-article article > section > details > summary > header > h1 {
+  font-size: 2rem;
+  line-height: 1.18;
+  letter-spacing: 0;
+  margin: 0;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+
+html.notes-article article > section,
+html.notes-article article > section > details,
+html.notes-article article > section > details > summary,
+html.notes-article article > section > details > summary::before,
+html.notes-article article > section > details > summary::after,
+html.notes-article article > section > details > summary > header::before,
+html.notes-article article > section > details > summary > header::after,
+html.notes-article article > section > details > summary > header > h1::before,
+html.notes-article article > section > details > summary > header > h1::after {
+  border: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+
+html.notes-article article .slug {
+  display: none;
+}
+
+html.notes-article article .edit {
+  display: none;
+}
+
+html.notes-article article section,
+html.notes-article article details,
+html.notes-article article summary,
+html.notes-article article .block,
+html.notes-article article .metadata,
+html.notes-article article p,
+html.notes-article article li,
+html.notes-article article a,
+html.notes-article nav#toc,
+html.notes-article nav#toc * {
+  background: transparent !important;
+}
+
+html.notes-article article :hover,
+html.notes-article nav#toc :hover {
+  background: transparent !important;
+}
+
+html.notes-article article .metadata ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+html.notes-article article .metadata .meta-item {
+  color: #737b89;
+  font: 0.86rem/1.45 ui-sans-serif, "Segoe UI", sans-serif;
+}
+
+html.notes-article article h2 {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(31, 36, 48, 0.08);
+  font-size: 1.35rem;
+  letter-spacing: 0;
+}
+
+html.notes-article article h3 {
+  margin-top: 1.6rem;
+  font-size: 1.12rem;
+  letter-spacing: 0;
+}
+
+html.notes-article article p,
+html.notes-article article li {
+  line-height: 1.76;
+}
+
+html.notes-article article .link.external,
+html.notes-article article .link.asset,
+html.notes-article article .link.local {
+  text-decoration: none !important;
+}
+
+html.notes-article article a {
+  text-decoration: underline !important;
+  text-decoration-style: solid !important;
+  text-decoration-thickness: 1px !important;
+  box-shadow: none !important;
+}
+
+html.notes-article article code {
+  border-radius: 4px;
+}
+
+html.notes-article nav#toc {
+  max-width: 24ch !important;
+  color: #606779;
+  font: 0.88rem/1.5 ui-sans-serif, "Segoe UI", sans-serif;
+}
+
+html.notes-article nav#toc .generated-toc h1 {
+  font-size: 0.82rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html.notes-article nav#toc a {
+  color: #606779;
+}
+
+html.notes-article nav#toc a:hover {
+  color: #20242c;
+}
+
+@media (prefers-color-scheme: dark) {
+  html.notes-site,
+  html.notes-site body {
+    background: #10141b;
+    color: #edf2ff;
+  }
+
+  html.notes-site :root body,
+  html.notes-site body {
+    --text-color: #edf2ff !important;
+    --link-color: #edf2ff !important;
+    --toc-link-color: #aab4cb !important;
+    --background-color: #10141b !important;
+    --target-color: #9fcbd2 !important;
+  }
+
+  html.notes-list main.academic,
+  html.notes-article #grid-wrapper > article {
+    color: #edf2ff;
+  }
+
+  html.notes-list main.academic header > p,
+  html.notes-list main.academic .post-summary,
+  html.notes-list main.academic .post-tags,
+  html.notes-article .header,
+  html.notes-article article .metadata .meta-item,
+  html.notes-article nav#toc,
+  html.notes-article nav#toc a {
+    color: #aab4cb;
+  }
+}
+
+@media (max-width: 760px) {
+  html.notes-list #grid-wrapper,
+  html.notes-article #grid-wrapper {
+    padding: 0 1rem;
+  }
+
+  html.notes-list main.academic {
+    margin-top: 2rem;
+  }
+
+  html.notes-list main.academic h1 {
+    font-size: 2.25rem;
+  }
+
+  html.notes-list main.academic .post-item {
+    grid-template-columns: 1fr;
+  }
+
+  html.notes-list main.academic .post-date,
+  html.notes-list main.academic .post-item > a,
+  html.notes-list main.academic .post-summary,
+  html.notes-list main.academic .post-tags {
+    grid-column: 1;
+  }
+
+  html.notes-article article > section > details > summary > header > h1 {
+    font-size: 1.65rem;
+  }
+
+  html.notes-article article .metadata ul {
+    display: block;
+  }
+
+  html.notes-article article .metadata .meta-item {
+    display: block;
+    margin-top: 0.3rem;
+    overflow-wrap: anywhere;
+  }
+
+  html.notes-article nav#toc {
+    display: none !important;
+  }
+}

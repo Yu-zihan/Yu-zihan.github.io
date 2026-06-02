@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width"><title>Conformal Prediction from the Perspective of the Probability Integral Transform (PIT)</title><link rel="icon" href="/assets/favicon.ico" /><template id="theme-option-template"><input type="radio" name="theme" /><label></label></template><script src="/main.js"></script><link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<style>
+  :root {
+    --katex-font-size: 1.06em;
+    --katex-frac-line-font-size: 1.3em;
+  }
+
+  .katex {
+    line-height: 1.26;
+  }
+
+  .math.math-inline,
+  .katex {
+    text-wrap: pretty;
+  }
+
+  .math.math-display,
+  .katex-display {
+    display: block;
+    margin: 0.55rem 0 0.65rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.05rem 0.1rem 0.12rem;
+  }
+
+  .katex-display > .katex {
+    min-width: fit-content;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+
+  article p + .katex-display,
+  article p + .math.math-display {
+    margin-top: 0.45rem;
+  }
+
+  article .katex-display + p,
+  article .math.math-display + p {
+    margin-top: 0.45rem;
+  }
+
+  article li .katex-display,
+  article li .math.math-display {
+    margin: 0.35rem 0 0.45rem;
+  }
+
+  nav#toc .generated-toc ul {
+    margin: 0;
+    padding-left: 0;
+  }
+
+  nav#toc .generated-toc li {
+    margin: 0.35rem 0;
+  }
+
+  nav#toc .generated-toc li.toc-level-3 {
+    padding-left: 1rem;
+    font-size: 0.96em;
+  }
+
+  nav#toc .generated-toc a {
+    text-decoration: none;
+  }
+
+  nav#toc .generated-toc a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 720px) {
+    :root {
+      --katex-font-size: 1.02em;
+    }
+
+    .math.math-display,
+    .katex-display {
+      margin: 0.5rem 0 0.6rem;
+      padding-bottom: 0.08rem;
+    }
+  }
+</style>
+<script defer src="/assets/vendor/katex/katex.min.js"></script>
+<script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.katex) {
+      // 1) Kodama-emitted math nodes
+      document.querySelectorAll(".math.math-inline").forEach(function (el) {
+        katex.render(el.textContent, el, {
+          displayMode: false,
+          throwOnError: false,
+          strict: false,
+        });
+      });
+
+      document.querySelectorAll(".math.math-display").forEach(function (el) {
+        katex.render(el.textContent, el, {
+          displayMode: true,
+          throwOnError: false,
+          strict: false,
+        });
+      });
+
+      // 2) Raw delimiters fallback ($...$, $$...$$, \(...\), \[...\])
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "\\[", right: "\\]", display: true }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    var toc = document.querySelector("nav#toc");
+    if (toc && !toc.querySelector(".block")) {
+      var headings = Array.from(
+        document.querySelectorAll("article h2, article h3")
+      );
+
+      if (headings.length) {
+        var container = document.createElement("div");
+        container.className = "block generated-toc";
+
+        var details = document.createElement("details");
+        details.open = true;
+
+        var summary = document.createElement("summary");
+        var title = document.createElement("h1");
+        title.textContent = "Table of Contents";
+        summary.appendChild(title);
+        details.appendChild(summary);
+
+        var list = document.createElement("ul");
+
+        headings.forEach(function (heading, index) {
+          if (!heading.id) {
+            heading.id = "section-" + (index + 1);
+          }
+
+          var item = document.createElement("li");
+          item.className = "toc-level-" + heading.tagName.toLowerCase().slice(1);
+
+          var link = document.createElement("a");
+          link.href = "#" + heading.id;
+          link.textContent = heading.textContent.trim();
+
+          item.appendChild(link);
+          list.appendChild(item);
+        });
+
+        details.appendChild(list);
+        container.appendChild(details);
+        toc.appendChild(container);
+      }
+    }
+  });
+</script>
+<style>html {
+  font-size: 18px;
+}
+
+:root body {
+  color-scheme: light dark;
+  --content-gap: 15px;
+  --radius: 5px;
+  --article-max-width: 90ex;
+  --toc-max-width: 90ex;
+  --text-font-family: "Inria Sans", sans-serif;
+  --kaiti-font-family: "LXGW WenKai TC", "FandolKai", "KaiTi", "SimKai", "STKaiti", "Kaiti SC", "Kaiti TC", "华文楷体", "楷体", serif;
+
+  /* root font size: 16px */
+  --pre-font-size: 1rem;
+  --code-font-size: 1rem;
+  --cjk-kaiti-font-size: 1rem;
+  /* If this value is not 1rem, the CJK text in Typst will not match the size of the CJK text in KaTeX. */
+  --katex-font-size: 1em;
+  --katex-frac-line-font-size: 1.25em;
+  --details-h1-font-size: 1.2rem;
+  /* 13pt */
+  --section-details-h1-font-size: 1.083rem;
+  --article-details-h1-font-size: 1.5rem;
+  /* 0.9em */
+  --article-details-h1-taxon-font-size: 1.35rem;
+  /* 24px; */
+  --logo-font-size: 1.5rem;
+  /* 14pt; */
+  --footer-h2-font-size: 1.167rem;
+  --p-line-height: 1.55rem;
+
+  --text-color: black;
+  --toc-link-color: #555;
+  --background-color: white;
+
+  --background-color-pre: rgba(0, 100, 100, 0.04);
+  --background-color-code: rgba(0, 100, 100, 0.04);
+
+  --hover-color-block: rgba(0, 100, 255, 0.04);
+  --hover-color-link: rgba(0, 100, 255, 0.1);
+  --target-color: rgb(67, 92, 255);
+
+  --link-color: black;
+  --slug-color: gray;
+  --logo-color: #666;
+  --logo-hover-color: #aaa;
+  --span-taxon-color: #444;
+  --article-taxon-color: #888;
+  --mark-color: rgb(255, 255, 151);
+  --em-color: var(--text-color);
+
+  --alert-border-color: gray;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root body {
+    --text-color: white;
+    --toc-link-color: white;
+    --background-color: #2f2f2f;
+
+    --background-color-pre: rgba(100, 100, 100, 0.2);
+    --background-color-code: rgba(150, 150, 150, 0.2);
+
+    --hover-color-block: rgba(100, 162, 255, 0.06);
+    --hover-color-link: rgba(100, 162, 255, 0.2);
+    --target-color: rgb(255, 255, 151);
+
+    --link-color: white;
+    --slug-color: #aeaeae;
+    --logo-color: #999;
+    --logo-hover-color: #eee;
+    --span-taxon-color: #bbb;
+  }
+}
+
+@media print {
+  html {
+    font-size: 16px;
+  }
+
+  .edit,
+  #theme-options {
+    display: none;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+theme-option {
+  display: inline-block;
+}
+
+theme-option>input {
+  display: none;
+}
+
+theme-option>label {
+  color: var(--slug-color);
+}
+
+theme-option>label:hover {
+  background-color: var(--hover-color-link);
+}
+
+theme-option:has(input:checked)>label {
+  color: var(--link-color);
+}
+
+theme-option>label::before {
+  content: "[";
+  color: rgba(0, 0, 0, 0);
+}
+
+theme-option>label::after {
+  content: "]";
+  color: rgba(0, 0, 0, 0);
+}
+
+theme-option:has(input:checked)>label::before {
+  color: var(--link-color);
+}
+
+theme-option:has(input:checked)>label::after {
+  color: var(--link-color);
+}
+
+#theme-options:not(:empty)::before {
+  content: "(";
+}
+
+#theme-options:not(:empty)::after {
+  content: ")";
+}
+
+body {
+  color: var(--text-color);
+  font-optical-sizing: auto;
+  font-size: 1rem;
+  font-family: var(--text-font-family);
+  hyphens: auto;
+  background-color: var(--background-color);
+}
+
+pre,
+code {
+  font-optical-sizing: auto;
+}
+
+p,
+pre {
+  line-height: var(--p-line-height);
+}
+
+pre {
+  border-radius: var(--radius);
+  background-color: var(--background-color-pre);
+  padding: 0.5rem;
+  font-size: var(--pre-font-size);
+  margin-top: 0rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+code {
+  border-radius: var(--radius);
+  background-color: var(--background-color-code);
+  padding: 0.1rem;
+  font-size: var(--code-font-size);
+}
+
+pre,
+code {
+  font-family: monospace;
+}
+
+table {
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  display: block; 
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-collapse: separate;
+  border-spacing: 0 5px;
+}
+
+/* !forest */
+th {
+  font-weight: normal;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 0 15px;
+  vertical-align: top;
+}
+
+/* !forest */
+pre>code {
+  border-radius: 0;
+  background-color: transparent;
+  padding: 0;
+}
+
+/* !forest */
+.footnote-definition:last-child {
+  margin-bottom: 1rem;
+}
+
+/* !forest */
+.footnote-definition>p {
+  display: inline;
+}
+
+/* !forest */
+.footnote-definition-label {
+  margin-right: 4px;
+}
+
+/* !forest */
+.footnote-reference:target {
+  border: 1px solid var(--target-color);
+}
+
+.footnote-definition:target>.footnote-definition-label {
+  border: 1px solid var(--target-color);
+}
+
+.footnote-reference::before,
+.footnote-definition-label::before {
+  content: "[";
+}
+
+.footnote-reference::after,
+.footnote-definition-label::after {
+  content: "]";
+}
+
+.katex {
+  font: normal var(--katex-font-size) KaTeX_Main, Times New Roman, serif;
+  line-height: 1rem;
+  text-indent: 0;
+  text-rendering: auto;
+}
+
+.katex .mfrac .frac-line {
+  font-size: var(--katex-frac-line-font-size);
+}
+
+/* Generated by KaTeX */
+.cjk_fallback {
+  font-size: 1rem;
+  font-family: var(--text-font-family);
+}
+
+p:has(span.katex-html:empty) {
+  display: none;
+}
+
+section+p:empty {
+  display: none;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.katex-display .katex {
+  /* Inconsistent bounding box at different font sizes. */
+  /* Also see: https://github.com/KaTeX/KaTeX/issues/3965 */
+  padding-top: 1px;
+}
+
+.display-none {
+  display: none;
+}
+
+em {
+  color: var(--em-color);
+  font-style: italic;
+}
+
+em span:is([lang=zh], [lang=ja], [lang=ko]) {
+  font-style: normal;
+  font-family: var(--kaiti-font-family);
+  font-size: var(--cjk-kaiti-font-size);
+}
+
+blockquote {
+  font-style: italic;
+  --blockquote-cjk-font-family: var(--kaiti-font-family);
+}
+
+blockquote span:is([lang=zh], [lang=ja], [lang=ko]) {
+  font-style: normal;
+  font-family: var(--blockquote-cjk-font-family);
+  font-size: var(--cjk-kaiti-font-size);
+}
+
+/* GFM Blockquote tags: https://github.com/orgs/community/discussions/16925 */
+
+blockquote:is(.markdown-alert-note, .markdown-alert-tip, .markdown-alert-important, .markdown-alert-warning, .markdown-alert-caution) {
+  --blockquote-cjk-font-family: var(--text-font-family);
+  margin: 0.5rem 0.5rem;
+  padding: 0rem 0.5rem;
+  font-style: normal;
+  border-left: .25rem double var(--alert-border-color);
+}
+
+blockquote:is(.markdown-alert-note, .markdown-alert-tip, .markdown-alert-important, .markdown-alert-warning, .markdown-alert-caution)>p:first-child::before {
+  font-size: var(--section-details-h1-font-size);
+  font-family: monospace;
+  font-style: normal;
+  color: var(--span-taxon-color);
+  margin-right: 0.5rem;
+  display: block;
+  content: var(--alert-label);
+}
+
+blockquote.markdown-alert-note {
+  --alert-label: "[# NOTE]";
+}
+
+blockquote.markdown-alert-tip {
+  --alert-label: "[# TIP]";
+}
+
+blockquote.markdown-alert-important {
+  --alert-label: "[# IMPORTANT]";
+}
+
+blockquote.markdown-alert-warning {
+  --alert-label: "[# WARNING]";
+}
+
+blockquote.markdown-alert-caution {
+  --alert-label: "[# CAUTION]";
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin-top: 0.5em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+h5,
+h6,
+p {
+  margin-top: 0;
+}
+
+details>summary {
+  list-style-type: none;
+  outline: none;
+}
+
+details>summary>header {
+  display: inline;
+}
+
+details>summary::marker,
+details>summary::-webkit-details-marker {
+  display: none;
+}
+
+details h1 {
+  font-size: var(--details-h1-font-size);
+  display: inline;
+}
+
+span.taxon {
+  color: var(--span-taxon-color);
+  font-weight: 500;
+}
+
+article>section>details>summary>header>h1 {
+  font-size: var(--article-details-h1-font-size);
+}
+
+article>section>details>h2 {
+  font-size: 1.25rem;
+}
+
+article>section>details>h3 {
+  font-size: 1.125rem;
+}
+
+article>section>details>h4 {
+  font-size: 1rem;
+}
+
+article>section>details>h5,
+article>section>details>h6 {
+  font-size: 0.875rem;
+}
+
+article>section>details>summary>header {
+  display: block;
+  margin-bottom: 0.5em;
+}
+
+article>section>details>summary>header>h1>.taxon {
+  display: block;
+  font-size: var(--article-details-h1-taxon-font-size);
+  color: var(--article-taxon-color);
+  padding-bottom: 5pt;
+}
+
+article>section>details>summary>header>h1>.taxon:empty {
+  display: none;
+}
+
+section.block>details {
+  margin-bottom: 0.4em;
+}
+
+section.block>details[open] {
+  margin-bottom: 1em;
+}
+
+section.block.link-list>details {
+  margin-bottom: 0em;
+}
+
+section.block.link-list>details>section.block>details {
+  margin-bottom: 0.25em;
+}
+
+.block {
+  padding-left: 5px;
+  padding-right: 10px;
+  padding-bottom: 2px;
+  border-radius: var(--radius);
+}
+
+.block:hover {
+  background-color: var(--hover-color-block);
+}
+
+.block.hide-metadata>details>summary>header>.metadata {
+  display: none;
+}
+
+img {
+  object-fit: cover;
+  max-width: 100%;
+}
+
+figure {
+  text-align: center;
+}
+
+figcaption {
+  font-style: italic;
+  padding: 3px;
+}
+
+mark {
+  background-color: var(--mark-color);
+}
+
+hr {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  background-color: gray;
+  border: 0 none;
+  width: 100%;
+  height: 1pt;
+}
+
+ul,
+ol {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.logo>span {
+  color: var(--logo-color);
+  text-decoration: none;
+}
+
+.logo>span:hover {
+  color: var(--logo-hover-color);
+}
+
+.logo {
+  font-weight: 600;
+  font-size: var(--logo-font-size);
+}
+
+section section[data-taxon="Reference"]>details>summary>header>h1>.taxon,
+section section[data-taxon="Person"]>details>summary>header>h1>.taxon {
+  display: none;
+}
+
+section .block[data-taxon]>header>h1,
+section .block[data-taxon] details>summary>header>h1 {
+  font-size: var(--section-details-h1-font-size);
+}
+
+footer>section {
+  margin-bottom: 1em;
+}
+
+footer h2 {
+  font-size: var(--footer-h2-font-size);
+}
+
+.metadata ul {
+  padding-left: 0;
+  display: inline;
+}
+
+.metadata li::after {
+  content: " · ";
+}
+
+.metadata li:last-child::after {
+  content: "";
+}
+
+.metadata * {
+  display: inline;
+}
+
+.link {
+  cursor: pointer;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: inherit;
+}
+
+a.slug:hover,
+a.edit:hover,
+a.hash:hover,
+a.bullet:hover,
+.link:hover {
+  background-color: var(--hover-color-link);
+}
+
+.link.external,
+.link.asset {
+  text-decoration: underline;
+}
+
+.link.asset::before {
+  content: "[F] ";
+  /* file */
+}
+
+a.link.local,
+.link.local a,
+a.slug,
+a.edit,
+a.hash {
+  box-shadow: none;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  overflow-wrap: break-word;
+}
+
+.slug,
+.edit,
+.doi,
+.orcid {
+  color: var(--slug-color);
+  font-weight: 200;
+}
+
+body>header {
+  margin-bottom: 0.5em;
+}
+
+#grid-wrapper>article {
+  max-width: var(--article-max-width);
+  margin-right: auto;
+  grid-area: article;
+}
+
+@media only screen and (max-width: 1000px) {
+  :root body {
+    --code-font-size: 0.9rem;
+  }
+
+  figure {
+    margin: 0rem;
+  }
+
+  .block {
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    border-radius: 5px;
+  }
+
+  #grid-wrapper>nav {
+    transition: ease all 0.2s;
+  }
+
+  .mobile-sticky-nav {
+    position: sticky;
+    top: 0px;
+    max-height: calc(100vh - 0px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+
+    background-color: var(--background-color);
+    z-index: 7;
+    border-bottom: solid var(--text-color);
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  body {
+    margin-top: 2rem;
+    margin-left: 2rem;
+    transition: ease all 0.2s;
+  }
+
+  #grid-wrapper {
+    display: grid;
+    grid-auto-flow: column;
+  }
+
+  .sticky-nav {
+    position: sticky;
+    top: 0px;
+    max-height: calc(100vh - 0px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}
+
+nav#toc li.item-summary li {
+  display: none;
+}
+
+nav#toc ul {
+  list-style-type: none;
+}
+
+nav#toc li>ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+nav#toc,
+nav#toc a {
+  color: var(--toc-link-color);
+}
+
+nav#toc {
+  grid-area: toc;
+}
+
+nav {
+  font-optical-sizing: auto;
+}
+
+nav#toc a.bullet {
+  opacity: 0.7;
+  margin-left: 0.4rem;
+  margin-right: 0.3rem;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+  text-decoration: none;
+}
+
+/* markdown inline typst */
+.inline-typst {
+  display: inline;
+  margin: 0 0;
+  font-size: var(--katex-font-size);
+}
+
+/* typst html figure */
+figure:has(.typst-frame) {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* typst html math block */
+.typst-block {
+  text-align: center;
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+figure.typst-block>img {
+  max-width: none;
+}
+
+.typst-text use[fill="#000000"],
+.typst-group use[fill="#000000"],
+path.typst-shape[fill="#000000"] {
+  fill: var(--text-color);
+}
+
+path.typst-shape[stroke="#000000"] {
+  stroke: var(--text-color);
+}</style><style>
+@media only screen and (min-width: 1000px) {
+  #grid-wrapper { grid-template-columns: var(--article-max-width) var(--toc-max-width); }
+  nav#toc { max-width: 45ex; }
+}
+
+article {
+  font-size: 19px;
+  line-height: 1.78;
+}
+
+article h1 { font-size: 2.35rem; line-height: 1.15; }
+article h2 { font-size: 1.5rem; line-height: 1.2; }
+article h3 { font-size: 1.25rem; line-height: 1.25; }
+article p, article li { margin-bottom: 0.72em; }
+article pre { padding: 1.2rem; }
+
+</style><link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    var path = window.location.pathname;
+    var root = document.documentElement;
+
+    if (/\/en\/(notes|blog)\//.test(path)) {
+      root.classList.add("notes-site");
+    }
+
+    if (/\/en\/(notes|blog)\/index\.html$/.test(path)) {
+      root.classList.add("notes-list");
+    } else if (/\/en\/(notes|blog)\/.+\.html$/.test(path)) {
+      root.classList.add("notes-article");
+    }
+  })();
+</script>
+<link rel="stylesheet" href="/assets/notes.css">
+<script defer src="/assets/notes.js"></script>
+</head><body><header class="header"><nav class="nav"><div class="logo"><span class="cursor-pointer" onclick="window.location.href='/en/index.html'" title="Academic Homepage Placeholder">« Academic Homepage Placeholder</span></div></nav></header><div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/"><nav id="toc" class="sticky-nav mobile-sticky-nav"><div id="theme-options"></div></nav>
+
+<article><section class="block" data-taxon=""><details open><summary id="en-notes-cp_ot_foundations_en"><header><h1><span class="taxon"></span>Conformal Prediction from the Perspective of the Probability Integral Transform (PIT) <a class="slug" href="/en/notes/cp_ot_foundations_en.html">[en/notes/cp_ot_foundations_en]</a></h1><div class="metadata"><ul><li class="meta-item">2026-05-16</li><li class="meta-item">note</li><li class="meta-item">Conformal prediction</li><li class="meta-item">Understanding CP from the PIT perspective</li></ul></div></header></summary><p>This note records my preliminary understanding of the relationship between Conformal Prediction (CP) and Optimal Transport (OT) in the paper (arXiv:2502.03609). The goal is not to reproduce all the proofs, but to connect the key intuitions.</p>
+<h2>1. Why Start from “Distributional Transformation”?</h2>
+<p>Many traditional explanations of CP begin with the algorithmic procedure: defining scores, computing quantiles, and constructing prediction sets. The paper takes a different entry point: it first asks how to transform a random variable into a uniform distribution, and then returns to CP.</p>
+<p>The significance of this step is that:</p>
+<ul>
+<li>CP is essentially comparing the relative position of a new sample score among historical scores;</li>
+<li>mapping to a uniform distribution expresses this relative position in a more geometric and unified form.</li>
+</ul>
+<h2>2. What the Probability Integral Transform (PIT) Says</h2>
+<p>Let the random variable <span class="math math-inline">Z</span> have CDF <span class="math math-inline">F</span>. The classical result is:</p>
+<p><span class="math math-display">
+F(Z) \sim \mathrm{Unif}(0,1).
+</span></p>
+<p>That is, <span class="math math-inline">F(Z)</span> is uniformly distributed on <span class="math math-inline">(0,1)</span>. Therefore,</p>
+<p><span class="math math-display">
+\mathbb{P}(F(Z) \in [a,b]) = b-a.
+</span></p>
+<p>Define the set</p>
+<p><span class="math math-display">
+R_\alpha = \{z \in \mathbb{R}: F(z) \in [a,b]\}.
+</span></p>
+<p>Then <span class="math math-inline">Z \in R_\alpha</span> is equivalent to saying that <span class="math math-inline">F(Z)</span> falls within the interval <span class="math math-inline">[a,b]</span>.</p>
+<p>Intuitively, this rewrites a regional event in the original space as an interval event for a uniform random variable. As a result, coverage control can be converted into control over interval length, or equivalently over a threshold.</p>
+<h2>3. Returning to CP: Score Functions and Set-Valued Prediction</h2>
+<p>In CP, we usually have a score function</p>
+<p><span class="math math-display">
+Z = S(X,Y),
+</span></p>
+<p>where <span class="math math-inline">X</span> is the input and <span class="math math-inline">Y</span> is a candidate output. After fixing <span class="math math-inline">x</span>, the prediction set can be written as</p>
+<p><span class="math math-display">
+R_\alpha(x) = \{y: F\!\circ\! S(x,y) \in [a,b]\}.
+</span></p>
+<p>This is essentially a <strong>set-valued function</strong>: different values of <span class="math math-inline">x</span> correspond to different acceptable regions of <span class="math math-inline">y</span>. This is precisely the core form of CP prediction sets.</p>
+<h2>4. The True <span class="math math-inline">F</span> Is Unavailable in Practice: Using the Empirical Distribution <span class="math math-inline">F_n</span></h2>
+<p>The true distribution function is usually unknown, so we use the empirical distribution function</p>
+<p><span class="math math-display">
+F_n(z)=\frac{1}{n}\sum_{i=1}^n \mathbf{1}\{Z_i \le z\}.
+</span></p>
+<p>For a new score <span class="math math-inline">Z</span>, <span class="math math-inline">F_n(Z)</span> can be interpreted as the proportion of samples whose scores are no larger than it; in other words, it gives a rank or quantile perspective.</p>
+<p>This step is essentially consistent with the standard explanation of CP: it relies on exchangeability to guarantee finite-sample coverage.</p>
+<h2>5. My Current Intuition About the Paper’s Contribution</h2>
+<p>My understanding is that the paper generalizes, or replaces, the PIT-based step of mapping through <span class="math math-inline">F</span> with the geometric perspective of an OT map <span class="math math-inline">T</span>.</p>
+<p>In one sentence:</p>
+<ul>
+<li>Traditional formulation: use <span class="math math-inline">F</span> to push a random variable into uniform coordinates, then perform threshold comparison;</li>
+<li>Paper’s formulation: use an OT map <span class="math math-inline">T</span> to push a distribution to a target reference distribution, which can be understood as a more general “uniformized” or “standardized” space, and then perform comparison in that space.</li>
+</ul>
+<p>This makes it easier to connect CP coverage control with geometric structure, transport costs, and the “shape” of high-dimensional spaces.</p>
+<h2>6. Remarks</h2>
+<p>This is a conceptual-level note. Its main focus is to connect the intuition among PIT <span class="math math-inline">\leftrightarrow</span> empirical distributions <span class="math math-inline">\leftrightarrow</span> the ranking mechanism in CP <span class="math math-inline">\leftrightarrow</span> the OT perspective.</p>
+<p>If I continue reading, I will add two parts:</p>
+<ol>
+<li>the precise construction conditions and computability of the OT map <span class="math math-inline">T</span> in the paper;</li>
+<li>a one-to-one correspondence with classical split conformal prediction in terms of implementation and sources of error.</li>
+</ol>
+</details></section><footer></footer></article></div></body></html>

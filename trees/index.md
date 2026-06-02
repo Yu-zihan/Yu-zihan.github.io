@@ -1,6 +1,7 @@
 ---
-title: Home
+title: Academic Homepage Placeholder
 type: page
+draft: false
 ---
 
-# Home
+This page is a minimal placeholder for Kodama's internal section graph.

@@ -1,0 +1,312 @@
+:root {
+  color-scheme: light dark;
+  --bg: #fafafa;
+  --panel: #ffffff;
+  --border: rgba(31, 36, 48, 0.12);
+  --border-strong: rgba(31, 74, 138, 0.24);
+  --text: #1f2430;
+  --muted: #606779;
+  --accent: #285f68;
+  --accent-soft: rgba(40, 95, 104, 0.08);
+  --rule: rgba(31, 36, 48, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #10141b;
+    --panel: rgba(18, 23, 32, 0.9);
+    --border: rgba(225, 232, 245, 0.12);
+    --border-strong: rgba(139, 182, 255, 0.3);
+    --text: #edf2ff;
+    --muted: #aab4cb;
+    --accent: #9fcbd2;
+    --accent-soft: rgba(159, 203, 210, 0.12);
+    --rule: rgba(225, 232, 245, 0.08);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body.homepage {
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.75 "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+}
+
+a {
+  color: inherit;
+}
+
+.home-shell {
+  width: min(900px, calc(100% - 28px));
+  margin: 0 auto;
+  padding: 34px 0 0;
+}
+
+.home-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.home-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 136px 84px;
+  gap: 16px;
+  align-items: center;
+}
+
+.home-heading > div {
+  padding-top: 0;
+}
+
+.home-header h1 {
+  margin: 0;
+  font-size: 3.6rem;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.cjk-name {
+  display: inline-block;
+  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transform: translateY(-0.08em);
+}
+
+.home-subtitle {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 1.02rem;
+}
+
+.home-contact {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.96rem;
+}
+
+.home-contact a {
+  text-underline-offset: 0.22em;
+}
+
+.home-links,
+.home-language {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.home-links {
+  margin-top: 16px;
+}
+
+.home-language {
+  margin-top: 18px;
+}
+
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 2px 2px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-decoration: none;
+  font: 600 0.92rem/1.2 ui-sans-serif, "Segoe UI", sans-serif;
+  color: var(--muted);
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.home-link:hover {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 0.24em;
+}
+
+.home-intro {
+  max-width: 84ch;
+  margin-top: 22px;
+}
+
+.home-copy p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.home-copy p + p {
+  margin-top: 14px;
+}
+
+.home-section {
+  margin-top: 30px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  scroll-margin-top: 18px;
+}
+
+.home-section h2 {
+  margin: 0 0 12px;
+  font: 600 0.78rem/1.2 ui-sans-serif, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.home-copy a,
+.home-section a {
+  text-underline-offset: 0.22em;
+}
+
+.profile-photo {
+  display: block;
+  grid-column: 2;
+  width: 136px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center top;
+  border: 1px solid rgba(31, 36, 48, 0.1);
+  border-radius: 4px;
+  background: var(--bg);
+  filter: saturate(0.96) contrast(0.98);
+  transform: translateY(-8px) scale(1.08);
+  transform-origin: center center;
+}
+
+.interest-list,
+.link-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+}
+
+.interest-list li + li,
+.link-list li + li {
+  margin-top: 6px;
+}
+
+.note {
+  margin: 0;
+  color: var(--muted);
+}
+
+.home-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.home-list li + li {
+  margin-top: 12px;
+}
+
+.home-list a {
+  display: block;
+  padding: 14px 0;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+}
+
+.home-list li:last-child a {
+  border-bottom: 0;
+}
+
+.home-list a:hover .item-title {
+  text-decoration: underline;
+}
+
+.item-meta {
+  display: block;
+  margin-bottom: 4px;
+  font: 600 0.75rem/1.2 ui-sans-serif, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.item-title {
+  display: block;
+  font-size: 1.04rem;
+}
+
+.item-summary {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.96rem;
+}
+
+.pub-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pub-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pub-list li:last-child {
+  border-bottom: 0;
+}
+
+.pub-title {
+  display: block;
+}
+
+.pub-note {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.96rem;
+}
+
+@media (max-width: 760px) {
+  .home-shell {
+    width: min(100% - 20px, 820px);
+    padding: 24px 0 0;
+  }
+
+  .home-header h1 {
+    font-size: 3rem;
+  }
+
+  .profile-photo {
+    width: 112px;
+  }
+
+  .home-heading {
+    grid-template-columns: minmax(0, 1fr) 112px;
+    gap: 16px;
+  }
+
+  .home-intro {
+    max-width: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .home-heading {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-photo {
+    grid-column: auto;
+    width: 118px;
+  }
+}

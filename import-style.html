@@ -1,0 +1,18 @@
+<script>
+  (function () {
+    var path = window.location.pathname;
+    var root = document.documentElement;
+
+    if (/\/en\/(notes|blog)\//.test(path)) {
+      root.classList.add("notes-site");
+    }
+
+    if (/\/en\/(notes|blog)\/index\.html$/.test(path)) {
+      root.classList.add("notes-list");
+    } else if (/\/en\/(notes|blog)\/.+\.html$/.test(path)) {
+      root.classList.add("notes-article");
+    }
+  })();
+</script>
+<link rel="stylesheet" href="/assets/notes.css">
+<script defer src="/assets/notes.js"></script>

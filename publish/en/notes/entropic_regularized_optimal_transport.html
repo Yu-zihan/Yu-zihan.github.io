@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width"><title>Entropic Regularized Optimal Transport</title><link rel="icon" href="/assets/favicon.ico" /><template id="theme-option-template"><input type="radio" name="theme" /><label></label></template><script src="/main.js"></script><link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<style>
+  :root {
+    --katex-font-size: 1.06em;
+    --katex-frac-line-font-size: 1.3em;
+  }
+
+  .katex {
+    line-height: 1.26;
+  }
+
+  .math.math-inline,
+  .katex {
+    text-wrap: pretty;
+  }
+
+  .math.math-display,
+  .katex-display {
+    display: block;
+    margin: 0.55rem 0 0.65rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.05rem 0.1rem 0.12rem;
+  }
+
+  .katex-display > .katex {
+    min-width: fit-content;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+
+  article p + .katex-display,
+  article p + .math.math-display {
+    margin-top: 0.45rem;
+  }
+
+  article .katex-display + p,
+  article .math.math-display + p {
+    margin-top: 0.45rem;
+  }
+
+  article li .katex-display,
+  article li .math.math-display {
+    margin: 0.35rem 0 0.45rem;
+  }
+
+  nav#toc .generated-toc ul {
+    margin: 0;
+    padding-left: 0;
+  }
+
+  nav#toc .generated-toc li {
+    margin: 0.35rem 0;
+  }
+
+  nav#toc .generated-toc li.toc-level-3 {
+    padding-left: 1rem;
+    font-size: 0.96em;
+  }
+
+  nav#toc .generated-toc a {
+    text-decoration: none;
+  }
+
+  nav#toc .generated-toc a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 720px) {
+    :root {
+      --katex-font-size: 1.02em;
+    }
+
+    .math.math-display,
+    .katex-display {
+      margin: 0.5rem 0 0.6rem;
+      padding-bottom: 0.08rem;
+    }
+  }
+</style>
+<script defer src="/assets/vendor/katex/katex.min.js"></script>
+<script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.katex) {
+      // 1) Kodama-emitted math nodes
+      document.querySelectorAll(".math.math-inline").forEach(function (el) {
+        katex.render(el.textContent, el, {
+          displayMode: false,
+          throwOnError: false,
+          strict: false,
+        });
+      });
+
+      document.querySelectorAll(".math.math-display").forEach(function (el) {
+        katex.render(el.textContent, el, {
+          displayMode: true,
+          throwOnError: false,
+          strict: false,
+        });
+      });
+
+      // 2) Raw delimiters fallback ($...$, $$...$$, \(...\), \[...\])
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "\\[", right: "\\]", display: true }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    var toc = document.querySelector("nav#toc");
+    if (toc && !toc.querySelector(".block")) {
+      var headings = Array.from(
+        document.querySelectorAll("article h2, article h3")
+      );
+
+      if (headings.length) {
+        var container = document.createElement("div");
+        container.className = "block generated-toc";
+
+        var details = document.createElement("details");
+        details.open = true;
+
+        var summary = document.createElement("summary");
+        var title = document.createElement("h1");
+        title.textContent = "Table of Contents";
+        summary.appendChild(title);
+        details.appendChild(summary);
+
+        var list = document.createElement("ul");
+
+        headings.forEach(function (heading, index) {
+          if (!heading.id) {
+            heading.id = "section-" + (index + 1);
+          }
+
+          var item = document.createElement("li");
+          item.className = "toc-level-" + heading.tagName.toLowerCase().slice(1);
+
+          var link = document.createElement("a");
+          link.href = "#" + heading.id;
+          link.textContent = heading.textContent.trim();
+
+          item.appendChild(link);
+          list.appendChild(item);
+        });
+
+        details.appendChild(list);
+        container.appendChild(details);
+        toc.appendChild(container);
+      }
+    }
+  });
+</script>
+<style>html {
+  font-size: 18px;
+}
+
+:root body {
+  color-scheme: light dark;
+  --content-gap: 15px;
+  --radius: 5px;
+  --article-max-width: 90ex;
+  --toc-max-width: 90ex;
+  --text-font-family: "Inria Sans", sans-serif;
+  --kaiti-font-family: "LXGW WenKai TC", "FandolKai", "KaiTi", "SimKai", "STKaiti", "Kaiti SC", "Kaiti TC", "华文楷体", "楷体", serif;
+
+  /* root font size: 16px */
+  --pre-font-size: 1rem;
+  --code-font-size: 1rem;
+  --cjk-kaiti-font-size: 1rem;
+  /* If this value is not 1rem, the CJK text in Typst will not match the size of the CJK text in KaTeX. */
+  --katex-font-size: 1em;
+  --katex-frac-line-font-size: 1.25em;
+  --details-h1-font-size: 1.2rem;
+  /* 13pt */
+  --section-details-h1-font-size: 1.083rem;
+  --article-details-h1-font-size: 1.5rem;
+  /* 0.9em */
+  --article-details-h1-taxon-font-size: 1.35rem;
+  /* 24px; */
+  --logo-font-size: 1.5rem;
+  /* 14pt; */
+  --footer-h2-font-size: 1.167rem;
+  --p-line-height: 1.55rem;
+
+  --text-color: black;
+  --toc-link-color: #555;
+  --background-color: white;
+
+  --background-color-pre: rgba(0, 100, 100, 0.04);
+  --background-color-code: rgba(0, 100, 100, 0.04);
+
+  --hover-color-block: rgba(0, 100, 255, 0.04);
+  --hover-color-link: rgba(0, 100, 255, 0.1);
+  --target-color: rgb(67, 92, 255);
+
+  --link-color: black;
+  --slug-color: gray;
+  --logo-color: #666;
+  --logo-hover-color: #aaa;
+  --span-taxon-color: #444;
+  --article-taxon-color: #888;
+  --mark-color: rgb(255, 255, 151);
+  --em-color: var(--text-color);
+
+  --alert-border-color: gray;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root body {
+    --text-color: white;
+    --toc-link-color: white;
+    --background-color: #2f2f2f;
+
+    --background-color-pre: rgba(100, 100, 100, 0.2);
+    --background-color-code: rgba(150, 150, 150, 0.2);
+
+    --hover-color-block: rgba(100, 162, 255, 0.06);
+    --hover-color-link: rgba(100, 162, 255, 0.2);
+    --target-color: rgb(255, 255, 151);
+
+    --link-color: white;
+    --slug-color: #aeaeae;
+    --logo-color: #999;
+    --logo-hover-color: #eee;
+    --span-taxon-color: #bbb;
+  }
+}
+
+@media print {
+  html {
+    font-size: 16px;
+  }
+
+  .edit,
+  #theme-options {
+    display: none;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+theme-option {
+  display: inline-block;
+}
+
+theme-option>input {
+  display: none;
+}
+
+theme-option>label {
+  color: var(--slug-color);
+}
+
+theme-option>label:hover {
+  background-color: var(--hover-color-link);
+}
+
+theme-option:has(input:checked)>label {
+  color: var(--link-color);
+}
+
+theme-option>label::before {
+  content: "[";
+  color: rgba(0, 0, 0, 0);
+}
+
+theme-option>label::after {
+  content: "]";
+  color: rgba(0, 0, 0, 0);
+}
+
+theme-option:has(input:checked)>label::before {
+  color: var(--link-color);
+}
+
+theme-option:has(input:checked)>label::after {
+  color: var(--link-color);
+}
+
+#theme-options:not(:empty)::before {
+  content: "(";
+}
+
+#theme-options:not(:empty)::after {
+  content: ")";
+}
+
+body {
+  color: var(--text-color);
+  font-optical-sizing: auto;
+  font-size: 1rem;
+  font-family: var(--text-font-family);
+  hyphens: auto;
+  background-color: var(--background-color);
+}
+
+pre,
+code {
+  font-optical-sizing: auto;
+}
+
+p,
+pre {
+  line-height: var(--p-line-height);
+}
+
+pre {
+  border-radius: var(--radius);
+  background-color: var(--background-color-pre);
+  padding: 0.5rem;
+  font-size: var(--pre-font-size);
+  margin-top: 0rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+code {
+  border-radius: var(--radius);
+  background-color: var(--background-color-code);
+  padding: 0.1rem;
+  font-size: var(--code-font-size);
+}
+
+pre,
+code {
+  font-family: monospace;
+}
+
+table {
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  display: block; 
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-collapse: separate;
+  border-spacing: 0 5px;
+}
+
+/* !forest */
+th {
+  font-weight: normal;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 0 15px;
+  vertical-align: top;
+}
+
+/* !forest */
+pre>code {
+  border-radius: 0;
+  background-color: transparent;
+  padding: 0;
+}
+
+/* !forest */
+.footnote-definition:last-child {
+  margin-bottom: 1rem;
+}
+
+/* !forest */
+.footnote-definition>p {
+  display: inline;
+}
+
+/* !forest */
+.footnote-definition-label {
+  margin-right: 4px;
+}
+
+/* !forest */
+.footnote-reference:target {
+  border: 1px solid var(--target-color);
+}
+
+.footnote-definition:target>.footnote-definition-label {
+  border: 1px solid var(--target-color);
+}
+
+.footnote-reference::before,
+.footnote-definition-label::before {
+  content: "[";
+}
+
+.footnote-reference::after,
+.footnote-definition-label::after {
+  content: "]";
+}
+
+.katex {
+  font: normal var(--katex-font-size) KaTeX_Main, Times New Roman, serif;
+  line-height: 1rem;
+  text-indent: 0;
+  text-rendering: auto;
+}
+
+.katex .mfrac .frac-line {
+  font-size: var(--katex-frac-line-font-size);
+}
+
+/* Generated by KaTeX */
+.cjk_fallback {
+  font-size: 1rem;
+  font-family: var(--text-font-family);
+}
+
+p:has(span.katex-html:empty) {
+  display: none;
+}
+
+section+p:empty {
+  display: none;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.katex-display .katex {
+  /* Inconsistent bounding box at different font sizes. */
+  /* Also see: https://github.com/KaTeX/KaTeX/issues/3965 */
+  padding-top: 1px;
+}
+
+.display-none {
+  display: none;
+}
+
+em {
+  color: var(--em-color);
+  font-style: italic;
+}
+
+em span:is([lang=zh], [lang=ja], [lang=ko]) {
+  font-style: normal;
+  font-family: var(--kaiti-font-family);
+  font-size: var(--cjk-kaiti-font-size);
+}
+
+blockquote {
+  font-style: italic;
+  --blockquote-cjk-font-family: var(--kaiti-font-family);
+}
+
+blockquote span:is([lang=zh], [lang=ja], [lang=ko]) {
+  font-style: normal;
+  font-family: var(--blockquote-cjk-font-family);
+  font-size: var(--cjk-kaiti-font-size);
+}
+
+/* GFM Blockquote tags: https://github.com/orgs/community/discussions/16925 */
+
+blockquote:is(.markdown-alert-note, .markdown-alert-tip, .markdown-alert-important, .markdown-alert-warning, .markdown-alert-caution) {
+  --blockquote-cjk-font-family: var(--text-font-family);
+  margin: 0.5rem 0.5rem;
+  padding: 0rem 0.5rem;
+  font-style: normal;
+  border-left: .25rem double var(--alert-border-color);
+}
+
+blockquote:is(.markdown-alert-note, .markdown-alert-tip, .markdown-alert-important, .markdown-alert-warning, .markdown-alert-caution)>p:first-child::before {
+  font-size: var(--section-details-h1-font-size);
+  font-family: monospace;
+  font-style: normal;
+  color: var(--span-taxon-color);
+  margin-right: 0.5rem;
+  display: block;
+  content: var(--alert-label);
+}
+
+blockquote.markdown-alert-note {
+  --alert-label: "[# NOTE]";
+}
+
+blockquote.markdown-alert-tip {
+  --alert-label: "[# TIP]";
+}
+
+blockquote.markdown-alert-important {
+  --alert-label: "[# IMPORTANT]";
+}
+
+blockquote.markdown-alert-warning {
+  --alert-label: "[# WARNING]";
+}
+
+blockquote.markdown-alert-caution {
+  --alert-label: "[# CAUTION]";
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin-top: 0.5em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+h5,
+h6,
+p {
+  margin-top: 0;
+}
+
+details>summary {
+  list-style-type: none;
+  outline: none;
+}
+
+details>summary>header {
+  display: inline;
+}
+
+details>summary::marker,
+details>summary::-webkit-details-marker {
+  display: none;
+}
+
+details h1 {
+  font-size: var(--details-h1-font-size);
+  display: inline;
+}
+
+span.taxon {
+  color: var(--span-taxon-color);
+  font-weight: 500;
+}
+
+article>section>details>summary>header>h1 {
+  font-size: var(--article-details-h1-font-size);
+}
+
+article>section>details>h2 {
+  font-size: 1.25rem;
+}
+
+article>section>details>h3 {
+  font-size: 1.125rem;
+}
+
+article>section>details>h4 {
+  font-size: 1rem;
+}
+
+article>section>details>h5,
+article>section>details>h6 {
+  font-size: 0.875rem;
+}
+
+article>section>details>summary>header {
+  display: block;
+  margin-bottom: 0.5em;
+}
+
+article>section>details>summary>header>h1>.taxon {
+  display: block;
+  font-size: var(--article-details-h1-taxon-font-size);
+  color: var(--article-taxon-color);
+  padding-bottom: 5pt;
+}
+
+article>section>details>summary>header>h1>.taxon:empty {
+  display: none;
+}
+
+section.block>details {
+  margin-bottom: 0.4em;
+}
+
+section.block>details[open] {
+  margin-bottom: 1em;
+}
+
+section.block.link-list>details {
+  margin-bottom: 0em;
+}
+
+section.block.link-list>details>section.block>details {
+  margin-bottom: 0.25em;
+}
+
+.block {
+  padding-left: 5px;
+  padding-right: 10px;
+  padding-bottom: 2px;
+  border-radius: var(--radius);
+}
+
+.block:hover {
+  background-color: var(--hover-color-block);
+}
+
+.block.hide-metadata>details>summary>header>.metadata {
+  display: none;
+}
+
+img {
+  object-fit: cover;
+  max-width: 100%;
+}
+
+figure {
+  text-align: center;
+}
+
+figcaption {
+  font-style: italic;
+  padding: 3px;
+}
+
+mark {
+  background-color: var(--mark-color);
+}
+
+hr {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  background-color: gray;
+  border: 0 none;
+  width: 100%;
+  height: 1pt;
+}
+
+ul,
+ol {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.logo>span {
+  color: var(--logo-color);
+  text-decoration: none;
+}
+
+.logo>span:hover {
+  color: var(--logo-hover-color);
+}
+
+.logo {
+  font-weight: 600;
+  font-size: var(--logo-font-size);
+}
+
+section section[data-taxon="Reference"]>details>summary>header>h1>.taxon,
+section section[data-taxon="Person"]>details>summary>header>h1>.taxon {
+  display: none;
+}
+
+section .block[data-taxon]>header>h1,
+section .block[data-taxon] details>summary>header>h1 {
+  font-size: var(--section-details-h1-font-size);
+}
+
+footer>section {
+  margin-bottom: 1em;
+}
+
+footer h2 {
+  font-size: var(--footer-h2-font-size);
+}
+
+.metadata ul {
+  padding-left: 0;
+  display: inline;
+}
+
+.metadata li::after {
+  content: " · ";
+}
+
+.metadata li:last-child::after {
+  content: "";
+}
+
+.metadata * {
+  display: inline;
+}
+
+.link {
+  cursor: pointer;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: inherit;
+}
+
+a.slug:hover,
+a.edit:hover,
+a.hash:hover,
+a.bullet:hover,
+.link:hover {
+  background-color: var(--hover-color-link);
+}
+
+.link.external,
+.link.asset {
+  text-decoration: underline;
+}
+
+.link.asset::before {
+  content: "[F] ";
+  /* file */
+}
+
+a.link.local,
+.link.local a,
+a.slug,
+a.edit,
+a.hash {
+  box-shadow: none;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  overflow-wrap: break-word;
+}
+
+.slug,
+.edit,
+.doi,
+.orcid {
+  color: var(--slug-color);
+  font-weight: 200;
+}
+
+body>header {
+  margin-bottom: 0.5em;
+}
+
+#grid-wrapper>article {
+  max-width: var(--article-max-width);
+  margin-right: auto;
+  grid-area: article;
+}
+
+@media only screen and (max-width: 1000px) {
+  :root body {
+    --code-font-size: 0.9rem;
+  }
+
+  figure {
+    margin: 0rem;
+  }
+
+  .block {
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    border-radius: 5px;
+  }
+
+  #grid-wrapper>nav {
+    transition: ease all 0.2s;
+  }
+
+  .mobile-sticky-nav {
+    position: sticky;
+    top: 0px;
+    max-height: calc(100vh - 0px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+
+    background-color: var(--background-color);
+    z-index: 7;
+    border-bottom: solid var(--text-color);
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  body {
+    margin-top: 2rem;
+    margin-left: 2rem;
+    transition: ease all 0.2s;
+  }
+
+  #grid-wrapper {
+    display: grid;
+    grid-auto-flow: column;
+  }
+
+  .sticky-nav {
+    position: sticky;
+    top: 0px;
+    max-height: calc(100vh - 0px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}
+
+nav#toc li.item-summary li {
+  display: none;
+}
+
+nav#toc ul {
+  list-style-type: none;
+}
+
+nav#toc li>ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+nav#toc,
+nav#toc a {
+  color: var(--toc-link-color);
+}
+
+nav#toc {
+  grid-area: toc;
+}
+
+nav {
+  font-optical-sizing: auto;
+}
+
+nav#toc a.bullet {
+  opacity: 0.7;
+  margin-left: 0.4rem;
+  margin-right: 0.3rem;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+  text-decoration: none;
+}
+
+/* markdown inline typst */
+.inline-typst {
+  display: inline;
+  margin: 0 0;
+  font-size: var(--katex-font-size);
+}
+
+/* typst html figure */
+figure:has(.typst-frame) {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* typst html math block */
+.typst-block {
+  text-align: center;
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+figure.typst-block>img {
+  max-width: none;
+}
+
+.typst-text use[fill="#000000"],
+.typst-group use[fill="#000000"],
+path.typst-shape[fill="#000000"] {
+  fill: var(--text-color);
+}
+
+path.typst-shape[stroke="#000000"] {
+  stroke: var(--text-color);
+}</style><style>
+@media only screen and (min-width: 1000px) {
+  #grid-wrapper { grid-template-columns: var(--article-max-width) var(--toc-max-width); }
+  nav#toc { max-width: 45ex; }
+}
+
+article {
+  font-size: 19px;
+  line-height: 1.78;
+}
+
+article h1 { font-size: 2.35rem; line-height: 1.15; }
+article h2 { font-size: 1.5rem; line-height: 1.2; }
+article h3 { font-size: 1.25rem; line-height: 1.25; }
+article p, article li { margin-bottom: 0.72em; }
+article pre { padding: 1.2rem; }
+
+</style><link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    var path = window.location.pathname;
+    var root = document.documentElement;
+
+    if (/\/en\/(notes|blog)\//.test(path)) {
+      root.classList.add("notes-site");
+    }
+
+    if (/\/en\/(notes|blog)\/index\.html$/.test(path)) {
+      root.classList.add("notes-list");
+    } else if (/\/en\/(notes|blog)\/.+\.html$/.test(path)) {
+      root.classList.add("notes-article");
+    }
+  })();
+</script>
+<link rel="stylesheet" href="/assets/notes.css">
+<script defer src="/assets/notes.js"></script>
+</head><body><header class="header"><nav class="nav"><div class="logo"><span class="cursor-pointer" onclick="window.location.href='/en/index.html'" title="Academic Homepage Placeholder">« Academic Homepage Placeholder</span></div></nav></header><div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/"><nav id="toc" class="sticky-nav mobile-sticky-nav"><div id="theme-options"></div></nav>
+
+<article><section class="block" data-taxon=""><details open><summary id="en-notes-entropic_regularized_optimal_transport"><header><h1><span class="taxon"></span>Entropic Regularized Optimal Transport <a class="slug" href="/en/notes/entropic_regularized_optimal_transport.html">[en/notes/entropic_regularized_optimal_transport]</a></h1><div class="metadata"><ul><li class="meta-item">2026-05-22</li><li class="meta-item">note</li><li class="meta-item">Optimal transport</li><li class="meta-item">Personal notes on entropic regularized optimal transport</li></ul></div></header></summary><h2>1. Definition of Discrete Optimal Transport</h2>
+<p>Optimal transport ultimately concerns a concrete computational problem. In practical computation, it is usually discretized and can be formulated as follows.</p>
+<p>Let <span class="math math-inline">a \in \mathbb{R}^n</span> and <span class="math math-inline">b \in \mathbb{R}^m</span> denote the source and target distributions, respectively, satisfying <span class="math math-inline">a_i \ge 0</span>, <span class="math math-inline">b_j \ge 0</span>, and <span class="math math-inline">\sum_i a_i = \sum_j b_j = 1</span>.</p>
+<p>Define:</p>
+<ul>
+<li>The <strong>transport matrix</strong> <span class="math math-inline">P \in \mathbb{R}^{n\times m}</span>, where <span class="math math-inline">P_{ij}</span> denotes the amount of mass transported from the <span class="math math-inline">i</span>-th point to the <span class="math math-inline">j</span>-th point.</li>
+<li>The <strong>cost matrix</strong> <span class="math math-inline">C \in \mathbb{R}^{n\times m}</span>, where <span class="math math-inline">C_{ij}=c(x_i,y_j)</span>.</li>
+</ul>
+<p>The discrete optimal transport problem is to solve
+<span class="math math-display">\min_{P}\sum_{i,j} C_{ij}P_{ij}</span>
+subject to <span class="math math-inline">P\mathbf{1}_m = a</span> (row constraint: conservation of mass in the source distribution), <span class="math math-inline">P^T\mathbf{1}_n = b</span> (column constraint: conservation of mass in the target distribution), and <span class="math math-inline">P_{ij}\ge0</span>.</p>
+<h2>2. Why Do We Need Entropic Regularization?</h2>
+<p>Standard OT has several computational difficulties: the number of variables is large (<span class="math math-inline">n\times m</span>), the number of constraints is <span class="math math-inline">(n+m)</span>, linear programming is expensive, and the resulting solution may be sparse or unstable.</p>
+<p>Therefore, we introduce the entropic regularization term
+<span class="math math-display">H(P)=-\sum_{i,j}P_{ij}\log P_{ij},</span>
+which changes the objective function into
+<span class="math math-display">\min_P \sum_{i,j} C_{ij}P_{ij} - \varepsilon H(P) = \min_P \sum_{i,j} C_{ij}P_{ij} + \varepsilon\sum_{i,j}P_{ij}\log P_{ij}.</span>
+Here, <span class="math math-inline">\varepsilon&gt;0</span> is the regularization strength. A larger entropy encourages a smoother transport plan.</p>
+<p>The meaning of this regularization can be understood as follows. When <span class="math math-inline">\varepsilon\rightarrow\infty</span>, the regularization term dominates and pushes the solution toward the maximum-entropy transport plan satisfying the marginal constraints; from an information-theoretic perspective, this distribution is the outer product of the two marginal distributions. When <span class="math math-inline">\varepsilon\rightarrow 0</span>, the problem gradually approaches the standard optimal transport problem.</p>
+<h2>3. Lagrangian Form of Entropic Regularized OT</h2>
+<p>Using basic optimization theory, we can derive an analytic expression for <span class="math math-inline">P</span> through the method of Lagrange multipliers. Introduce the Lagrange multipliers <span class="math math-inline">f_i</span> for the row constraints and <span class="math math-inline">g_j</span> for the column constraints. The Lagrangian can be written as
+<span class="math math-display">\mathcal{L}(P,f,g) = \sum_{i,j}\left(C_{ij}P_{ij}+\varepsilon P_{ij}\log P_{ij}\right) - \sum_i f_i\left(a_i-\sum_j P_{ij}\right) - \sum_j g_j\left(b_j-\sum_i P_{ij}\right).</span>
+Taking the partial derivative with respect to each <span class="math math-inline">P_{ij}</span> and setting it to zero gives
+<span class="math math-display">\frac{\partial \mathcal{L}}{\partial P_{ij}} = C_{ij}+\varepsilon(\log P_{ij}+1)-f_i-g_j = 0.</span>
+Rearranging yields
+<span class="math math-display">\log P_{ij} = \dfrac{f_i+g_j-C_{ij}}{\varepsilon}-1,</span>
+and therefore
+<span class="math math-display">P_{ij} = \exp\!\left(\frac{f_i}{\varepsilon}\right)\exp\!\left(-\frac{C_{ij}}{\varepsilon}\right)\exp\!\left(\frac{g_j}{\varepsilon}\right)e^{-1}.</span>
+Absorbing the constant into the variables, define
+<span class="math math-display">u_i = \exp\!\left(\dfrac{f_i}{\varepsilon}\right), \qquad
+v_j = \exp\!\left(\dfrac{g_j}{\varepsilon}\right), \qquad
+K_{ij}=\exp\!\left(-\dfrac{C_{ij}}{\varepsilon}\right).</span>
+Then
+<span class="math math-display">P_{ij}=u_i K_{ij} v_j.</span></p>
+<h2>4. Matrix Form</h2>
+<p>The expression derived in the previous section can be written in matrix form, which is more convenient for GPU-based computation.</p>
+<p>Define <span class="math math-inline">u \in \mathbb{R}^n</span>, <span class="math math-inline">v\in\mathbb{R}^m</span>, and <span class="math math-inline">K=\exp(-C/\varepsilon)</span>. Then
+<span class="math math-display">P = \mathrm{diag}(u)\,K\,\mathrm{diag}(v).</span>
+The equation above is only a structural analytic form. In principle, the marginal constraints still need to be imposed in order to determine the scaling vectors <span class="math math-inline">u</span> and <span class="math math-inline">v</span>. The most classical method for doing this is the Sinkhorn algorithm, which is introduced below.</p>
+<h2>5. Deriving the Sinkhorn Iteration from Marginal Constraints</h2>
+<p>From <span class="math math-inline">P\mathbf{1}_m=a</span>, substituting the matrix expression gives
+<span class="math math-display">\mathrm{diag}(u)K\mathrm{diag}(v)\mathbf{1}_m=a.</span>
+This is equivalent to
+<span class="math math-display">u \odot (Kv)=a,</span>
+so <span class="math math-inline">u</span> should satisfy
+<span class="math math-display">u = \frac{a}{Kv}.</span>
+Similarly, from <span class="math math-inline">P^T\mathbf{1}_n=b</span>, we obtain
+<span class="math math-display">v=\frac{b}{K^Tu}.</span></p>
+<p>The vectors <span class="math math-inline">u</span> and <span class="math math-inline">v</span> depend on each other. If one of them were known explicitly, the other could be computed immediately. However, since neither is known in advance, we introduce the Sinkhorn-Knopp iterative algorithm. The idea is to take an initial step and then gradually correct the two scaling vectors until convergence.</p>
+<p>Initialize <span class="math math-inline">v^{(0)}=\mathbf{1}</span>, and iterate:
+<span class="math math-display">u^{(t+1)} = \frac{a}{Kv^{(t)}}, \qquad v^{(t+1)} = \frac{b}{K^Tu^{(t+1)}}.</span>
+Finally,
+<span class="math math-display">P^\star = \mathrm{diag}(u)K\mathrm{diag}(v).</span></p>
+<p>This algorithm is very simple. However, why does it converge to a particular value? Mathematicians have already established its convergence rigorously, but as learners, we still need some intuitive explanations. The following sections provide two such perspectives.</p>
+<h2>6. Why Sinkhorn Converges: The Matrix Scaling Perspective</h2>
+<p>The optimal solution of entropic regularized optimal transport has the form
+<span class="math math-display">
+P^\star = \operatorname{diag}(u) K \operatorname{diag}(v),
+</span>
+where
+<span class="math math-display">
+K_{ij} = e^{-C_{ij}/\varepsilon}.
+</span>
+Since <span class="math math-inline">\varepsilon &gt; 0</span>, and since <span class="math math-inline">C_{ij}</span> is usually assumed to be finite, we have
+<span class="math math-display">
+K_{ij} &gt; 0.
+</span></p>
+<p>In other words, entropic regularization transforms the original optimal transport problem into a <strong>positive matrix scaling problem</strong>.</p>
+<p>Given a positive matrix <span class="math math-inline">K</span>, we seek two positive vectors <span class="math math-inline">u</span> and <span class="math math-inline">v</span> such that the row sums of
+<span class="math math-display">\operatorname{diag}(u) K \operatorname{diag}(v)</span>
+equal <span class="math math-inline">a</span>, and the column sums equal <span class="math math-inline">b</span>.</p>
+<p>The row marginal constraint requires
+<span class="math math-display">\operatorname{diag}(u)Kv = a.</span>
+Written elementwise, this becomes
+<span class="math math-display">u_i (Kv)_i = a_i.</span></p>
+<p>Therefore, when <span class="math math-inline">v</span> is fixed, the only update that makes the row sums equal to <span class="math math-inline">a</span> is
+<span class="math math-display">
+u_i = \frac{a_i}{(Kv)_i}.
+</span>
+Similarly, the column marginal constraint requires
+<span class="math math-display">\operatorname{diag}(v)K^\top u = b.</span>
+Written elementwise, this becomes
+<span class="math math-display">v_j (K^\top u)_j = b_j.</span></p>
+<p>Therefore, when <span class="math math-inline">u</span> is fixed, the only update that makes the column sums equal to <span class="math math-inline">b</span> is
+<span class="math math-display">
+v_j = \frac{b_j}{(K^\top u)_j}.
+</span>
+Thus, the Sinkhorn iteration is
+<span class="math math-display">u^{(t+1)} = \frac{a}{K v^{(t)}},</span>
+<span class="math math-display">v^{(t+1)} = \frac{b}{K^\top u^{(t+1)}}.</span></p>
+<p>Intuitively, the Sinkhorn iteration repeatedly performs two operations:</p>
+<ol>
+<li>Fix the column scaling <span class="math math-inline">v</span> and correct the row scaling <span class="math math-inline">u</span> so that the row sums equal <span class="math math-inline">a</span>.</li>
+<li>Fix the row scaling <span class="math math-inline">u</span> and correct the column scaling <span class="math math-inline">v</span> so that the column sums equal <span class="math math-inline">b</span>.</li>
+</ol>
+<p>That is,
+<span class="math math-display">\text{correct rows} \rightarrow \text{correct columns} \rightarrow \text{correct rows} \rightarrow \text{correct columns} \rightarrow \cdots</span></p>
+<p>Why does this repeated row-column scaling not oscillate indefinitely, but instead converge? A simple way to understand this is that the mapping corresponding to the Sinkhorn iteration is a contraction mapping.</p>
+<p>Write the Sinkhorn update only in terms of <span class="math math-inline">v</span>:
+<span class="math math-display">v^{(t+1)} = F(v^{(t)}) = \frac{b}{K^\top\left(\frac{a}{Kv^{(t)}}\right)}.</span>
+That is, each iteration applies the same mapping <span class="math math-inline">F</span> to the current <span class="math math-inline">v</span>.</p>
+<p>Since <span class="math math-inline">K</span> is a strictly positive matrix, multiplication by <span class="math math-inline">K</span> or <span class="math math-inline">K^\top</span> averages out extreme ratio differences in a vector. Therefore, after one Sinkhorn update, the difference between two different initial values becomes smaller.</p>
+<p>Equivalently, there exists an appropriate distance <span class="math math-inline">d</span> and a constant <span class="math math-inline">0&lt;\gamma&lt;1</span> such that
+<span class="math math-display">
+d(F(v),F(w))
+\leq
+\gamma d(v,w).
+</span>
+This is precisely the contraction property.</p>
+<p>A contraction mapping has an important property: repeated iteration does not produce genuine periodic oscillations, but converges to a unique fixed point.</p>
+<p>Thus, the Sinkhorn iteration eventually converges to some <span class="math math-inline">v^\star</span> satisfying
+<span class="math math-display">
+F(v^\star)=v^\star.
+</span>
+Then
+<span class="math math-display">
+u^\star=\frac{a}{Kv^\star}
+</span>
+gives the corresponding <span class="math math-inline">u^\star</span>.</p>
+<p>Therefore,
+<span class="math math-display">P^\star = \operatorname{diag}(u^\star)K\operatorname{diag}(v^\star)</span>
+satisfies both the row and column marginal constraints. Since this form was obtained from the Lagrange multiplier derivation, it is the optimal transport plan for entropic regularized optimal transport. It should be noted that “unique” here refers to the final transport matrix <span class="math math-inline">P^\star</span>; the scaling factors <span class="math math-inline">u^\star</span> and <span class="math math-inline">v^\star</span> themselves may differ by a common multiplicative factor.</p>
+<h2>7. Sinkhorn as Alternating KL Projection</h2>
+<p>The Sinkhorn iteration can also be understood from the perspective of projection onto constraint sets.</p>
+<p>Define two constraint sets:
+<span class="math math-display">\mathcal C_a = \{\pi : \pi \mathbf 1 = a\}, \qquad
+\mathcal C_b = \{\pi : \pi^\top \mathbf 1 = b\}.</span></p>
+<p>Here:</p>
+<ul>
+<li><span class="math math-inline">\mathcal C_a</span> denotes the set of all transport matrices whose row marginal is <span class="math math-inline">a</span>.</li>
+<li><span class="math math-inline">\mathcal C_b</span> denotes the set of all transport matrices whose column marginal is <span class="math math-inline">b</span>.</li>
+</ul>
+<p>Entropic regularized optimal transport can be understood as finding, among all transport plans satisfying the marginal constraints, the matrix closest to the Gibbs kernel <span class="math math-inline">K</span>. Here, the notion of “distance” is not Euclidean distance, but KL divergence.</p>
+<p>Specifically, the objective of entropic regularized optimal transport can be written as
+<span class="math math-display">\min_{\pi \in \mathcal C_a \cap \mathcal C_b} \sum_{i,j} C_{ij}\pi_{ij} + \varepsilon \sum_{i,j}\pi_{ij}\log \pi_{ij}.</span></p>
+<p>Let
+<span class="math math-display">K_{ij}=e^{-C_{ij}/\varepsilon}.</span></p>
+<p>Then
+<span class="math math-display">C_{ij}=-\varepsilon \log K_{ij}.</span></p>
+<p>Substituting this into the objective gives
+<span class="math math-display">\sum_{i,j} C_{ij}\pi_{ij} + \varepsilon \sum_{i,j}\pi_{ij}\log \pi_{ij} = \sum_{i,j}(-\varepsilon \log K_{ij})\pi_{ij} + \varepsilon \sum_{i,j}\pi_{ij}\log \pi_{ij}.</span></p>
+<p>Further simplification yields
+<span class="math math-display">= \varepsilon \sum_{i,j}\pi_{ij}\left(\log \pi_{ij} - \log K_{ij}\right) = \varepsilon \sum_{i,j}\pi_{ij}\log \frac{\pi_{ij}}{K_{ij}}.</span></p>
+<p>Therefore, over the constraint set <span class="math math-inline">\mathcal C_a \cap \mathcal C_b</span>, the original problem is equivalent to
+<span class="math math-display">\min_{\pi \in \mathcal C_a \cap \mathcal C_b} \sum_{i,j}\pi_{ij}\log \frac{\pi_{ij}}{K_{ij}}.</span></p>
+<p>This quantity can be interpreted as a KL-type distance from <span class="math math-inline">\pi</span> to the unnormalized kernel <span class="math math-inline">K</span>.</p>
+<p>Thus, from the perspective of projection onto constraint sets, entropic regularized OT seeks the transport matrix that is closest to the Gibbs kernel <span class="math math-inline">K</span> among all matrices satisfying the marginal constraints:
+<span class="math math-display">\pi^\star = \arg\min_{\pi \in \mathcal C_a \cap \mathcal C_b} \sum_{i,j}\pi_{ij}\log \frac{\pi_{ij}}{K_{ij}}.</span></p>
+<p>The Sinkhorn iteration alternately projects the current matrix onto the two constraint sets:
+<span class="math math-display">\mathcal C_a \rightarrow \mathcal C_b \rightarrow \mathcal C_a \rightarrow \mathcal C_b \rightarrow \cdots</span></p>
+<p>That is:</p>
+<ol>
+<li>First project the current matrix onto the set <span class="math math-inline">\mathcal C_a</span> satisfying the row marginal constraint.</li>
+<li>Then project it onto the set <span class="math math-inline">\mathcal C_b</span> satisfying the column marginal constraint.</li>
+<li>Repeat this process.</li>
+</ol>
+<p>Under KL geometry, the projection onto <span class="math math-inline">\mathcal C_a</span> corresponds exactly to “row scaling”:
+<span class="math math-display">
+u_i = \frac{a_i}{(Kv)_i}.
+</span>
+The projection onto <span class="math math-inline">\mathcal C_b</span> corresponds exactly to “column scaling”:
+<span class="math math-display">
+v_j = \frac{b_j}{(K^\top u)_j}.
+</span></p>
+<p>Therefore, the Sinkhorn iteration can also be viewed as</p>
+<blockquote>
+<p>alternating KL projection between the two convex sets <span class="math math-inline">\mathcal C_a</span> and <span class="math math-inline">\mathcal C_b</span>.</p>
+</blockquote>
+<p>This is analogous to alternating projection in Euclidean space: if there are two convex sets, repeatedly projecting onto the first set and then onto the second usually brings the point closer to their intersection.</p>
+<p>Here, the intersection of the two sets is
+<span class="math math-display">\mathcal C_a \cap \mathcal C_b = \{\pi : \pi \mathbf 1 = a,\ \pi^\top \mathbf 1 = b\}.</span></p>
+<p>This is precisely the set of all couplings satisfying the two marginal distribution constraints.</p>
+<p>Since both <span class="math math-inline">\mathcal C_a</span> and <span class="math math-inline">\mathcal C_b</span> are convex sets, and since KL divergence corresponds to Bregman projection with favorable convergence properties, alternating KL projection converges to the optimal point in the intersection.</p>
+<p>Therefore, from the set-projection perspective, Sinkhorn converges because</p>
+<blockquote>
+<p>it does not update the matrix arbitrarily; instead, under KL geometry, it repeatedly projects the matrix back onto the two convex sets corresponding to the “correct row marginal” and the “correct column marginal.” Convexity and the KL projection structure guarantee the convergence of this process.</p>
+</blockquote>
+<hr />
+<h2>Summary</h2>
+<p>The main line of this note is as follows: standard OT is computationally expensive <span class="math math-inline">\to</span> entropic regularization is introduced <span class="math math-inline">\to</span> Lagrangian differentiation yields the analytic structure <span class="math math-inline">P_{ij}=u_iK_{ij}v_j</span> <span class="math math-inline">\to</span> this is written in matrix form as <span class="math math-inline">P=\operatorname{diag}(u)K\operatorname{diag}(v)</span> <span class="math math-inline">\to</span> substituting the marginal constraints gives the Sinkhorn iteration.</p>
+<p>The convergence of Sinkhorn iteration can be understood from two perspectives. From the <strong>matrix scaling</strong> perspective, the iterative mapping <span class="math math-inline">F</span> is a contraction mapping with a unique fixed point. From the <strong>KL projection</strong> perspective, each step is an alternating Bregman projection between the two convex sets <span class="math math-inline">\mathcal{C}_a</span> and <span class="math math-inline">\mathcal{C}_b</span>, and convexity guarantees convergence.</p>
+<p>The two perspectives are complementary: the former explains why the iteration does not oscillate, while the latter explains why the limit is exactly the desired optimal solution.</p>
+</details></section><footer></footer></article></div></body></html>
