@@ -23,7 +23,7 @@ pretty-urls = false
 footer-mode = "link"
 inline-css = true
 asref = false
-output = "./publish"
+output = "./docs"
 
 [serve]
 edit = "vscode://file/"

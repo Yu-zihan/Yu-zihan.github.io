@@ -7,5 +7,5 @@
 .tools/
 
 # build outputs that we intentionally do not keep
-publish/kodama.json
-publish/kodama.graph.json
+docs/kodama.json
+docs/kodama.graph.json

@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOURCE_DIR="$ROOT/site-overrides"
-TARGET_DIR="${1:-$ROOT/publish}"
+TARGET_DIR="${1:-$ROOT/docs}"
 
 mkdir -p "$TARGET_DIR"
 rm -rf \
