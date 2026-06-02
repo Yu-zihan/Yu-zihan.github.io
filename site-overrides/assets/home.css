@@ -56,7 +56,17 @@ a {
 }
 
 .home-header {
+  position: relative;
   padding-bottom: 10px;
+  border-bottom: 0;
+}
+
+.home-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: calc(100% - 84px);
   border-bottom: 1px solid var(--rule);
 }
 
