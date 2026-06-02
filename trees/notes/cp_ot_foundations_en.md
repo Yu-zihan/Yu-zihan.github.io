@@ -1,6 +1,6 @@
 ---
 title: Conformal Prediction from the Perspective of the Probability Integral Transform (PIT)
-date: 2026-05-16
+date: 2026-06-02
 type: note
 tags: Conformal prediction
 summary: Understanding CP from the PIT perspective

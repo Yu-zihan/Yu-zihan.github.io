@@ -1,6 +1,6 @@
 ---
 title: Entropic Regularized Optimal Transport
-date: 2026-05-22
+date: 2026-06-02
 type: note
 tags: Optimal transport
 summary: Personal notes on entropic regularized optimal transport
