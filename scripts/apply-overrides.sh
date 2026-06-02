@@ -12,4 +12,16 @@ rm -rf \
   "$TARGET_DIR/blog/reading-math-papers.html" \
   "$TARGET_DIR/notes/research-notes.html" \
   "$TARGET_DIR/assets/profile-placeholder.svg"
-cp -R "$SOURCE_DIR"/. "$TARGET_DIR"/
+
+mkdir -p \
+  "$TARGET_DIR/assets" \
+  "$TARGET_DIR/blog" \
+  "$TARGET_DIR/notes"
+
+cp "$SOURCE_DIR/index.html" "$TARGET_DIR/index.html"
+cp "$SOURCE_DIR/blog/index.html" "$TARGET_DIR/blog/index.html"
+cp "$SOURCE_DIR/notes/index.html" "$TARGET_DIR/notes/index.html"
+cp "$SOURCE_DIR/assets/home.css" "$TARGET_DIR/assets/home.css"
+cp "$SOURCE_DIR/assets/notes.css" "$TARGET_DIR/assets/notes.css"
+cp "$SOURCE_DIR/assets/notes.js" "$TARGET_DIR/assets/notes.js"
+cp "$SOURCE_DIR/assets/profile.jpg" "$TARGET_DIR/assets/profile.jpg"
