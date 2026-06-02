@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" class="notes-site notes-article">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>$title$</title>
+<link rel="stylesheet" href="/assets/notes.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script defer src="/assets/vendor/katex/katex.min.js"></script>
+<script defer src="/assets/vendor/katex/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}]})">
+</script>
+<script src="/main.js"></script>
+<script src="/assets/notes.js"></script>
+</head>
+<body>
+<div id="grid-wrapper">
+$if(toc)$
+<nav id="toc" class="sticky-nav">
+<div>
+<details open>
+<summary>Contents</summary>
+$toc$
+</details>
+</div>
+</nav>
+$endif$
+<article>
+<header class="note-header">
+<h1>$title$</h1>
+<div class="metadata">
+<ul>
+$if(date)$<li class="meta-item">$date$</li>$endif$
+$if(tags)$<li class="meta-item">$tags$</li>$endif$
+$if(summary)$<li class="meta-item">$summary$</li>$endif$
+</ul>
+</div>
+</header>
+$body$
+</article>
+</div>
+</body>
+</html>
