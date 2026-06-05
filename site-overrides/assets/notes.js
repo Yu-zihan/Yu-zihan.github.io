@@ -62,6 +62,70 @@
     });
   }
 
+  function headingTextForToc(heading) {
+    var clone = heading.cloneNode(true);
+
+    clone.querySelectorAll(".slug, .edit").forEach(function (node) {
+      node.remove();
+    });
+
+    clone.querySelectorAll(".math").forEach(function (mathNode) {
+      var annotation = mathNode.querySelector('annotation[encoding="application/x-tex"]');
+      var text = annotation ? annotation.textContent : mathNode.textContent;
+      mathNode.replaceWith(document.createTextNode(text));
+    });
+
+    return clone.textContent.replace(/\s+/g, " ").trim();
+  }
+
+  function rebuildToc() {
+    if (!document.documentElement.classList.contains("notes-article")) return;
+
+    var toc = document.querySelector("nav#toc");
+    if (!toc) return;
+
+    toc.querySelectorAll(".generated-toc").forEach(function (node) {
+      node.remove();
+    });
+
+    var headings = Array.from(document.querySelectorAll("article h2, article h3"));
+    if (!headings.length) return;
+
+    var container = document.createElement("div");
+    container.className = "block generated-toc";
+
+    var details = document.createElement("details");
+    details.open = true;
+
+    var summary = document.createElement("summary");
+    var title = document.createElement("h1");
+    title.textContent = "Table of Contents";
+    summary.appendChild(title);
+    details.appendChild(summary);
+
+    var list = document.createElement("ul");
+
+    headings.forEach(function (heading, index) {
+      if (!heading.id) {
+        heading.id = "section-" + (index + 1);
+      }
+
+      var item = document.createElement("li");
+      item.className = "toc-level-" + heading.tagName.toLowerCase().slice(1);
+
+      var link = document.createElement("a");
+      link.href = "#" + heading.id;
+      link.textContent = headingTextForToc(heading);
+
+      item.appendChild(link);
+      list.appendChild(item);
+    });
+
+    details.appendChild(list);
+    container.appendChild(details);
+    toc.appendChild(container);
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     if (!document.documentElement.classList.contains("notes-site")) return;
 
@@ -69,5 +133,6 @@
     relabelArticleBacklink();
     addArticleNav();
     disableDetailsCollapse();
+    rebuildToc();
   });
 })();
