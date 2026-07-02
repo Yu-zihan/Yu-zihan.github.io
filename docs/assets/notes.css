@@ -84,6 +84,82 @@ html.notes-list main.academic nav a:hover {
   text-decoration: none;
 }
 
+html.notes-list main.academic .archive-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.6rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+  position: relative;
+}
+
+html.notes-list main.academic .tag-filter {
+  position: relative;
+  display: block;
+  color: #737b89;
+  font: 0.82rem/1.35 ui-sans-serif, "Segoe UI", sans-serif;
+}
+
+html.notes-list main.academic .tag-filter summary {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: baseline;
+  cursor: pointer;
+  list-style: none;
+  padding-bottom: 0.08rem;
+  border-bottom: 1px solid rgba(31, 36, 48, 0.16);
+  color: #606779;
+}
+
+html.notes-list main.academic .tag-filter summary::-webkit-details-marker {
+  display: none;
+}
+
+html.notes-list main.academic .tag-filter summary::after {
+  content: "+";
+  margin-left: 0.15rem;
+  color: #737b89;
+}
+
+html.notes-list main.academic .tag-filter[open] summary::after {
+  content: "-";
+}
+
+html.notes-list main.academic .tag-filter summary:hover {
+  color: #20242c;
+  border-color: rgba(40, 95, 104, 0.45);
+}
+
+html.notes-list main.academic .tag-filter-label {
+  color: #737b89;
+  font-weight: 500;
+}
+
+html.notes-list main.academic .tag-filter-current {
+  color: #20242c;
+  font-weight: 600;
+}
+
+html.notes-list main.academic .tag-filter-menu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+  min-width: 12rem;
+  max-width: min(24rem, 82vw);
+  max-height: 16rem;
+  overflow: auto;
+  padding: 0.55rem;
+  border: 1px solid rgba(31, 36, 48, 0.12);
+  border-radius: 5px;
+  background: rgba(250, 250, 250, 0.98);
+  box-shadow: 0 10px 28px rgba(31, 36, 48, 0.08);
+}
+
 html.notes-list main.academic section {
   padding-top: 1.25rem;
   border-top: 1px solid rgba(31, 36, 48, 0.1);
@@ -104,6 +180,10 @@ html.notes-list main.academic .post-item {
 
 html.notes-list main.academic .post-item + .post-item {
   border-top: 1px solid rgba(31, 36, 48, 0.08);
+}
+
+html.notes-list main.academic .post-item.is-hidden {
+  display: none !important;
 }
 
 html.notes-list main.academic .post-date {
@@ -130,7 +210,49 @@ html.notes-list main.academic .post-tags {
 }
 
 html.notes-list main.academic .post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+  margin-top: 0.45rem;
+  font: 0.78rem/1.35 ui-sans-serif, "Segoe UI", sans-serif;
+}
+
+html.notes-site .tag-pill,
+html.notes-article article a.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.35rem;
+  padding: 0.06rem 0.42rem;
+  border: 1px solid rgba(31, 36, 48, 0.12);
+  border-radius: 3px;
+  background: rgba(40, 95, 104, 0.035) !important;
+  color: #5f6876 !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+html.notes-site .tag-pill::before,
+html.notes-article article a.tag-pill::before {
+  content: "";
   display: none;
+}
+
+html.notes-site .tag-pill:hover,
+html.notes-site .tag-pill.is-current,
+html.notes-article article a.tag-pill:hover {
+  border-color: rgba(40, 95, 104, 0.28);
+  background: rgba(40, 95, 104, 0.09) !important;
+  color: #20242c !important;
+}
+
+html.notes-site .tag-pill.is-current {
+  box-shadow: inset 0 -2px 0 rgba(40, 95, 104, 0.42) !important;
+}
+
+html.notes-list main.academic .tag-filter-status {
+  color: #737b89;
+  font-size: 0.78rem;
+  align-self: center;
 }
 
 html.notes-article .header {
@@ -251,6 +373,7 @@ html.notes-article nav#toc :hover {
 html.notes-article article .metadata ul {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.35rem 0.75rem;
   margin: 0.75rem 0 0;
   padding: 0;
@@ -258,8 +381,16 @@ html.notes-article article .metadata ul {
 }
 
 html.notes-article article .metadata .meta-item {
+  display: inline-flex;
+  align-items: center;
   color: #737b89;
   font: 0.86rem/1.45 ui-sans-serif, "Segoe UI", sans-serif;
+}
+
+html.notes-article article .metadata a.article-tag {
+  min-height: 1.18rem;
+  padding: 0.01rem 0.34rem;
+  line-height: 1.25;
 }
 
 html.notes-article article h2 {
@@ -296,6 +427,31 @@ html.notes-article article a {
 
 html.notes-article article code {
   border-radius: 4px;
+}
+
+html.notes-article article pre {
+  position: relative;
+}
+
+html.notes-article article .code-copy-button {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  z-index: 2;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid rgba(31, 36, 48, 0.18);
+  border-radius: 4px;
+  background: rgba(248, 247, 243, 0.94);
+  color: #20242c !important;
+  cursor: pointer;
+  font: 600 0.72rem/1.25 ui-sans-serif, "Segoe UI", sans-serif;
+}
+
+html.notes-article article .code-copy-button:hover,
+html.notes-article article .code-copy-button.is-copied {
+  border-color: rgba(40, 95, 104, 0.26);
+  background: rgba(226, 232, 234, 0.96);
+  color: #20242c !important;
 }
 
 html.notes-article nav#toc {
@@ -342,11 +498,52 @@ html.notes-article nav#toc a:hover {
   html.notes-list main.academic header > p,
   html.notes-list main.academic .post-summary,
   html.notes-list main.academic .post-tags,
+  html.notes-list main.academic .tag-filter-label,
+  html.notes-list main.academic .tag-filter summary,
+  html.notes-list main.academic .tag-filter-status,
   html.notes-article .header,
   html.notes-article article .metadata .meta-item,
   html.notes-article nav#toc,
   html.notes-article nav#toc a {
     color: #aab4cb;
+  }
+
+  html.notes-site .tag-pill,
+  html.notes-article article a.tag-pill {
+    border-color: rgba(159, 203, 210, 0.24);
+    background: rgba(159, 203, 210, 0.08) !important;
+    color: #c3d4e9 !important;
+  }
+
+  html.notes-list main.academic .tag-filter-menu {
+    border-color: rgba(225, 232, 245, 0.16);
+    background: rgba(16, 20, 27, 0.98);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  }
+
+  html.notes-list main.academic .tag-filter-current {
+    color: #edf2ff;
+  }
+
+  html.notes-site .tag-pill:hover,
+  html.notes-site .tag-pill.is-current,
+  html.notes-article article a.tag-pill:hover {
+    border-color: rgba(159, 203, 210, 0.38);
+    background: rgba(159, 203, 210, 0.14) !important;
+    color: #edf2ff !important;
+  }
+
+  html.notes-article article .code-copy-button {
+    border-color: rgba(225, 232, 245, 0.18);
+    background: rgba(24, 32, 42, 0.92);
+    color: #edf2ff !important;
+  }
+
+  html.notes-article article .code-copy-button:hover,
+  html.notes-article article .code-copy-button.is-copied {
+    border-color: rgba(159, 203, 210, 0.38);
+    background: rgba(38, 51, 65, 0.96);
+    color: #edf2ff !important;
   }
 }
 
@@ -366,6 +563,19 @@ html.notes-article nav#toc a:hover {
 
   html.notes-list main.academic .post-item {
     grid-template-columns: 1fr;
+  }
+
+  html.notes-list main.academic .archive-toolbar {
+    display: block;
+  }
+
+  html.notes-list main.academic .tag-filter {
+    margin-top: 0.75rem;
+  }
+
+  html.notes-list main.academic .tag-filter-menu {
+    left: 0;
+    right: auto;
   }
 
   html.notes-list main.academic .post-date,

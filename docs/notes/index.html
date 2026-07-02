@@ -9,7 +9,8 @@
       content="Research notes by Zihan Yu."
     >
     <link rel="icon" href="/assets/favicon.ico">
-    <link rel="stylesheet" href="/assets/notes.css?v=toc-wide">
+    <link rel="stylesheet" href="/assets/notes.css?v=tags-align">
+    <script defer src="/assets/notes.js?v=tags-align"></script>
   </head>
   <body>
     <div id="grid-wrapper">
@@ -18,16 +19,29 @@
           <header>
             <h1>Notes archive</h1>
             <p>Working notes and topic pages.</p>
-            <nav aria-label="Archive sections">
-              <a href="/">Home</a>
-              <a class="is-current" href="/notes/index.html">Notes</a>
-              <a href="/blog/index.html">Essays</a>
-            </nav>
+            <div class="archive-toolbar">
+              <nav aria-label="Archive sections">
+                <a href="/">Home</a>
+                <a class="is-current" href="/notes/index.html">Notes</a>
+                <a href="/blog/index.html">Essays</a>
+              </nav>
+              <details class="tag-filter" aria-label="Filter notes by tag">
+                <summary>
+                  <span class="tag-filter-label">Filter</span>
+                  <span class="tag-filter-current">All</span>
+                </summary>
+                <div class="tag-filter-menu">
+                  <a class="tag-pill is-current" href="/notes/index.html" data-tag-filter="all">All</a>
+                  <a class="tag-pill" href="/notes/index.html?tag=deep-learning" data-tag-filter="deep-learning">Deep learning</a>
+                  <a class="tag-pill" href="/notes/index.html?tag=optimal-transport" data-tag-filter="optimal-transport">Optimal transport</a>
+                </div>
+              </details>
+            </div>
           </header>
 
           <section>
             <ul class="post-list">
-              <li class="post-item">
+              <li class="post-item" data-tags="deep-learning">
                 <div class="post-date">2026-07-01</div>
                 <a href="/notes/one_neuron_1.html">
                   Starting with One Neuron
@@ -35,8 +49,11 @@
                 <div class="post-summary">
                   Part 1: From the smallest computable model to XOR.
                 </div>
+                <div class="post-tags">
+                  <a class="tag-pill" href="/notes/index.html?tag=deep-learning" data-tag-filter="deep-learning">Deep learning</a>
+                </div>
               </li>
-              <li class="post-item">
+              <li class="post-item" data-tags="optimal-transport">
                 <div class="post-date">2026-06-05</div>
                 <a href="/notes/kantorovich_duality.html">
                   Kantorovich Duality
@@ -44,14 +61,20 @@
                 <div class="post-summary">
                   Annotated notes on the derivation and meaning of Kantorovich duality.
                 </div>
+                <div class="post-tags">
+                  <a class="tag-pill" href="/notes/index.html?tag=optimal-transport" data-tag-filter="optimal-transport">Optimal transport</a>
+                </div>
               </li>
-              <li class="post-item">
+              <li class="post-item" data-tags="optimal-transport">
                 <div class="post-date">2026-06-02</div>
                 <a href="/notes/entropic_regularized_optimal_transport.html">
                   Entropic Regularized Optimal Transport
                 </a>
                 <div class="post-summary">
                   Personal notes on entropic regularized optimal transport.
+                </div>
+                <div class="post-tags">
+                  <a class="tag-pill" href="/notes/index.html?tag=optimal-transport" data-tag-filter="optimal-transport">Optimal transport</a>
                 </div>
               </li>
             </ul>
