@@ -16,11 +16,16 @@ rm -rf \
 mkdir -p \
   "$TARGET_DIR/assets" \
   "$TARGET_DIR/blog" \
-  "$TARGET_DIR/notes"
+  "$TARGET_DIR/notes" \
+  "$TARGET_DIR/zh/notes"
 
 cp "$SOURCE_DIR/index.html" "$TARGET_DIR/index.html"
 cp "$SOURCE_DIR/blog/index.html" "$TARGET_DIR/blog/index.html"
 cp "$SOURCE_DIR/notes/index.html" "$TARGET_DIR/notes/index.html"
+cp "$SOURCE_DIR/zh/notes/index.html" "$TARGET_DIR/zh/notes/index.html"
+cp "$SOURCE_DIR/zh/notes/one_neuron_1.html" "$TARGET_DIR/zh/notes/one_neuron_1.html"
+cp "$SOURCE_DIR/zh/notes/kantorovich_duality.html" "$TARGET_DIR/zh/notes/kantorovich_duality.html"
+cp "$SOURCE_DIR/zh/notes/entropic_regularized_optimal_transport.html" "$TARGET_DIR/zh/notes/entropic_regularized_optimal_transport.html"
 cp "$SOURCE_DIR/assets/home.css" "$TARGET_DIR/assets/home.css"
 cp "$SOURCE_DIR/assets/notes.css" "$TARGET_DIR/assets/notes.css"
 cp "$SOURCE_DIR/assets/notes.js" "$TARGET_DIR/assets/notes.js"

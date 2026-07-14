@@ -51,6 +51,21 @@ html.notes-list main.academic {
   font: 18px/1.72 "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
 }
 
+html[lang^="zh"].notes-list main.academic,
+html[lang^="zh"].notes-article #grid-wrapper > article {
+  font-family: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", STSong, Georgia, serif;
+}
+
+html[lang^="zh"].notes-list main.academic nav,
+html[lang^="zh"].notes-list main.academic .tag-filter,
+html[lang^="zh"].notes-list main.academic .post-date,
+html[lang^="zh"].notes-list main.academic .post-tags,
+html[lang^="zh"].notes-article .notes-breadcrumb,
+html[lang^="zh"].notes-article article .metadata .meta-item,
+html[lang^="zh"].notes-article nav#toc {
+  font-family: ui-sans-serif, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
 html.notes-list main.academic h1 {
   margin: 0 0 0.4rem;
   font-size: 2.6rem;
@@ -288,14 +303,28 @@ html.notes-article .header .logo span:hover {
 }
 
 html.notes-article #grid-wrapper {
+  display: grid;
+  grid-template-areas: "article toc" !important;
+  grid-template-columns: minmax(0, var(--article-max-width)) minmax(16rem, var(--toc-max-width));
+  justify-content: center;
+  align-items: start;
   column-gap: 2.2rem;
   padding: 0 1.25rem;
 }
 
 html.notes-article #grid-wrapper > article {
+  grid-area: article;
+  min-width: 0;
   max-width: 78ch !important;
   color: #20242c;
   font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, "LXGW WenKai TC", serif;
+}
+
+html.notes-article nav#toc {
+  grid-area: toc;
+  position: sticky;
+  top: 1.25rem;
+  align-self: start;
 }
 
 html.notes-article article > section > details {
@@ -410,6 +439,59 @@ html.notes-article article h3 {
 html.notes-article article p,
 html.notes-article article li {
   line-height: 1.76;
+}
+
+html.notes-article article hr {
+  margin: 1.8rem 0;
+  border: 0;
+  border-top: 1px solid rgba(31, 36, 48, 0.08);
+}
+
+html.notes-article article .math.math-inline,
+html.notes-article article .katex {
+  text-wrap: pretty;
+}
+
+html.notes-article article .math.math-display,
+html.notes-article article .katex-display {
+  display: block;
+  max-width: 100%;
+  margin: 0.55rem 0 0.65rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.05rem 0.1rem 0.12rem;
+}
+
+html.notes-article article .katex-display > .katex {
+  min-width: fit-content;
+}
+
+html.notes-article article .table-wrap {
+  max-width: 100%;
+  margin: 1rem 0 1.15rem;
+  overflow-x: auto;
+}
+
+html.notes-article article table {
+  width: max-content;
+  min-width: min(100%, 36rem);
+  border-collapse: collapse;
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+html.notes-article article th,
+html.notes-article article td {
+  padding: 0.35rem 0.55rem;
+  border-bottom: 1px solid rgba(31, 36, 48, 0.1);
+  text-align: left;
+  vertical-align: top;
+}
+
+html.notes-article article th {
+  color: #20242c;
+  font-weight: 700;
+  border-bottom-color: rgba(31, 36, 48, 0.18);
 }
 
 html.notes-article article .link.external,
@@ -551,6 +633,11 @@ html.notes-article nav#toc a:hover {
   html.notes-list #grid-wrapper,
   html.notes-article #grid-wrapper {
     padding: 0 1rem;
+  }
+
+  html.notes-article #grid-wrapper {
+    grid-template-areas: "article" !important;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   html.notes-list main.academic {

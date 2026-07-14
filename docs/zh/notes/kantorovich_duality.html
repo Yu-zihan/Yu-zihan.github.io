@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="notes-site notes-article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kantorovich 对偶</title>
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="/assets/notes.css?v=zh-notes">
+    <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+    <script defer src="/assets/notes.js?v=zh-notes"></script>
+    <script defer src="/assets/vendor/katex/katex.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.katex) return;
+
+        document.querySelectorAll(".math.math-inline").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: false,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        document.querySelectorAll(".math.math-display").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: true,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false },
+              { left: "\\(", right: "\\)", display: false },
+              { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"></nav>
+      <article>
+        <section class="block">
+          <details open>
+            <summary>
+              <header>
+                <h1>Kantorovich 对偶</h1>
+                <div class="metadata">
+                  <ul>
+                    <li class="meta-item">2026-06-05</li>
+                    <li class="meta-item">笔记</li>
+                    <li class="meta-item">最优传输</li>
+                    <li class="meta-item">关于 Kantorovich 对偶推导和含义的整理</li>
+                  </ul>
+                </div>
+              </header>
+            </summary>
+
+            <p>在最优化中，对偶问题一直是一个有效的解决思路，在计算最优传输这本书中有提到，但是这本书对于对偶过程写得实在太简洁了，对于优化知识的研究者来说太不友好了，我学习了一下相关知识，然后对这部分进行注释性的笔记，也加深自己的理解。</p>
+            <h2 id="1-离散最优传输问题">1. 离散最优传输问题</h2>
+            <p>设有两个离散概率分布： <span class="math math-inline">a=(a_1,\dots,a_n)\in \mathbb R_+^n, \, b=(b_1,\dots,b_m)\in \mathbb R_+^m,</span> 满足 <span class="math math-inline">\sum_{i=1}^n a_i=\sum_{j=1}^m b_j.</span> 设运输代价矩阵为<span class="math math-inline">C=(C_{ij})\in \mathbb R^{n\times m}.</span> 其中 <span class="math math-inline">C_{ij}</span> 表示从源点 <span class="math math-inline">i</span> 向目标点 <span class="math math-inline">j</span> 运输单位质量的代价。 运输计划记为 <span class="math math-inline">P=(P_{ij})\in \mathbb R_+^{n\times m},</span></p>
+            <p>其中 <span class="math math-inline">P_{ij}\ge 0</span> 表示从 <span class="math math-inline">i</span> 运到 <span class="math math-inline">j</span> 的质量。 Kantorovich 最优传输问题为</p>
+            <div class="math math-display">\min_{P\ge 0}\ \langle C,P\rangle
+=
+\min_{P\ge 0}\sum_{i,j} C_{ij}P_{ij}</div>
+            <p>subject to</p>
+            <div class="math math-display">\sum_j P_{ij}=a_i,\qquad i=1,\dots,n,</div>
+            <div class="math math-display">\sum_i P_{ij}=b_j,\qquad j=1,\dots,m.</div>
+            <p>矩阵形式为</p>
+            <div class="math math-display">P\mathbf 1_m=a,
+\qquad
+P^T\mathbf 1_n=b,
+\qquad
+P\ge 0.</div>
+            <p>记 primal 最优值为</p>
+            <div class="math math-display">p^\star
+=
+\min_{\substack{P\ge0\\P\mathbf 1=a,\ P^T\mathbf 1=b}}
+\langle C,P\rangle.</div>
+            <h2 id="2-引入拉格朗日量">2. 引入拉格朗日量</h2>
+            <p>约束优化的基本想法是：把等式约束乘上拉格朗日乘子后加进目标函数。 在可行域上，约束项等于 0，所以这样做不会改变原目标函数。 对约束</p>
+            <div class="math math-display">\sum_j P_{ij}=a_i</div>
+            <p>引入乘子 <span class="math math-inline">f_i</span>，对约束</p>
+            <div class="math math-display">\sum_i P_{ij}=b_j</div>
+            <p>引入乘子 <span class="math math-inline">g_j</span>。 由于这些都是等式约束，<span class="math math-inline">f_i</span> 和 <span class="math math-inline">g_j</span> 没有正负限制。 定义拉格朗日量：</p>
+            <div class="math math-display">\mathcal L(P,f,g)
+=
+\sum_{i,j}C_{ij}P_{ij}
++
+\sum_i f_i\left(a_i-\sum_jP_{ij}\right)
++
+\sum_j g_j\left(b_j-\sum_iP_{ij}\right).</div>
+            <p>如果 <span class="math math-inline">P</span> 是 primal 可行的，那么</p>
+            <div class="math math-display">a_i-\sum_jP_{ij}=0,
+\qquad
+b_j-\sum_iP_{ij}=0.</div>
+            <p>因此对任意 <span class="math math-inline">f,g</span>，都有</p>
+            <div class="math math-display">\mathcal L(P,f,g)=\langle C,P\rangle.</div>
+            <p>这说明：<strong>拉格朗日量在原可行域上与原目标函数相等。</strong></p>
+            <h2 id="3-整理拉格朗日量">3. 整理拉格朗日量</h2>
+            <p>展开并整理 <span class="math math-inline">P_{ij}</span> 的系数：</p>
+            <div class="math math-display">\mathcal L(P,f,g)
+=
+\sum_{i,j}C_{ij}P_{ij}
++\sum_i f_i a_i
+-\sum_{i,j}f_iP_{ij}
++\sum_j g_j b_j
+-\sum_{i,j}g_jP_{ij}.</div>
+            <p>所以</p>
+            <div class="math math-display">\mathcal L(P,f,g)
+=
+\langle f,a\rangle+
+\langle g,b\rangle
++\sum_{i,j}(C_{ij}-f_i-g_j)P_{ij}.</div>
+            <p>记</p>
+            <div class="math math-display">s_{ij}=C_{ij}-f_i-g_j.</div>
+            <p>则</p>
+            <div class="math math-display">\mathcal L(P,f,g)
+=
+\langle f,a\rangle+
+\langle g,b\rangle
++\sum_{i,j}s_{ij}P_{ij}.</div>
+            <p>这里的 <span class="math math-inline">s_{ij}</span> 是 dual 约束的松弛量，也叫 slack。</p>
+            <h2 id="4-为什么拉格朗日量会给出下界">4. 为什么拉格朗日量会给出下界</h2>
+            <p>虽然 <span class="math math-inline">\mathcal L(P,f,g)</span> 在 primal 可行域上等于 <span class="math math-inline">\langle C,P\rangle</span>，但对偶推导并不是只在可行域上看它。 定义对偶函数：</p>
+            <div class="math math-display">d(f,g)=\inf_{P\ge0}\mathcal L(P,f,g).</div>
+            <p>注意这里已经放松了边缘约束，只保留了</p>
+            <div class="math math-display">P\ge0.</div>
+            <p>因为</p>
+            <div class="math math-display">\{P\ge0,\ P\mathbf 1=a,\ P^T\mathbf 1=b\}
+\subseteq
+\{P\ge0\},</div>
+            <p>所以在更大的集合上取 inf，只会更小或相等：</p>
+            <div class="math math-display">\inf_{P\ge0}\mathcal L(P,f,g)
+\le
+\min_{\substack{P\ge0\\P\mathbf 1=a,\ P^T\mathbf 1=b}}
+\mathcal L(P,f,g).</div>
+            <p>而在 primal 可行域上，</p>
+            <div class="math math-display">\mathcal L(P,f,g)=\langle C,P\rangle.</div>
+            <p>因此</p>
+            <div class="math math-display">d(f,g)\le p^\star.</div>
+            <p>所以 <span class="math math-inline">d(f,g)</span> 是 primal 最优值的一个下界。 对偶问题就是寻找最紧的下界：</p>
+            <div class="math math-display">\max_{f,g}d(f,g).</div>
+            <h2 id="5-计算对偶函数">5. 计算对偶函数</h2>
+            <p>由</p>
+            <div class="math math-display">\mathcal L(P,f,g)
+=
+\langle f,a\rangle+
+\langle g,b\rangle
++\sum_{i,j}(C_{ij}-f_i-g_j)P_{ij}</div>
+            <p>可知，对 <span class="math math-inline">P\ge0</span> 取 inf 时，每个 <span class="math math-inline">P_{ij}</span> 的行为由系数</p>
+            <div class="math math-display">C_{ij}-f_i-g_j</div>
+            <p>决定。</p>
+            <h3 id="情况一存在负系数">情况一：存在负系数</h3>
+            <p>如果存在某个 <span class="math math-inline">(i,j)</span>，使得</p>
+            <div class="math math-display">C_{ij}-f_i-g_j&lt;0,</div>
+            <p>那么令</p>
+            <div class="math math-display">P_{ij}\to +\infty,</div>
+            <p>就有</p>
+            <div class="math math-display">(C_{ij}-f_i-g_j)P_{ij}\to -\infty.</div>
+            <p>因此</p>
+            <div class="math math-display">d(f,g)=-\infty.</div>
+            <p>这种 <span class="math math-inline">(f,g)</span> 给不出有意义的下界。</p>
+            <h3 id="情况二所有系数非负">情况二：所有系数非负</h3>
+            <p>如果对所有 <span class="math math-inline">(i,j)</span> 都有</p>
+            <div class="math math-display">C_{ij}-f_i-g_j\ge0,</div>
+            <p>也就是</p>
+            <div class="math math-display">f_i+g_j\le C_{ij},</div>
+            <p>那么</p>
+            <div class="math math-display">\sum_{i,j}(C_{ij}-f_i-g_j)P_{ij}\ge0.</div>
+            <p>因此</p>
+            <div class="math math-display">\inf_{P\ge0}\mathcal L(P,f,g)
+=
+\langle f,a\rangle+
+\langle g,b\rangle.</div>
+            <p>这里的 inf 在 <span class="math math-inline">P=0</span> 处达到。注意 <span class="math math-inline">P=0</span> 一般不是 primal 可行解，但它属于放松后的集合 <span class="math math-inline">P\ge0</span>。</p>
+            <h2 id="6-得到-kantorovich-对偶问题">6. 得到 Kantorovich 对偶问题</h2>
+            <p>由上一节可得：为了使对偶函数有限，必须要求</p>
+            <div class="math math-display">f_i+g_j\le C_{ij},\qquad \forall i,j.</div>
+            <p>在此条件下，</p>
+            <div class="math math-display">d(f,g)=\langle f,a\rangle+
+\langle g,b\rangle.</div>
+            <p>因此 Kantorovich 对偶问题为</p>
+            <div class="math math-display">\max_{f,g}\ \langle f,a\rangle+
+\langle g,b\rangle</div>
+            <p>subject to</p>
+            <div class="math math-display">f_i+g_j\le C_{ij},\qquad \forall i,j.</div>
+            <p>也可以写成</p>
+            <div class="math math-display">L_C(a,b)
+=
+\max_{(f,g)\in \mathcal R(C)}
+\langle f,a\rangle+
+\langle g,b\rangle,</div>
+            <p>其中</p>
+            <div class="math math-display">\mathcal R(C)
+=
+\left\{(f,g)\in\mathbb R^n\times\mathbb R^m:
+f_i+g_j\le C_{ij},\ \forall i,j\right\}.</div>
+            <p>这里的 <span class="math math-inline">f,g</span> 称为 <strong>Kantorovich potentials</strong>，即 Kantorovich 势函数。</p>
+            <h2 id="7-弱对偶的直接理解">7. 弱对偶的直接理解</h2>
+            <p>如果 <span class="math math-inline">(f,g)</span> 满足</p>
+            <div class="math math-display">f_i+g_j\le C_{ij},</div>
+            <p>那么对任意 primal 可行的 <span class="math math-inline">P</span>，都有</p>
+            <div class="math math-display">\sum_{i,j}C_{ij}P_{ij}
+\ge
+\sum_{i,j}(f_i+g_j)P_{ij}.</div>
+            <p>右边利用边缘约束展开：</p>
+            <div class="math math-display">\sum_{i,j}(f_i+g_j)P_{ij}
+=
+\sum_{i,j}f_iP_{ij}+
+\sum_{i,j}g_jP_{ij}.</div>
+            <p>因为</p>
+            <div class="math math-display">\sum_jP_{ij}=a_i,
+\qquad
+\sum_iP_{ij}=b_j,</div>
+            <p>所以</p>
+            <div class="math math-display">\sum_{i,j}f_iP_{ij}
+=
+\sum_i f_i a_i
+=\langle f,a\rangle,</div>
+            <div class="math math-display">\sum_{i,j}g_jP_{ij}
+=
+\sum_j g_j b_j
+=\langle g,b\rangle.</div>
+            <p>因此</p>
+            <div class="math math-display">\langle C,P\rangle
+\ge
+\langle f,a\rangle+
+\langle g,b\rangle.</div>
+            <p>这说明任意 dual feasible 的 <span class="math math-inline">(f,g)</span> 都给出 primal 运输成本的下界。 所以</p>
+            <div class="math math-display">\max_{f_i+g_j\le C_{ij}}
+\langle f,a\rangle+
+\langle g,b\rangle
+\le
+\min_{\substack{P\ge0\\P\mathbf 1=a,\ P^T\mathbf 1=b}}
+\langle C,P\rangle.</div>
+            <p>这就是弱对偶。</p>
+            <h2 id="8-强对偶">8. 强对偶</h2>
+            <p>由于离散 OT 是有限维线性规划，在可行且最优值有限的条件下，线性规划强对偶成立。因此</p>
+            <div class="math math-display">\min_{\substack{P\ge0\\P\mathbf 1=a,\ P^T\mathbf 1=b}}
+\langle C,P\rangle
+=
+\max_{f_i+g_j\le C_{ij}}
+\langle f,a\rangle+
+\langle g,b\rangle.</div>
+            <p>也就是说，最好的下界正好等于 primal 的最小运输成本。</p>
+            <h3 id="用-farkas-引理证明线性规划强对偶">用 Farkas 引理证明线性规划强对偶</h3>
+            <p>考虑一个一般形式的线性规划 primal：</p>
+            <div class="math math-display">z^\star
+=
+\min_x
+\left\{
+c^T x
+\mid
+Ax=b,\ x\ge 0
+\right\}.</div>
+            <p>它的 weak dual 是：</p>
+            <div class="math math-display">d^\star
+=
+\max_y
+\left\{
+b^T y
+\mid
+A^T y\le c
+\right\}.</div>
+            <p>由弱对偶可知：</p>
+            <div class="math math-display">d^\star \le z^\star.</div>
+            <p>现在要证明反向不等式：</p>
+            <div class="math math-display">d^\star \ge z^\star.</div>
+            <h3 id="farkas-引理">Farkas 引理</h3>
+            <p>对于矩阵 <span class="math math-inline">A\in \mathbb R^{m\times n}</span> 和向量 <span class="math math-inline">b\in \mathbb R^m</span>，下面两个命题有且只有一个成立：</p>
+            <ol><li>存在 <span class="math math-inline">x\in\mathbb R^n</span>，使得</li></ol>
+            <div class="math math-display">Ax=b,\qquad x\ge 0.</div>
+            <ol><li>存在 <span class="math math-inline">y\in\mathbb R^m</span>，使得</li></ol>
+            <div class="math math-display">A^T y\le 0,
+\qquad
+b^T y&gt;0.</div>
+            <p>几何上，第一种情况表示 <span class="math math-inline">b</span> 在 <span class="math math-inline">A</span> 的列向量张成的非负锥内；第二种情况表示存在一个超平面把 <span class="math math-inline">b</span> 和这个锥分开。</p>
+            <h3 id="从-farkas-引理到强对偶">从 Farkas 引理到强对偶</h3>
+            <p>设 primal 的最优解为 <span class="math math-inline">x^\star</span>，最优值为</p>
+            <div class="math math-display">z^\star=c^T x^\star.</div>
+            <p>取任意 <span class="math math-inline">\varepsilon&gt;0</span>。</p>
+            <p>由于 <span class="math math-inline">z^\star</span> 已经是最小值，所以不存在 <span class="math math-inline">x\ge0</span> 同时满足</p>
+            <div class="math math-display">Ax=b,
+\qquad
+c^T x=z^\star-\varepsilon.</div>
+            <p>等价地，不存在 <span class="math math-inline">x\ge0</span> 满足</p>
+            <div class="math math-display">\widehat A x=\widehat b_\varepsilon,</div>
+            <p>其中</p>
+            <div class="math math-display">\widehat A
+=
+\begin{pmatrix}
+A\\
+-c^T
+\end{pmatrix},
+\qquad
+\widehat b_\varepsilon
+=
+\begin{pmatrix}
+b\\
+-z^\star+\varepsilon
+\end{pmatrix}.</div>
+            <p>也就是说，系统</p>
+            <div class="math math-display">\widehat A x=\widehat b_\varepsilon,
+\qquad
+x\ge0</div>
+            <p>无解。</p>
+            <p>由 Farkas 引理，存在</p>
+            <div class="math math-display">\widehat y
+=
+\begin{pmatrix}
+y\\
+\alpha
+\end{pmatrix}</div>
+            <p>使得</p>
+            <div class="math math-display">\widehat A^T\widehat y\le0,
+\qquad
+\widehat b_\varepsilon^T\widehat y&gt;0.</div>
+            <p>展开第一条：</p>
+            <div class="math math-display">\widehat A^T\widehat y
+=
+A^T y-\alpha c
+\le0.</div>
+            <p>因此</p>
+            <div class="math math-display">A^T y\le \alpha c.</div>
+            <p>展开第二条：</p>
+            <div class="math math-display">\widehat b_\varepsilon^T\widehat y
+=
+b^T y+\alpha(-z^\star+\varepsilon)
+&gt;0.</div>
+            <p>所以</p>
+            <div class="math math-display">b^T y&gt;\alpha(z^\star-\varepsilon).</div>
+            <h3 id="说明-alpha0">说明 <span class="math math-inline">\alpha&gt;0</span></h3>
+            <p>当 <span class="math math-inline">\varepsilon=0</span> 时，有</p>
+            <div class="math math-display">\widehat A x^\star
+=
+\widehat b_0.</div>
+            <p>因此系统</p>
+            <div class="math math-display">\widehat A x=\widehat b_0,
+\qquad
+x\ge0</div>
+            <p>有解。</p>
+            <p>由 Farkas 引理，此时不可能存在 <span class="math math-inline">\widehat y</span> 使得</p>
+            <div class="math math-display">\widehat A^T\widehat y\le0,
+\qquad
+\widehat b_0^T\widehat y&gt;0.</div>
+            <p>也就是说，只要</p>
+            <div class="math math-display">\widehat A^T\widehat y\le0,</div>
+            <p>就必须有</p>
+            <div class="math math-display">\widehat b_0^T\widehat y\le0.</div>
+            <p>而前面已经有</p>
+            <div class="math math-display">\widehat b_\varepsilon^T\widehat y
+=
+\widehat b_0^T\widehat y+\alpha\varepsilon
+&gt;0.</div>
+            <p>由于</p>
+            <div class="math math-display">\widehat b_0^T\widehat y\le0,</div>
+            <p>要让上式大于 <span class="math math-inline">0</span>，必须有</p>
+            <div class="math math-display">\alpha&gt;0.</div>
+            <h3 id="得到-dual-可行解">得到 dual 可行解</h3>
+            <p>因为 <span class="math math-inline">\alpha&gt;0</span>，所以可以令</p>
+            <div class="math math-display">\tilde y=\frac{y}{\alpha}.</div>
+            <p>由</p>
+            <div class="math math-display">A^T y\le \alpha c</div>
+            <p>得到</p>
+            <div class="math math-display">A^T \tilde y\le c.</div>
+            <p>所以 <span class="math math-inline">\tilde y</span> 是 dual feasible。</p>
+            <p>又由</p>
+            <div class="math math-display">b^T y&gt;\alpha(z^\star-\varepsilon)</div>
+            <p>两边除以 <span class="math math-inline">\alpha&gt;0</span>，得到</p>
+            <div class="math math-display">b^T\tilde y&gt;z^\star-\varepsilon.</div>
+            <p>因此</p>
+            <div class="math math-display">d^\star
+=
+\max_y
+\left\{
+b^T y
+\mid
+A^T y\le c
+\right\}
+&gt;
+z^\star-\varepsilon.</div>
+            <p>由于 <span class="math math-inline">\varepsilon&gt;0</span> 任意，所以</p>
+            <div class="math math-display">d^\star\ge z^\star.</div>
+            <p>结合弱对偶</p>
+            <div class="math math-display">d^\star\le z^\star,</div>
+            <p>得到</p>
+            <div class="math math-display">d^\star=z^\star.</div>
+            <p>即</p>
+            <div class="math math-display">\max_y
+\left\{
+b^T y
+\mid
+A^T y\le c
+\right\}
+=
+\min_x
+\left\{
+c^T x
+\mid
+Ax=b,\ x\ge0
+\right\}.</div>
+            <p>这就是线性规划的强对偶。</p>
+            <h2 id="9-互补松弛条件">9. 互补松弛条件</h2>
+            <p>设 <span class="math math-inline">P^\star</span> 是 primal 最优解，<span class="math math-inline">(f^\star,g^\star)</span> 是 dual 最优解。</p>
+            <p>强对偶给出</p>
+            <div class="math math-display">\langle C,P^\star\rangle
+=
+\langle f^\star,a\rangle+
+\langle g^\star,b\rangle.</div>
+            <p>另一方面，由 primal-dual gap 的恒等式：</p>
+            <div class="math math-display">\langle C,P\rangle
+-\bigl(\langle f,a\rangle+
+\langle g,b\rangle\bigr)
+=
+\sum_{i,j}(C_{ij}-f_i-g_j)P_{ij}.</div>
+            <p>代入最优解，得到</p>
+            <div class="math math-display">\sum_{i,j}(C_{ij}-f_i^\star-g_j^\star)P_{ij}^\star=0.</div>
+            <p>由于</p>
+            <div class="math math-display">C_{ij}-f_i^\star-g_j^\star\ge0,
+\qquad
+P_{ij}^\star\ge0,</div>
+            <p>每一项都是非负数。非负数之和等于 0，只能每一项都等于 0：</p>
+            <div class="math math-display">(C_{ij}-f_i^\star-g_j^\star)P_{ij}^\star=0,
+\qquad \forall i,j.</div>
+            <p>这就是互补松弛条件。 等价地，</p>
+            <div class="math math-display">P_{ij}^\star&gt;0
+\quad\Longrightarrow\quad
+f_i^\star+g_j^\star=C_{ij}.</div>
+            <p>也就是说，最优运输只会发生在 dual 约束取等号的边上。</p>
+            <h2 id="10-互补松弛的含义">10. 互补松弛的含义</h2>
+            <p>定义 slack：</p>
+            <div class="math math-display">s_{ij}=C_{ij}-f_i^\star-g_j^\star.</div>
+            <p>互补松弛为</p>
+            <div class="math math-display">P_{ij}^\star s_{ij}=0.</div>
+            <p>它的含义是：</p>
+            <ul><li>如果 <span class="math math-inline">P_{ij}^\star&gt;0</span>，那么 <span class="math math-inline">s_{ij}=0</span>，即</li></ul>
+            <div class="math math-display">f_i^\star+g_j^\star=C_{ij}.</div>
+            <ul><li>如果 <span class="math math-inline">s_{ij}&gt;0</span>，那么 <span class="math math-inline">P_{ij}^\star=0</span>。</li></ul>
+            <p>也就是说：</p>
+            <div class="math math-display">\text{运输正质量的边，一定是等号边。}</div>
+            <p>但反过来不一定成立：</p>
+            <div class="math math-display">f_i^\star+g_j^\star=C_{ij}</div>
+            <p>只说明这条边有可能被使用，不保证</p>
+            <div class="math math-display">P_{ij}^\star&gt;0.</div>
+            <p>因此</p>
+            <div class="math math-display">\operatorname{supp}(P^\star)
+\subseteq
+\{(i,j):f_i^\star+g_j^\star=C_{ij}\}.</div>
+            <h2 id="11-势函数的作用">11. 势函数的作用</h2>
+            <p>Kantorovich potentials <span class="math math-inline">f,g</span> 的作用主要有三点。</p>
+            <h3 id="111-证明最优性">11.1 证明最优性</h3>
+            <p>如果找到一个 primal feasible 的 <span class="math math-inline">P</span>，以及一个 dual feasible 的 <span class="math math-inline">(f,g)</span>，满足</p>
+            <div class="math math-display">\langle C,P\rangle
+=
+\langle f,a\rangle+
+\langle g,b\rangle,</div>
+            <p>那么 <span class="math math-inline">P</span> 和 <span class="math math-inline">(f,g)</span> 都是最优的。 原因是：dual objective 是 primal objective 的下界。若某个 primal 可行解刚好达到这个下界，它不可能再被改进。</p>
+            <h3 id="112-定位最优运输的-support">11.2 定位最优运输的 support</h3>
+            <p>由互补松弛，</p>
+            <div class="math math-display">P_{ij}^\star&gt;0
+\Rightarrow
+f_i^\star+g_j^\star=C_{ij}.</div>
+            <p>因此势函数可以帮助排除不可能使用的边：</p>
+            <div class="math math-display">f_i^\star+g_j^\star&lt;C_{ij}
+\Rightarrow
+P_{ij}^\star=0.</div>
+            <h3 id="113-解释为价格或势能">11.3 解释为价格或势能</h3>
+            <p>可以把 <span class="math math-inline">f_i</span> 理解为源点 <span class="math math-inline">i</span> 的价格，把 <span class="math math-inline">g_j</span> 理解为目标点 <span class="math math-inline">j</span> 的价格。 约束</p>
+            <div class="math math-display">f_i+g_j\le C_{ij}</div>
+            <p>表示：从 <span class="math math-inline">i</span> 到 <span class="math math-inline">j</span> 的总势能不能超过真实运输成本。 最优时真正运输的边满足</p>
+            <div class="math math-display">f_i^\star+g_j^\star=C_{ij}.</div>
+            <p>即被使用的边上，势能与成本刚好匹配。</p>
+            <h2 id="12-总结">12. 总结</h2>
+            <p>离散 Kantorovich 最优传输的 primal 是</p>
+            <div class="math math-display">\min_{\substack{P\ge0\\P\mathbf 1=a,\ P^T\mathbf 1=b}}
+\langle C,P\rangle.</div>
+            <p>通过拉格朗日量</p>
+            <div class="math math-display">\mathcal L(P,f,g)
+=
+\langle f,a\rangle+
+\langle g,b\rangle
++\sum_{i,j}(C_{ij}-f_i-g_j)P_{ij},</div>
+            <p>对 <span class="math math-inline">P\ge0</span> 取 inf，可以得到 dual feasible condition</p>
+            <div class="math math-display">f_i+g_j\le C_{ij}.</div>
+            <p>因此 Kantorovich 对偶为</p>
+            <div class="math math-display">\max_{f_i+g_j\le C_{ij}}
+\langle f,a\rangle+
+\langle g,b\rangle.</div>
+            <p>强对偶保证</p>
+            <div class="math math-display">\min_{P}\langle C,P\rangle
+=
+\max_{f,g}\langle f,a\rangle+
+\langle g,b\rangle.</div>
+            <p>最优解满足互补松弛：</p>
+            <div class="math math-display">(C_{ij}-f_i^\star-g_j^\star)P_{ij}^\star=0.</div>
+            <p>因此</p>
+            <div class="math math-display">P_{ij}^\star&gt;0
+\Rightarrow
+f_i^\star+g_j^\star=C_{ij}.</div>
+            <p>这说明最优运输只会发生在势函数与代价矩阵相切的位置上。</p>
+            <h2 id="参考资料">参考资料</h2>
+            <ul><li>苏剑林. 《从 Wasserstein 距离、对偶理论到 WGAN》. 科学空间, 2019-01. <a href="https://spaces.ac.cn/archives/6280" rel="noopener">https://spaces.ac.cn/archives/6280</a></li></ul>
+          </details>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

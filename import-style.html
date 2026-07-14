@@ -3,16 +3,18 @@
     var path = window.location.pathname;
     var root = document.documentElement;
 
-    if (/\/(?:en\/)?(notes|blog)\//.test(path)) {
+    if (/\/(?:en\/|zh\/)?(notes|blog)\//.test(path)) {
       root.classList.add("notes-site");
     }
 
-    if (/\/(?:en\/)?(notes|blog)\/index\.html$/.test(path)) {
+    if (/\/(?:en\/|zh\/)?(notes|blog)\/index\.html$/.test(path)) {
       root.classList.add("notes-list");
-    } else if (/\/(?:en\/)?(notes|blog)\/.+\.html$/.test(path)) {
+    } else if (/\/(?:en\/|zh\/)?(notes|blog)\/.+\.html$/.test(path)) {
       root.classList.add("notes-article");
     }
   })();
 </script>
-<link rel="stylesheet" href="/assets/notes.css?v=tags-align">
-<script defer src="/assets/notes.js?v=tags-align"></script>
+<link rel="stylesheet" href="/assets/notes.css?v=zh-toc">
+<script defer src="/assets/notes.js?v=zh-toc"></script>
+<script data-goatcounter="https://zihanyu.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>

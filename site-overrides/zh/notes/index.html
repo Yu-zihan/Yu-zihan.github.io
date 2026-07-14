@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="notes-site notes-list">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>笔记归档</title>
+    <meta
+      name="description"
+      content="于子涵的中文笔记归档。"
+    >
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="/assets/notes.css?v=zh-notes">
+    <script defer src="/assets/notes.js?v=zh-notes"></script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper">
+      <article>
+        <main class="academic">
+          <header>
+            <h1>笔记归档</h1>
+            <p>一些学习笔记、阅读记录和主题整理。</p>
+            <div class="archive-toolbar">
+              <nav aria-label="归档导航">
+                <a href="/">主页</a>
+                <a class="is-current" href="/zh/notes/index.html">笔记</a>
+                <a href="/notes/index.html">English</a>
+              </nav>
+              <details class="tag-filter" aria-label="按标签筛选笔记">
+                <summary>
+                  <span class="tag-filter-label">筛选</span>
+                  <span class="tag-filter-current">全部</span>
+                </summary>
+                <div class="tag-filter-menu">
+                  <a class="tag-pill is-current" href="/zh/notes/index.html" data-tag-filter="all">全部</a>
+                  <a class="tag-pill" href="/zh/notes/index.html?tag=deep-learning" data-tag-filter="deep-learning">深度学习</a>
+                  <a class="tag-pill" href="/zh/notes/index.html?tag=optimal-transport" data-tag-filter="optimal-transport">最优传输</a>
+                </div>
+              </details>
+            </div>
+          </header>
+
+          <section>
+            <ul class="post-list">
+              <li class="post-item" data-tags="deep-learning">
+                <div class="post-date">2026-07-01</div>
+                <a href="/zh/notes/one_neuron_1.html">
+                  从单个神经元开始
+                </a>
+                <div class="post-summary">
+                  第 1 部分：从最小的可计算模型到 XOR。
+                </div>
+                <div class="post-tags">
+                  <a class="tag-pill" href="/zh/notes/index.html?tag=deep-learning" data-tag-filter="deep-learning">深度学习</a>
+                </div>
+              </li>
+              <li class="post-item" data-tags="optimal-transport">
+                <div class="post-date">2026-06-05</div>
+                <a href="/zh/notes/kantorovich_duality.html">
+                  Kantorovich 对偶
+                </a>
+                <div class="post-summary">
+                  关于 Kantorovich 对偶推导和含义的整理。
+                </div>
+                <div class="post-tags">
+                  <a class="tag-pill" href="/zh/notes/index.html?tag=optimal-transport" data-tag-filter="optimal-transport">最优传输</a>
+                </div>
+              </li>
+              <li class="post-item" data-tags="optimal-transport">
+                <div class="post-date">2026-06-02</div>
+                <a href="/zh/notes/entropic_regularized_optimal_transport.html">
+                  熵正则化最优传输
+                </a>
+                <div class="post-summary">
+                  关于熵正则化最优传输的一些个人笔记。
+                </div>
+                <div class="post-tags">
+                  <a class="tag-pill" href="/zh/notes/index.html?tag=optimal-transport" data-tag-filter="optimal-transport">最优传输</a>
+                </div>
+              </li>
+            </ul>
+          </section>
+        </main>
+      </article>
+    </div>
+  </body>
+</html>

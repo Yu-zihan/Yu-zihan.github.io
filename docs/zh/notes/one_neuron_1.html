@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="notes-site notes-article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>从单个神经元开始</title>
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="/assets/notes.css?v=zh-notes">
+    <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+    <script defer src="/assets/notes.js?v=zh-notes"></script>
+    <script defer src="/assets/vendor/katex/katex.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.katex) return;
+
+        document.querySelectorAll(".math.math-inline").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: false,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        document.querySelectorAll(".math.math-display").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: true,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false },
+              { left: "\\(", right: "\\)", display: false },
+              { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"></nav>
+      <article>
+        <section class="block">
+          <details open>
+            <summary>
+              <header>
+                <h1>从单个神经元开始</h1>
+                <div class="metadata">
+                  <ul>
+                    <li class="meta-item">2026-07-01</li>
+                    <li class="meta-item">笔记</li>
+                    <li class="meta-item">深度学习</li>
+                    <li class="meta-item">第 1 部分：从最小的可计算模型到 XOR</li>
+                  </ul>
+                </div>
+              </header>
+            </summary>
+
+            <p>现在深度学习算法五花八门，我总觉得自己不能很好地学会繁多的算法。所以我决定从头开始思考，从最简单的结构开始，看看自己能走到哪里。过程中会参考已有的材料，希望尽量易懂一些。</p>
+            <p>这篇博客只研究一个问题：</p>
+            <blockquote><p>如果我们从最小的二分类模型开始，它能表达什么？又在哪里失败？</p></blockquote>
+            <h2 id="0-机器学习的几个基本前提">0. 机器学习的几个基本前提</h2>
+            <p>先不急着谈神经网络。我们可以先问一个更基础的问题：</p>
+            <blockquote><p>一个机器学习模型至少需要具备哪些要素？</p></blockquote>
+            <p>在我的理解中，至少有下面几条。</p>
+            <h3 id="01-学习需要可表示的输入">0.1 学习需要可表示的输入</h3>
+            <p>机器不能直接学习现实世界本身，它只能学习被编码后的经验，这种经验就像 图片会被表示成像素矩阵。 文本会被表示成 token 序列。 表格样本会被表示成特征向量。 通常是被某种仪器采样且近似存储到计算机中进行处理的</p>
+            <p>也就是说，学习算法要某种输入 <span class="math math-inline">x</span> ：</p>
+            <div class="math math-display">x = (x_1,x_2,\dots,x_d)</div>
+            <p>这里的 <span class="math math-inline">x</span> 不是现象本身，而是仪器经过测量后得到的数值表示。</p>
+            <hr>
+            <h3 id="02-学习发生在某个可计算的模型空间里">0.2 学习发生在某个可计算的模型空间里</h3>
+            <p>机器学习不是在所有可能规则里随意搜索，我们必须先规定模型长什么样，不然怎么计算呢。</p>
+            <p>例如一个模型可以写成：</p>
+            <div class="math math-display">\hat y = f_\theta(x)</div>
+            <p>其中：</p>
+            <ul><li><span class="math math-inline">x</span> 是输入；</li><li><span class="math math-inline">\hat y</span> 是模型输出；</li><li><span class="math math-inline">\theta</span> 是模型参数；</li><li><span class="math math-inline">f_\theta</span> 是某个可计算的函数。</li></ul>
+            <p>学习不是凭空产生规则，而是在一个给定的模型族里在特定的标准下寻找合适的参数。 这意味着模型本身带有先验。</p>
+            <p>例如，如果我们选择线性模型，就等于假设有用的规律可以被线性关系捕捉。 如果我们选择高斯模型，就等于假设输入服从的分布近似为高斯分布 如果我们选择神经网络，就等于假设复杂关系可以由许多简单的可计算单元组合出来？（我还不知道。）</p>
+            <hr>
+            <h3 id="03-学习需要评价准则">0.3 学习需要评价准则</h3>
+            <p>模型需要知道什么叫“好”，基于所谓的好，模型才能进行迭代更新。</p>
+            <p>在监督学习中，评价准则通常是损失函数：</p>
+            <div class="math math-display">L(\hat y,y)</div>
+            <p>其中 <span class="math math-inline">y</span> 是真实标签，<span class="math math-inline">\hat y</span> 是模型预测。</p>
+            <p>学习目标可以写成：</p>
+            <div class="math math-display">\min_\theta \sum_i L(f_\theta(x_i),y_i)</div>
+            <p>没有评价准则，就没有“改进”的方向。</p>
+            <hr>
+            <h3 id="04-模型内部处理的是数值语义由任务赋予">0.4 模型内部处理的是数值，语义由任务赋予</h3>
+            <p>模型输出的首先是数值，计算模型的输出都是数值，具体语义是人类赋予的</p>
+            <p>例如：</p>
+            <div class="math math-display">\hat y = 1</div>
+            <p>或者：</p>
+            <div class="math math-display">\hat y = 0.83</div>
+            <p>这些数值本身没有天然语义。 它们的语义来自任务定义。</p>
+            <p>例如，在垃圾邮件分类中：</p>
+            <div class="math math-display">\hat y = 1</div>
+            <p>可以被解释为“这是垃圾邮件”。</p>
+            <p>在医学分类中：</p>
+            <div class="math math-display">\hat y = 1</div>
+            <p>可以被解释为“存在某种风险”。</p>
+            <p>所以机器学习模型内部处理的是数值结构，输出之前模型会处理成基于人类的语义结果。</p>
+            <hr>
+            <h3 id="05-模型总是带有先验">0.5 模型总是带有先验</h3>
+            <p>没有完全中立的学习模型。 选择一个模型，就是选择一种看世界的方式。 例如：</p>
+            <ul><li>线性模型假设某些关系可以近似为线性关系；</li><li>决策树假设可以通过一系列条件判断划分数据；</li><li>卷积神经网络假设局部结构和平移共享很重要；</li><li>Transformer 假设 token 之间的关系可以通过注意力机制建模。</li></ul>
+            <p>这一点可以从著名的NO free lunch定理也可以看出，</p>
+            <hr>
+            <h2 id="1-从最小的非平凡可计算模型开始">1. 从最小的非平凡可计算模型开始</h2>
+            <p>那看看最简单的模型能做些什么吧。</p>
+            <p>首先，”能做些什么“的概念很宽泛，我们且假设最简单的模型能够拟合什么函数。 为什么这样呢，因为函数是显式表达变量间关系的映射，是某种规律的直观体现，存在抽象的函数关系，我们就能更好地了解某些现象，我个人认为是数学抽象化的处理</p>
+            <p>严格说，最简单的模型可以是常数模型：</p>
+            <div class="math math-display">\hat y = 0</div>
+            <p>它当然可计算，但它不看输入。 它没有真正表达“输入如何影响输出”。</p>
+            <p>所以我们从一个稍微有意义的最小模型开始：</p>
+            <blockquote><p>一个接收输入、带有参数、能够根据输入改变输出的模型。</p></blockquote>
+            <p>线性表达式是最简单的可计算关系之一：</p>
+            <div class="math math-display">s=w^\top x+b</div>
+            <p>如果我们直接输出 <span class="math math-inline">s</span>，它更像是一个回归或打分模型。</p>
+            <p>但如果我们研究的是二分类，那么还需要把这个分数变成 <span class="math math-inline">0</span> 或 <span class="math math-inline">1</span>。最简单的方法就是加一个阈值判断：</p>
+            <div class="math math-display">h(x)=\mathbf 1[s&gt;0]</div>
+            <p>于是我们得到线性阈值神经元。</p>
+            <hr>
+            <h2 id="2-线性阈值神经元">2. 线性阈值神经元</h2>
+            <h3 id="21-为什么从线性阈值神经元开始">2.1 为什么从线性阈值神经元开始？</h3>
+            <p>在讨论神经元之前，需要先说清楚一个问题：</p>
+            <blockquote><p>这里的模型到底要做什么？</p></blockquote>
+            <p>机器学习模型的基本形式可以写成：</p>
+            <div class="math math-display">x \longrightarrow \hat y</div>
+            <p>也就是：给定输入 <span class="math math-inline">x</span>，模型输出一个预测结果 <span class="math math-inline">\hat y</span>。</p>
+            <p>但是输出结果可以有很多种形式。</p>
+            <p>如果 <span class="math math-inline">\hat y</span> 是一个连续数值，例如房价、温度、概率分数，那么这是回归或打分问题。</p>
+            <p>如果 <span class="math math-inline">\hat y</span> 是一个类别，例如“是/否”“正类/负类”“猫/狗”，那么这是分类问题。</p>
+            <p>本文先研究最小的分类问题：二分类。</p>
+            <p>也就是：</p>
+            <div class="math math-display">y\in\{0,1\}</div>
+            <p>此时模型要做的事情很具体：</p>
+            <blockquote><p>给定一个输入 <span class="math math-inline">x</span>，判断它属于类别 <span class="math math-inline">0</span> 还是类别 <span class="math math-inline">1</span>。</p></blockquote>
+            <hr>
+            <h3 id="22-二分类模型需要什么">2.2 二分类模型需要什么？</h3>
+            <p>根据我们之前的提出的公理，一个简单模型应该是</p>
+            <div class="math math-display">\hat y = f_\theta(x)</div>
+            <p>那分类模型的输出，无非是类比1或类别2，那这个没得说。 那在进行类别输出之前，总要做点计算吧，那最简单的计算又是什么呢？线性计算，很显然了。</p>
+            <p>所以，综上，一个二分类模型至少需要两步。 第一步：根据输入 <span class="math math-inline">x</span> 计算出一个分数。 第二步：把这个分数转化成类别 <span class="math math-inline">0</span> 或类别 <span class="math math-inline">1</span>。 也就是：</p>
+            <div class="math math-display">x \longrightarrow s \longrightarrow \hat y</div>
+            <p>其中 <span class="math math-inline">s</span> 是模型内部计算出的分数，<span class="math math-inline">\hat y</span> 是最终分类结果。</p>
+            <hr>
+            <h3 id="23-线性阈值神经元的定义及特点">2.3 线性阈值神经元的定义及特点</h3>
+            <p>把前面的两步合在一起，就得到线性阈值神经元。</p>
+            <p>第一步，计算线性分数：</p>
+            <div class="math math-display">s=w^\top x+b</div>
+            <p>第二步，进行阈值判断：</p>
+            <div class="math math-display">h(x)=\mathbf 1[s&gt;0]</div>
+            <p>对第二步骤进行一些说明，针对计算出来的分数进行处理，进行二分类，很自然地想到分段函数取0和1，那这个标准为什么以0为分界线呢，就是为了简单。</p>
+            <p>更一般地，我们也可以写成：</p>
+            <div class="math math-display">h(x)=\mathbf 1[s&gt;t]</div>
+            <p>也就是：</p>
+            <div class="math math-display">h(x)=\mathbf 1[w^\top x+b&gt;t]</div>
+            <p>移项得到：</p>
+            <div class="math math-display">h(x)=\mathbf 1[w^\top x+(b-t)&gt;0]</div>
+            <p>令：</p>
+            <div class="math math-display">b&#x27;=b-t</div>
+            <p>就回到了：</p>
+            <div class="math math-display">h(x)=\mathbf 1[w^\top x+b&#x27;&gt;0]</div>
+            <p>所以把阈值写成 <span class="math math-inline">0</span> 不会损失一般性。</p>
+            <p>所以，线性阈值神经元可以理解为：</p>
+            <blockquote><p>一个先用线性表达式打分，再用阈值做二分类判断的最小模型。</p></blockquote>
+            <p>线性阈值神经元包含两个假设。</p>
+            <p>第一个是假设可以用线性分数描述输入：</p>
+            <div class="math math-display">s=w^\top x+b</div>
+            <p>也就是说，模型认为输入特征可以通过加权求和形成一个有意义的判断分数。</p>
+            <p>第二个是假设分类可以通过一个阈值完成：</p>
+            <div class="math math-display">h(x)=\mathbf 1[s&gt;0]</div>
+            <p>也就是说，模型认为只要分数超过某个临界值，就可以归为一类；否则归为另一类。</p>
+            <p>合起来就是：</p>
+            <div class="math math-display">x \longrightarrow s=w^\top x+b \longrightarrow h(x)=\mathbf 1[s&gt;0]</div>
+            <p>这就是线性阈值神经元的完整逻辑。</p>
+            <p>可以试试下面的代码，用来展示二维情况下，一个神经元如何用一条直线划分平面。</p>
+            <pre><code class="language-wolfram">ClearAll[&quot;Global`*&quot;];
+
+score2D[x1_, x2_, w1_, w2_, b_] := w1*x1 + w2*x2 + b;
+neuron2D[x1_, x2_, w1_, w2_, b_] := Boole[score2D[x1, x2, w1, w2, b] &gt; 0];
+
+Manipulate[
+ Show[
+  RegionPlot[
+   neuron2D[x1, x2, w1, w2, b] == 1,
+   {x1, -3, 3},
+   {x2, -3, 3},
+   PlotPoints -&gt; 60,
+   FrameLabel -&gt; {&quot;x1&quot;, &quot;x2&quot;},
+   PlotStyle -&gt; LightBlue,
+   BoundaryStyle -&gt; None
+  ],
+  ContourPlot[
+   score2D[x1, x2, w1, w2, b],
+   {x1, -3, 3},
+   {x2, -3, 3},
+   Contours -&gt; {0},
+   ContourStyle -&gt; {Red, Thick},
+   ContourShading -&gt; False
+  ],
+  PlotRange -&gt; {{-3, 3}, {-3, 3}},
+  ImageSize -&gt; Large,
+  PlotLabel -&gt; &quot;A linear threshold neuron cuts the plane into two half-spaces&quot;
+ ],
+ {{w1, 1, &quot;w1&quot;}, -3, 3, 0.1, Appearance -&gt; &quot;Labeled&quot;},
+ {{w2, 1, &quot;w2&quot;}, -3, 3, 0.1, Appearance -&gt; &quot;Labeled&quot;},
+ {{b, 0, &quot;b&quot;}, -3, 3, 0.1, Appearance -&gt; &quot;Labeled&quot;}
+]</code></pre>
+            <p>红线是：</p>
+            <div class="math math-display">w_1x_1+w_2x_2+b=0</div>
+            <p>蓝色区域是：</p>
+            <div class="math math-display">w_1x_1+w_2x_2+b&gt;0</div>
+            <p>这说明一个神经元不是在“理解”平面上的点。 它只是用一个线性条件，把平面切成两边。</p>
+            <hr>
+            <h2 id="3-单个线性阈值神经元的能力边界">3. 单个线性阈值神经元的能力边界</h2>
+            <p>因为线性阈值神经元只能产生一个线性边界，所以它只能解决线性可分的二分类问题。</p>
+            <p>如果存在某个 <span class="math math-inline">w,b</span>，使得所有正类样本都在边界一侧，所有负类样本都在另一侧，那么这个问题就是线性可分的。</p>
+            <p>这时，一个线性阈值神经元就有可能完成分类。</p>
+            <p>但如果客观条件下，正负样本无法被一条直线分开，那么一个线性阈值神经元就不可能完成分类。</p>
+            <p>这不是训练技巧的问题，而是模型表达能力的问题，怎么学也学不会的。</p>
+            <p>下面举一个经典的例子，用线性神经元来尝试逻辑函数，进行发现线性神经元的表达限制。</p>
+            <p>这个例子初看很反直觉（至少反我的直觉）。怎么初等函数就跳到逻辑函数上了，逻辑函数在模拟或者数字电路上就能计算得很好了。</p>
+            <p>关键不在于用神经元替代逻辑门，而在于：它们是最小的二输入二分类任务。</p>
+            <hr>
+            <p>现在假设输入空间是二维的， AND、OR、XOR 都接收两个二值输入：</p>
+            <div class="math math-display">x_1,x_2\in\{0,1\}</div>
+            <p>输出也是二值：</p>
+            <div class="math math-display">y\in\{0,1\}</div>
+            <p>所以它们都是最小的分类任务。</p>
+            <p>每个任务只有四个输入点：</p>
+            <div class="math math-display">(0,0),(1,0),(0,1),(1,1)</div>
+            <p>这四个点刚好是二维平面中一个正方形的四个角。</p>
+            <p>因此，我们可以把逻辑问题变成分类问题，因为逻辑值是两个，分类问题的值也是两个：</p>
+            <blockquote><p>能不能画一条直线，把输出为 <span class="math math-inline">1</span> 的点和输出为 <span class="math math-inline">0</span> 的点分开？</p></blockquote>
+            <hr>
+            <p>现在来看一看这些函数的真值表，真值表的意思是输入分别对应了什么输出</p>
+            <p>AND 的真值表是：</p>
+            <div class="table-wrap"><table><thead><tr><th><span class="math math-inline">x_1</span></th><th><span class="math math-inline">x_2</span></th><th>AND</th></tr></thead><tbody><tr><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td></tr><tr><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td></tr><tr><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td></tr><tr><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td></tr></tbody></table></div>
+            <p>OR 的真值表是：</p>
+            <p>| <span class="math math-inline">x_1</span> | <span class="math math-inline">x_2</span> |  OR | | ----: | ----: | --: | |   <span class="math math-inline">0</span> |   <span class="math math-inline">0</span> | <span class="math math-inline">0</span> | |   <span class="math math-inline">1</span> |   <span class="math math-inline">0</span> | <span class="math math-inline">1</span> | |   <span class="math math-inline">0</span> |   <span class="math math-inline">1</span> | <span class="math math-inline">1</span> | |   <span class="math math-inline">1</span> |   <span class="math math-inline">1</span> | <span class="math math-inline">1</span> |</p>
+            <p>XOR 的真值表是：</p>
+            <div class="table-wrap"><table><thead><tr><th><span class="math math-inline">x_1</span></th><th><span class="math math-inline">x_2</span></th><th>XOR</th></tr></thead><tbody><tr><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td></tr><tr><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td></tr><tr><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td></tr><tr><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td></tr></tbody></table></div>
+            <p>结果很简单，可以试着画一画，AND 和 OR 都可以被一条直线分开，所以它们是线性可分的。</p>
+            <p>但XOR的输出在正方形的两条对角线上，这时一条直线无法把正负样本分开。 假设存在：</p>
+            <div class="math math-display">h(x)=\mathbf 1[w_1x_1+w_2x_2+b&gt;0]</div>
+            <p>可以实现 XOR。</p>
+            <p>因为 <span class="math math-inline">(0,0)\mapsto 0</span>，所以：</p>
+            <div class="math math-display">b\le 0</div>
+            <p>因为 <span class="math math-inline">(1,0)\mapsto 1</span>，所以：</p>
+            <div class="math math-display">w_1+b&gt;0</div>
+            <p>因为 <span class="math math-inline">(0,1)\mapsto 1</span>，所以：</p>
+            <div class="math math-display">w_2+b&gt;0</div>
+            <p>后两式相加：</p>
+            <div class="math math-display">w_1+w_2+2b&gt;0</div>
+            <p>又因为 <span class="math math-inline">b\le 0</span>，所以：</p>
+            <div class="math math-display">w_1+w_2+b&gt;0</div>
+            <p>但 XOR 要求 <span class="math math-inline">(1,1)\mapsto 0</span>，所以：</p>
+            <div class="math math-display">w_1+w_2+b\le 0</div>
+            <p>矛盾。</p>
+            <p>一个线性阈值神经元做不到XOR操作，这是最简单的例子了。</p>
+            <hr>
+            <h2 id="4-线性阈值神经元失败之后">4. 线性阈值神经元失败之后</h2>
+            <p>XOR 失败以后，我们当然可以直接换模型。比如写一个专门的 XOR 规则，或者用决策树，甚至回到逻辑门电路。</p>
+            <p>但是，聪明的逻辑学家一拍脑袋，说了一句“尤里卡”，直接给出了一个很好的表达式：</p>
+            <div class="math math-display">s=x_1+x_2-2x_1x_2</div>
+            <p>我们检查一下这个式子：</p>
+            <p>|<span class="math math-inline">x_1</span>|<span class="math math-inline">x_2</span>|<span class="math math-inline">x_1x_2</span>|<span class="math math-inline">s=x_1+x_2-2x_1x_2</span>|XOR| |--:|--:|--:|--:|--:| |<span class="math math-inline">0</span>|<span class="math math-inline">0</span>|<span class="math math-inline">0</span>|<span class="math math-inline">0</span>|<span class="math math-inline">0</span>| |<span class="math math-inline">1</span>|<span class="math math-inline">0</span>|<span class="math math-inline">0</span>|<span class="math math-inline">1</span>|<span class="math math-inline">1</span>| |<span class="math math-inline">0</span>|<span class="math math-inline">1</span>|<span class="math math-inline">0</span>|<span class="math math-inline">1</span>|<span class="math math-inline">1</span>| |<span class="math math-inline">1</span>|<span class="math math-inline">1</span>|<span class="math math-inline">1</span>|<span class="math math-inline">0</span>|<span class="math math-inline">0</span>|</p>
+            <p>这个式子确实能区分 XOR。 如果再加一个阈值，例如：</p>
+            <div class="math math-display">h(x)=\mathbf 1[x_1+x_2-2x_1x_2-0.5&gt;0]</div>
+            <p>那么它就能完整实现 XOR。 但这里有一个问题：这个表达式已经不是原始输入 <span class="math math-inline">x_1,x_2</span> 上的线性函数了，因为它包含了乘积项：</p>
+            <div class="math math-display">x_1x_2</div>
+            <p>也就是说，在原始二维空间里，我们没有找到一条直线来分开 XOR。 逻辑学家的做法其实是偷偷引入了一个新的特征：</p>
+            <div class="math math-display">x_3=x_1x_2</div>
+            <p>于是原来的输入：</p>
+            <div class="math math-display">(x_1,x_2)</div>
+            <p>被变换成了三维特征：</p>
+            <div class="math math-display">\phi(x)=(x_1,x_2,x_1x_2)</div>
+            <p>也可以写成：</p>
+            <div class="math math-display">\phi(x)=(x_1,x_2,x_3)</div>
+            <p>其中：</p>
+            <div class="math math-display">x_3=x_1x_2</div>
+            <p>这时，刚才那个看起来非线性的表达式：</p>
+            <div class="math math-display">x_1+x_2-2x_1x_2-0.5</div>
+            <p>就可以重新写成：</p>
+            <div class="math math-display">x_1+x_2-2x_3-0.5</div>
+            <p>这个式子在新的特征空间 <span class="math math-inline">(x_1,x_2,x_3)</span> 里是线性的。</p>
+            <p>也就是说，<strong>我们没有改变线性模型的形式，我们改变的是输入表示。</strong></p>
+            <p>原来模型做不到：</p>
+            <div class="math math-display">h(x)=\mathbf 1[w_1x_1+w_2x_2+b&gt;0]</div>
+            <p>但加入新特征后，模型可以写成：</p>
+            <div class="math math-display">h(x)=\mathbf 1[w_1x_1+w_2x_2+w_3x_3+b&gt;0]</div>
+            <p>取：</p>
+            <div class="math math-display">w_1=1,\quad w_2=1,\quad w_3=-2,\quad b=-0.5</div>
+            <p>就得到：</p>
+            <div class="math math-display">h(x)=\mathbf 1[x_1+x_2-2x_3-0.5&gt;0]</div>
+            <p>由于：</p>
+            <div class="math math-display">x_3=x_1x_2</div>
+            <p>所以它等价于：</p>
+            <div class="math math-display">h(x)=\mathbf 1[x_1+x_2-2x_1x_2-0.5&gt;0]</div>
+            <p>这说明了一件很重要的事：</p>
+            <blockquote><p>XOR 在原始二维空间里不是线性可分的；但经过特征变换以后，它可以在新的三维特征空间里变得线性可分。</p></blockquote>
+            <p>在原始空间里，我们只有两个坐标：</p>
+            <div class="math math-display">(x_1,x_2)</div>
+            <p>四个点是：</p>
+            <div class="math math-display">(0,0),(1,0),(0,1),(1,1)</div>
+            <p>这四个点无法被一条直线分开。</p>
+            <p>但在新的特征空间里，它们变成：</p>
+            <p>|原始输入|新特征 <span class="math math-inline">x_3=x_1x_2</span>|三维特征点|XOR| |---|--:|---|--:| |<span class="math math-inline">(0,0)</span>|<span class="math math-inline">0</span>|<span class="math math-inline">(0,0,0)</span>|<span class="math math-inline">0</span>| |<span class="math math-inline">(1,0)</span>|<span class="math math-inline">0</span>|<span class="math math-inline">(1,0,0)</span>|<span class="math math-inline">1</span>| |<span class="math math-inline">(0,1)</span>|<span class="math math-inline">0</span>|<span class="math math-inline">(0,1,0)</span>|<span class="math math-inline">1</span>| |<span class="math math-inline">(1,1)</span>|<span class="math math-inline">1</span>|<span class="math math-inline">(1,1,1)</span>|<span class="math math-inline">0</span>|</p>
+            <p>在这个三维空间里，一个平面就可以把正负样本分开：</p>
+            <div class="math math-display">x_1+x_2-2x_3-0.5=0</div>
+            <p>平面一侧输出 <span class="math math-inline">1</span>，另一侧输出 <span class="math math-inline">0</span>。</p>
+            <p>这时我们可以说：</p>
+            <blockquote><p>非线性问题并不一定要用非线性分类器解决。<br>有时，我们可以先做一个非线性特征变换，然后在新的特征空间里继续使用线性分类器。</p></blockquote>
+            <p>下面用 Mathematica 可视化这个三维特征空间。</p>
+            <pre><code class="language-wolfram">ClearAll[&quot;Global`*&quot;];
+
+(* XOR 的原始输入 *)
+rawPoints = {{0, 0}, {1, 0}, {0, 1}, {1, 1}};
+labels = {0, 1, 1, 0};
+
+(* 新增特征 x3 = x1 x2 *)
+featurePoint[{x1_, x2_}] := {x1, x2, x1*x2};
+
+points3D = featurePoint /@ rawPoints;
+
+pos = Pick[points3D, labels, 1];
+neg = Pick[points3D, labels, 0];
+
+plane =
+ ContourPlot3D[
+  x1 + x2 - 2*x3 - 0.5 == 0,
+  {x1, -0.2, 1.2},
+  {x2, -0.2, 1.2},
+  {x3, -0.2, 1.2},
+  ContourStyle -&gt; Directive[Opacity[0.35], Red],
+  Mesh -&gt; None
+ ];
+
+points =
+ Graphics3D[
+  {
+   Blue, PointSize[Large], Point[pos],
+   Black, PointSize[Large], Point[neg],
+   
+   Text[Style[&quot;1&quot;, Blue, 16], # + {0.05, 0.05, 0.05}] &amp; /@ pos,
+   Text[Style[&quot;0&quot;, Black, 16], # + {0.05, 0.05, 0.05}] &amp; /@ neg
+  }
+ ];
+
+Show[
+ plane,
+ points,
+ Axes -&gt; True,
+ AxesLabel -&gt; {&quot;x1&quot;, &quot;x2&quot;, &quot;x3 = x1 x2&quot;},
+ BoxRatios -&gt; {1, 1, 1},
+ PlotRange -&gt; {{-0.2, 1.2}, {-0.2, 1.2}, {-0.2, 1.2}},
+ ImageSize -&gt; Large,
+ PlotLabel -&gt; &quot;XOR becomes linearly separable after adding x3 = x1 x2&quot;
+]</code></pre>
+            <p>但是，这里还有一个没有解决的问题。这个新特征是逻辑学家直接想出来的 :(</p>
+            <p>我们可以请教他为什么要这样构造。他也许会解释半天：XOR 表示两个输入不同，<span class="math math-inline">x_1x_2</span> 正好能检测“两者是否同时为 <span class="math math-inline">1</span>”，所以把它减掉两倍就能修正 OR 的结果。</p>
+            <p>可是智者的思路往往难以琢磨。对一个复杂问题，我们未必知道应该手工构造什么特征。</p>
+            <p>于是问题来了：</p>
+            <blockquote><p>能不能通过模型本身的设计，让它在调整参数的过程中自己构造新的特征？</p></blockquote>
+            <p>如果可以，那就太好了。</p>
+            <p>因为这意味着我们不必每次都指望智者一拍脑袋。  我们可以设计一个模型，让它从原始输入出发，逐步学出中间表示，下一篇文章我们会讨论这个问题。</p>
+          </details>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

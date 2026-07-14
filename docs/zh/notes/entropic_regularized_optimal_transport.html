@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="notes-site notes-article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>熵正则化最优传输</title>
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="/assets/notes.css?v=zh-notes">
+    <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+    <script defer src="/assets/notes.js?v=zh-notes"></script>
+    <script defer src="/assets/vendor/katex/katex.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.katex) return;
+
+        document.querySelectorAll(".math.math-inline").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: false,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        document.querySelectorAll(".math.math-display").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: true,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false },
+              { left: "\\(", right: "\\)", display: false },
+              { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"></nav>
+      <article>
+        <section class="block">
+          <details open>
+            <summary>
+              <header>
+                <h1>熵正则化最优传输</h1>
+                <div class="metadata">
+                  <ul>
+                    <li class="meta-item">2026-06-02</li>
+                    <li class="meta-item">笔记</li>
+                    <li class="meta-item">最优传输</li>
+                    <li class="meta-item">关于熵正则化最优传输的一些个人笔记</li>
+                  </ul>
+                </div>
+              </header>
+            </summary>
+
+            <h2 id="1-离散最优传输定义">1. 离散最优传输定义</h2>
+            <p>最优传输涉及到具体的计算问题，在计算机中实际计算时是离散化的，具体表示如下：</p>
+            <p>设 <span class="math math-inline">a \in \mathbb{R}^n</span>，<span class="math math-inline">b \in \mathbb{R}^m</span> 分别表示源分布与目标分布，满足 <span class="math math-inline">a_i \ge 0</span>，<span class="math math-inline">b_j \ge 0</span>，<span class="math math-inline">\sum_i a_i = \sum_j b_j = 1</span>。</p>
+            <p>定义：</p>
+            <ul><li><strong>运输矩阵</strong> <span class="math math-inline">P \in \mathbb{R}^{n\times m}</span>，其中 <span class="math math-inline">P_{ij}</span> 表示从第 <span class="math math-inline">i</span> 个点运到第 <span class="math math-inline">j</span> 个点的质量。</li><li><strong>代价矩阵</strong> <span class="math math-inline">C \in \mathbb{R}^{n\times m}</span>，其中 <span class="math math-inline">C_{ij}=c(x_i,y_j)</span>。</li></ul>
+            <p>离散最优传输问题就是求如下的式子</p>
+            <div class="math math-display">\min_{P}\sum_{i,j} C_{ij}P_{ij}</div>
+            <p>满足 <span class="math math-inline">P\mathbf{1}_m = a</span>（行约束：源分布质量守恒），<span class="math math-inline">P^T\mathbf{1}_n = b</span>（列约束：目标分布质量守恒），<span class="math math-inline">P_{ij}\ge0</span>。</p>
+            <h2 id="2-为什么需要熵正则">2. 为什么需要熵正则？</h2>
+            <p>普通 OT 存在问题：变量数很多（<span class="math math-inline">n\times m</span>），约束条件数目是 (<span class="math math-inline">n + m</span>)，线性规划计算昂贵，解可能稀疏、不稳定。</p>
+            <p>因此加入熵正则项 <span class="math math-inline">H(P)=-\sum_{i,j}P_{ij}\log P_{ij}</span>，将目标函数变为：</p>
+            <div class="math math-display">\min_P \sum_{i,j} C_{ij}P_{ij} - \varepsilon H(P) = \min_P \sum_{i,j} C_{ij}P_{ij} + \varepsilon\sum_{i,j}P_{ij}\log P_{ij}</div>
+            <p>其中 <span class="math math-inline">\varepsilon&gt;0</span> 为正则化强度，熵越大，运输计划越平滑。</p>
+            <p>这里简单解释一下这个正则化的意思 当<span class="math math-inline">\varepsilon\rightarrow\infty</span>时，正则项会驱使解向满足约束的熵最小方向靠近，根据一些信息论知识，这个分布就是边缘分布的向量积； 当<span class="math math-inline">\varepsilon\rightarrow 0</span>时，就逐渐接近普通的最优传输。</p>
+            <h2 id="3-熵正则化-ot-的拉格朗日形式">3. 熵正则化 OT 的拉格朗日形式</h2>
+            <p>根据简单的优化知识，用拉格朗日乘数法可以求解<span class="math math-inline">P</span>的解析表达式，引入拉格朗日乘子 <span class="math math-inline">f_i</span>（对应行约束）、<span class="math math-inline">g_j</span>（对应列约束），可以构造拉格朗日函数如下：</p>
+            <div class="math math-display">\mathcal{L}(P,f,g) = \sum_{i,j}\left(C_{ij}P_{ij}+\varepsilon P_{ij}\log P_{ij}\right) - \sum_i f_i\left(a_i-\sum_j P_{ij}\right) - \sum_j g_j\left(b_j-\sum_i P_{ij}\right)</div>
+            <p>对每个 <span class="math math-inline">P_{ij}</span> 求偏导并令其为 0可得：</p>
+            <div class="math math-display">\frac{\partial \mathcal{L}}{\partial P_{ij}} = C_{ij}+\varepsilon(\log P_{ij}+1)-f_i-g_j = 0</div>
+            <p>整理得 <span class="math math-inline">\log P_{ij} = \dfrac{f_i+g_j-C_{ij}}{\varepsilon}-1</span>，于是：</p>
+            <div class="math math-display">P_{ij} = \exp\!\left(\frac{f_i}{\varepsilon}\right)\exp\!\left(-\frac{C_{ij}}{\varepsilon}\right)\exp\!\left(\frac{g_j}{\varepsilon}\right)e^{-1}</div>
+            <p>把常数吸收进变量，令 <span class="math math-inline">u_i = \exp\!\left(\dfrac{f_i}{\varepsilon}\right)</span>，<span class="math math-inline">v_j = \exp\!\left(\dfrac{g_j}{\varepsilon}\right)</span>，<span class="math math-inline">K_{ij}=\exp\!\left(-\dfrac{C_{ij}}{\varepsilon}\right)</span>，则：</p>
+            <div class="math math-display">P_{ij}=u_i K_{ij} v_j</div>
+            <h2 id="4-矩阵形式">4. 矩阵形式</h2>
+            <p>在上一小节求出的表达式可以用矩阵表示，便于放进GPU中处理。 定义 <span class="math math-inline">u \in \mathbb{R}^n</span>，<span class="math math-inline">v\in\mathbb{R}^m</span>，以及 <span class="math math-inline">K=\exp(-C/\varepsilon)</span>，则：</p>
+            <div class="math math-display">P = \mathrm{diag}(u)\,K\,\mathrm{diag}(v)</div>
+            <p>上面式子只是解析式，理论上来说要代入约束条件具体求值，但是现在有<span class="math math-inline">n\times m</span>个未知数，约束方程只有<span class="math math-inline">n + m</span>个，在大规模情况下，解肯定不止一个，所以还需要加点条件，或者引入什么启发性的算法来求解。下面介绍最原始的Sinkhorn算法</p>
+            <h2 id="5-由边缘约束得到-sinkhorn-迭代">5. 由边缘约束得到 Sinkhorn 迭代</h2>
+            <p>由 <span class="math math-inline">P\mathbf{1}_m=a</span>，代入得 <span class="math math-inline">\mathrm{diag}(u)K\mathrm{diag}(v)\mathbf{1}_m=a</span>，即 <span class="math math-inline">u \odot (Kv)=a</span>，所以<span class="math math-inline">u</span>应该是：</p>
+            <div class="math math-display">u = \frac{a}{Kv}</div>
+            <p>同理，由 <span class="math math-inline">P^T\mathbf{1}_n=b</span>，得：</p>
+            <div class="math math-display">v=\frac{b}{K^Tu}</div>
+            <p><span class="math math-inline">u</span>和<span class="math math-inline">v</span>是相互依赖的关系，如果明确获取其中的一个，那么就能得到另一个，问题是现在谁也不知道，所以就引入了Sinkhorn-Knopp 迭代算法，总要迈出第一步，然后逐步修正，到最后收敛，算法是这样的： 初始化 <span class="math math-inline">v^{(0)}=\mathbf{1}</span>，迭代：</p>
+            <div class="math math-display">u^{(t+1)} = \frac{a}{Kv^{(t)}}, \qquad v^{(t+1)} = \frac{b}{K^Tu^{(t+1)}}</div>
+            <p>最终 <span class="math math-inline">P^\star = \mathrm{diag}(u)K\mathrm{diag}(v)</span>。 这个算法很简单，但是为什么会收敛到特定值上呢，聪明努力的数学家已经证明了收敛性，但是作为学习者，我们还需要一些直觉上的理解，下面给出两个直觉上的解释。</p>
+            <h2 id="6-sinkhorn-为什么会收敛矩阵缩放角度">6. Sinkhorn 为什么会收敛：矩阵缩放角度</h2>
+            <p>熵正则最优传输的最优解具有如下形式：</p>
+            <div class="math math-display">P^\star = \operatorname{diag}(u) K \operatorname{diag}(v)</div>
+            <p>其中</p>
+            <div class="math math-display">K_{ij} = e^{-C_{ij}/\varepsilon}</div>
+            <p>因为 <span class="math math-inline">\varepsilon &gt; 0</span>，并且通常假设 <span class="math math-inline">C_{ij}</span> 有限，所以</p>
+            <div class="math math-display">K_{ij} &gt; 0.</div>
+            <p>也就是说，熵正则把原来的最优传输问题转化成了一个<strong>正矩阵缩放问题</strong>：</p>
+            <p>给定一个正矩阵 <span class="math math-inline">K</span>，寻找两个正向量 <span class="math math-inline">u, v</span>，使得矩阵  <span class="math math-inline">K</span> 的行和等于 <span class="math math-inline">a</span>，列和等于 <span class="math math-inline">b</span>。 行边缘约束要求：<span class="math math-inline">\operatorname{diag}(u)Kv = a.</span> 逐元素写就是：<span class="math math-inline">u_i (Kv)_i = a_i.</span></p>
+            <p>因此，在固定 <span class="math math-inline">v</span> 的情况下，唯一能让行和满足 <span class="math math-inline">a</span> 的更新是：</p>
+            <div class="math math-display">u_i = \frac{a_i}{(Kv)_i}.</div>
+            <p>同理，列边缘约束要求：<span class="math math-inline">\operatorname{diag}(v)K^\top u = b.</span> 逐元素写就是：<span class="math math-inline">v_j (K^\top u)_j = b_j.</span></p>
+            <p>因此，在固定 <span class="math math-inline">u</span> 的情况下，唯一能让列和满足 <span class="math math-inline">b</span> 的更新是：</p>
+            <div class="math math-display">v_j = \frac{b_j}{(K^\top u)_j}.</div>
+            <p>所以 Sinkhorn 迭代就是：</p>
+            <div class="math math-display">u^{(t+1)} = \frac{a}{K v^{(t)}},</div>
+            <div class="math math-display">v^{(t+1)} = \frac{b}{K^\top u^{(t+1)}}.</div>
+            <p>直观地说，Sinkhorn 迭代就是不断做两件事：</p>
+            <ol><li>固定列缩放 <span class="math math-inline">v</span>，修正行缩放 <span class="math math-inline">u</span>，让行和等于 <span class="math math-inline">a</span>；</li><li>固定行缩放 <span class="math math-inline">u</span>，修正列缩放 <span class="math math-inline">v</span>，让列和等于 <span class="math math-inline">b</span>。</li></ol>
+            <p>也就是：</p>
+            <div class="math math-display">\text{修正行} \rightarrow \text{修正列} \rightarrow \text{修正行} \rightarrow \text{修正列} \rightarrow \cdots</div>
+            <p>为什么这种反复的行列缩放不会一直震荡，而是会收敛？一个简单的理解是：<strong>Sinkhorn 迭代对应的映射是压缩映射</strong>。</p>
+            <p>把 Sinkhorn 更新只写成关于 <span class="math math-inline">v</span> 的形式：</p>
+            <div class="math math-display">v^{(t+1)}
+=
+F(v^{(t)})
+=
+\frac{b}{K^\top\left(\frac{a}{Kv^{(t)}}\right)}.</div>
+            <p>也就是说，每一轮迭代都是在对当前的 <span class="math math-inline">v</span> 作用同一个映射 <span class="math math-inline">F</span>。</p>
+            <p>由于 <span class="math math-inline">K</span> 是严格正矩阵，乘以 <span class="math math-inline">K</span> 或 <span class="math math-inline">K^\top</span> 会把向量中极端的比例差异“平均掉”。因此，两次不同初始值经过一次 Sinkhorn 更新后，它们之间的差异会变小。</p>
+            <p>换句话说，存在某种合适的距离 <span class="math math-inline">d</span> 和常数 <span class="math math-inline">0&lt;\gamma&lt;1</span>，使得</p>
+            <div class="math math-display">d(F(v),F(w))
+\leq
+\gamma d(v,w).</div>
+            <p>这就是压缩映射。</p>
+            <p>压缩映射有一个重要性质：反复迭代不会产生真正的周期震荡，而是会收敛到唯一的不动点。</p>
+            <p>所以 Sinkhorn 迭代最终会收敛到某个 <span class="math math-inline">v^\star</span>，满足</p>
+            <div class="math math-display">F(v^\star)=v^\star.</div>
+            <p>再由</p>
+            <div class="math math-display">u^\star=\frac{a}{Kv^\star}</div>
+            <p>得到对应的 <span class="math math-inline">u^\star</span>。</p>
+            <p>于是</p>
+            <div class="math math-display">P^\star
+=
+\operatorname{diag}(u^\star)K\operatorname{diag}(v^\star)</div>
+            <p>同时满足行边缘和列边缘约束，这个式子又是从拉格朗日乘数法中求得，因此就是熵正则最优传输的最优传输计划。需要注意的是，这里的“唯一”指的是最终传输矩阵 <span class="math math-inline">P^\star</span> 唯一；缩放因子 <span class="math math-inline">u^\star,v^\star</span> 本身可以相差一个整体倍数。</p>
+            <h2 id="7-sinkhorn-是交替-kl-投影">7. Sinkhorn 是交替 KL 投影</h2>
+            <p>还可以从集合投影的角度理解 Sinkhorn 迭代。 定义两个约束集合：<span class="math math-inline">\mathcal C_a = \{\pi : \pi \mathbf 1 = a\},</span> <span class="math math-inline">\mathcal C_b = \{\pi : \pi^\top \mathbf 1 = b\}.</span></p>
+            <p>其中：</p>
+            <ul><li><span class="math math-inline">\mathcal C_a</span> 表示所有行边缘等于 <span class="math math-inline">a</span> 的传输矩阵；</li><li><span class="math math-inline">\mathcal C_b</span> 表示所有列边缘等于 <span class="math math-inline">b</span> 的传输矩阵。</li></ul>
+            <p>熵正则最优传输可以理解为：在满足边缘约束的所有传输计划中，寻找一个离 Gibbs 核 <span class="math math-inline">K</span> 最近的矩阵。这里的“距离”不是欧氏距离，而是 KL 散度。</p>
+            <p>具体来说，熵正则最优传输目标可以写成</p>
+            <div class="math math-display">\min_{\pi \in \mathcal C_a \cap \mathcal C_b}
+\sum_{i,j} C_{ij}\pi_{ij}
++
+\varepsilon \sum_{i,j}\pi_{ij}\log \pi_{ij}.</div>
+            <p>令</p>
+            <div class="math math-display">K_{ij}=e^{-C_{ij}/\varepsilon},</div>
+            <p>则有</p>
+            <div class="math math-display">C_{ij}=-\varepsilon \log K_{ij}.</div>
+            <p>代入目标函数：</p>
+            <div class="math math-display">\sum_{i,j} C_{ij}\pi_{ij}
++
+\varepsilon \sum_{i,j}\pi_{ij}\log \pi_{ij}
+=
+\sum_{i,j}(-\varepsilon \log K_{ij})\pi_{ij}
++
+\varepsilon \sum_{i,j}\pi_{ij}\log \pi_{ij}.</div>
+            <p>整理可得</p>
+            <div class="math math-display">=
+\varepsilon
+\sum_{i,j}
+\pi_{ij}
+\left(
+\log \pi_{ij}
+-
+\log K_{ij}
+\right).</div>
+            <p>也就是</p>
+            <div class="math math-display">=
+\varepsilon
+\sum_{i,j}
+\pi_{ij}
+\log
+\frac{\pi_{ij}}{K_{ij}}.</div>
+            <p>因此，在约束集合</p>
+            <div class="math math-display">\mathcal C_a \cap \mathcal C_b</div>
+            <p>上，原问题等价于</p>
+            <div class="math math-display">\min_{\pi \in \mathcal C_a \cap \mathcal C_b}
+\sum_{i,j}
+\pi_{ij}
+\log
+\frac{\pi_{ij}}{K_{ij}}.</div>
+            <p>这个量可以理解为 <span class="math math-inline">\pi</span> 到未归一化核 <span class="math math-inline">K</span> 的 KL 型距离。</p>
+            <p>所以从集合投影的角度看，熵正则 OT 就是在所有满足边缘约束的传输矩阵中，寻找一个最接近 Gibbs 核 <span class="math math-inline">K</span> 的矩阵：</p>
+            <div class="math math-display">\pi^\star
+=
+\arg\min_{\pi \in \mathcal C_a \cap \mathcal C_b}
+\sum_{i,j}
+\pi_{ij}
+\log
+\frac{\pi_{ij}}{K_{ij}}.</div>
+            <p>Sinkhorn 迭代做的事情是交替把当前矩阵投影到两个集合上：</p>
+            <div class="math math-display">\mathcal C_a
+\rightarrow
+\mathcal C_b
+\rightarrow
+\mathcal C_a
+\rightarrow
+\mathcal C_b
+\rightarrow
+\cdots</div>
+            <p>也就是说：</p>
+            <ol><li>先把当前矩阵投影到满足行边缘约束的集合 <span class="math math-inline">\mathcal C_a</span>；</li><li>再把它投影到满足列边缘约束的集合 <span class="math math-inline">\mathcal C_b</span>；</li><li>不断重复这个过程。</li></ol>
+            <p>在 KL 几何下，对 <span class="math math-inline">\mathcal C_a</span> 的投影正好对应“按行缩放”：</p>
+            <div class="math math-display">u_i = \frac{a_i}{(Kv)_i}.</div>
+            <p>对 <span class="math math-inline">\mathcal C_b</span> 的投影正好对应“按列缩放”：</p>
+            <div class="math math-display">v_j = \frac{b_j}{(K^\top u)_j}.</div>
+            <p>因此，Sinkhorn 迭代也可以看成：</p>
+            <blockquote><p>在两个凸集合 <span class="math math-inline">\mathcal C_a</span> 和 <span class="math math-inline">\mathcal C_b</span> 之间做交替 KL 投影。</p></blockquote>
+            <p>这和欧氏空间里的交替投影类似：如果有两个凸集，我们反复投影到第一个集合，再投影到第二个集合，通常会逐渐靠近两个集合的交集。</p>
+            <p>在这里，两个集合的交集就是：</p>
+            <div class="math math-display">\mathcal C_a \cap \mathcal C_b
+=
+\{\pi : \pi \mathbf 1 = a,\ \pi^\top \mathbf 1 = b\}.</div>
+            <p>也就是所有满足两个边缘分布约束的 coupling。</p>
+            <p>由于 <span class="math math-inline">\mathcal C_a</span> 和 <span class="math math-inline">\mathcal C_b</span> 都是凸集，KL 散度对应的 Bregman 投影具有良好的收敛性质，所以交替 KL 投影会收敛到交集中的最优点。</p>
+            <p>因此，从集合角度看，Sinkhorn 收敛的原因是：</p>
+            <blockquote><p>它不是随意地更新矩阵，而是在 KL 几何下不断把矩阵投影回”正确行边缘”和”正确列边缘”这两个凸集合；凸性和 KL 投影结构保证了这个过程会收敛。</p></blockquote>
+            <hr>
+            <h2 id="小结">小结</h2>
+            <p>这篇笔记的主线是：普通 OT 计算昂贵 <span class="math math-inline">\to</span> 加入熵正则 <span class="math math-inline">\to</span> 拉格朗日求导得到解析结构 <span class="math math-inline">P_{ij}=u_iK_{ij}v_j</span> <span class="math math-inline">\to</span> 写成矩阵形式 <span class="math math-inline">P=\operatorname{diag}(u)K\operatorname{diag}(v)</span> <span class="math math-inline">\to</span> 代入边缘约束导出 Sinkhorn 迭代。</p>
+            <p>Sinkhorn 迭代的收敛性可以从两个角度理解：从<strong>矩阵缩放</strong>角度看，迭代映射 <span class="math math-inline">F</span> 是压缩映射，不动点唯一；从 <strong>KL 投影</strong>角度看，每一步都是在两个凸集合 <span class="math math-inline">\mathcal{C}_a</span> 和 <span class="math math-inline">\mathcal{C}_b</span> 之间做交替 Bregman 投影，凸性保证收敛。</p>
+            <p>两个视角是互补的：前者说明”为什么不震荡”，后者说明”收敛到的东西正是我们想要的最优解”。</p>
+          </details>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

@@ -1,10 +1,18 @@
 (function () {
   function relabelAcademicNav() {
-    var labels = {
-      "/": "Home",
-      "/notes/index.html": "Notes",
-      "/blog/index.html": "Essays",
-    };
+    var isZh = document.documentElement.lang.indexOf("zh") === 0 || window.location.pathname.indexOf("/zh/") === 0;
+    var labels = isZh
+      ? {
+          "/": "主页",
+          "/zh/notes/index.html": "笔记",
+          "/notes/index.html": "English",
+        }
+      : {
+          "/": "Home",
+          "/notes/index.html": "Notes",
+          "/blog/index.html": "Essays",
+          "/zh/notes/index.html": "中文",
+        };
 
     document.querySelectorAll("main.academic nav a").forEach(function (link) {
       var href = link.getAttribute("href");
@@ -31,18 +39,19 @@
     if (!article || article.querySelector(".notes-breadcrumb")) return;
     var path = window.location.pathname;
     var isEssay = /\/blog\//.test(path);
+    var isZh = path.indexOf("/zh/") === 0;
 
     var nav = document.createElement("nav");
     nav.className = "notes-breadcrumb";
     nav.setAttribute("aria-label", "Notes navigation");
 
     var archive = document.createElement("a");
-    archive.href = isEssay ? "/blog/index.html" : "/notes/index.html";
-    archive.textContent = isEssay ? "← Back to essays" : "← Back to notes";
+    archive.href = isEssay ? "/blog/index.html" : isZh ? "/zh/notes/index.html" : "/notes/index.html";
+    archive.textContent = isEssay ? "← Back to essays" : isZh ? "← 返回笔记" : "← Back to notes";
 
     var home = document.createElement("a");
     home.href = "/";
-    home.textContent = "Home";
+    home.textContent = isZh ? "主页" : "Home";
 
     nav.appendChild(archive);
     nav.appendChild(home);
@@ -63,7 +72,21 @@
   }
 
   function tagSlug(text) {
-    return text.toLowerCase().trim().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    var knownTags = {
+      "Deep learning": "deep-learning",
+      "Optimal transport": "optimal-transport",
+      "深度学习": "deep-learning",
+      "最优传输": "optimal-transport",
+    };
+    var trimmed = text.trim();
+    if (knownTags[trimmed]) return knownTags[trimmed];
+
+    return trimmed.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  function isKnownArticleTag(text) {
+    var slug = tagSlug(text);
+    return slug === "deep-learning" || slug === "optimal-transport";
   }
 
   function enableTagFiltering() {
@@ -71,6 +94,7 @@
 
     var params = new URLSearchParams(window.location.search);
     var activeTag = params.get("tag") || "all";
+    var isZh = document.documentElement.lang.indexOf("zh") === 0 || window.location.pathname.indexOf("/zh/") === 0;
     var posts = Array.from(document.querySelectorAll(".post-item"));
     var visibleCount = 0;
 
@@ -104,7 +128,7 @@
         status.className = "tag-filter-status";
         filter.appendChild(status);
       }
-      status.textContent = activeTag === "all" ? "" : visibleCount + " note" + (visibleCount === 1 ? "" : "s");
+      status.textContent = activeTag === "all" ? "" : isZh ? visibleCount + " 篇" : visibleCount + " note" + (visibleCount === 1 ? "" : "s");
     }
   }
 
@@ -113,7 +137,7 @@
 
     document.querySelectorAll("article .metadata .meta-item").forEach(function (item) {
       var text = item.textContent.trim().toLowerCase();
-      if (text === "note" || text === "blog") {
+      if (text === "note" || text === "blog" || text === "笔记") {
         item.remove();
       }
     });
@@ -126,11 +150,11 @@
     document.querySelectorAll("article .metadata .meta-item").forEach(function (item) {
       var text = item.textContent.trim();
       if (!text || text === "note" || /^\d{4}-\d{2}-\d{2}$/.test(text) || item.querySelector("a")) return;
-      if (text.length > 40) return;
+      if (!isKnownArticleTag(text)) return;
 
       var link = document.createElement("a");
       link.className = "tag-pill article-tag";
-      link.href = "/notes/index.html?tag=" + tagSlug(text);
+      link.href = (window.location.pathname.indexOf("/zh/") === 0 ? "/zh/notes/index.html?tag=" : "/notes/index.html?tag=") + tagSlug(text);
       link.textContent = text;
       item.textContent = "";
       item.appendChild(link);
@@ -228,7 +252,7 @@
 
     var summary = document.createElement("summary");
     var title = document.createElement("h1");
-    title.textContent = "Table of Contents";
+    title.textContent = document.documentElement.lang.indexOf("zh") === 0 ? "目录" : "Table of Contents";
     summary.appendChild(title);
     details.appendChild(summary);
 
