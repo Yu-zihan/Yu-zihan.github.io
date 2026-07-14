@@ -15,7 +15,7 @@ html.notes-site a {
 html.notes-site :root body,
 html.notes-site body {
   --article-max-width: 78ch !important;
-  --toc-max-width: 34ch !important;
+  --toc-max-width: 42ch !important;
   --text-color: #20242c !important;
   --link-color: #20242c !important;
   --toc-link-color: #5c6575 !important;
@@ -54,6 +54,23 @@ html.notes-list main.academic {
 html[lang^="zh"].notes-list main.academic,
 html[lang^="zh"].notes-article #grid-wrapper > article {
   font-family: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", STSong, Georgia, serif;
+}
+
+html[lang^="zh"].notes-article body {
+  --article-max-width: 52rem !important;
+}
+
+html[lang^="zh"].notes-article #grid-wrapper > article {
+  max-width: 52rem !important;
+}
+
+html[lang^="zh"].notes-article #grid-wrapper {
+  column-gap: 2.8rem;
+}
+
+html[lang^="zh"].notes-article nav#toc {
+  font-size: 0.94rem;
+  line-height: 1.6;
 }
 
 html[lang^="zh"].notes-list main.academic nav,
@@ -308,7 +325,7 @@ html.notes-article #grid-wrapper {
   grid-template-columns: minmax(0, var(--article-max-width)) minmax(16rem, var(--toc-max-width));
   justify-content: center;
   align-items: start;
-  column-gap: 2.2rem;
+  column-gap: 1.8rem;
   padding: 0 1.25rem;
 }
 
@@ -537,23 +554,107 @@ html.notes-article article .code-copy-button.is-copied {
 }
 
 html.notes-article nav#toc {
-  max-width: 34ch !important;
+  max-width: 42ch !important;
   color: #606779;
   font: 0.88rem/1.5 ui-sans-serif, "Segoe UI", sans-serif;
 }
 
+html.notes-article nav#toc .generated-toc {
+  max-height: calc(100vh - 2.5rem);
+  overflow-y: auto;
+  padding: 0.2rem 0 0.3rem;
+  scrollbar-width: thin;
+}
+
 html.notes-article nav#toc .generated-toc h1 {
+  margin: 0 0 0.7rem;
   font-size: 0.82rem;
   letter-spacing: 0;
   text-transform: none;
 }
 
+html.notes-article nav#toc .generated-toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+html.notes-article nav#toc .generated-toc .toc-root {
+  border-left: 1px solid rgba(31, 36, 48, 0.12);
+}
+
+html.notes-article nav#toc .generated-toc li {
+  margin: 0;
+}
+
+html.notes-article nav#toc .generated-toc .toc-level-2 {
+  padding: 0.08rem 0 0.08rem 0.72rem;
+}
+
+html.notes-article nav#toc .generated-toc .toc-level-2 + .toc-level-2 {
+  margin-top: 0.12rem;
+}
+
+html.notes-article nav#toc .generated-toc .toc-level-3 {
+  padding: 0.05rem 0 0.05rem 0.95rem;
+}
+
+html.notes-article nav#toc .generated-toc .toc-children {
+  margin: 0.16rem 0 0.24rem;
+  border-left: 1px solid rgba(31, 36, 48, 0.08);
+}
+
 html.notes-article nav#toc a {
+  display: block;
   color: #606779;
+  text-decoration: none;
+}
+
+html.notes-article nav#toc .toc-level-2 > a {
+  color: #4f5868;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+html.notes-article nav#toc .toc-level-3 > a {
+  color: #737b89;
+  font-size: 0.82rem;
+  line-height: 1.35;
 }
 
 html.notes-article nav#toc a:hover {
   color: #20242c;
+  text-decoration: none;
+}
+
+html[lang^="zh"].notes-article nav#toc .generated-toc h1 {
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+}
+
+html[lang^="zh"].notes-article nav#toc .generated-toc .toc-level-2 {
+  padding: 0.16rem 0 0.16rem 0.85rem;
+}
+
+html[lang^="zh"].notes-article nav#toc .generated-toc .toc-level-2 + .toc-level-2 {
+  margin-top: 0.28rem;
+}
+
+html[lang^="zh"].notes-article nav#toc .generated-toc .toc-level-3 {
+  padding: 0.09rem 0 0.09rem 1.05rem;
+}
+
+html[lang^="zh"].notes-article nav#toc .generated-toc .toc-children {
+  margin: 0.22rem 0 0.34rem;
+}
+
+html[lang^="zh"].notes-article nav#toc .toc-level-2 > a {
+  line-height: 1.42;
+}
+
+html[lang^="zh"].notes-article nav#toc .toc-level-3 > a {
+  font-size: 0.9rem;
+  line-height: 1.48;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -605,6 +706,22 @@ html.notes-article nav#toc a:hover {
 
   html.notes-list main.academic .tag-filter-current {
     color: #edf2ff;
+  }
+
+  html.notes-article nav#toc .generated-toc .toc-root {
+    border-left-color: rgba(225, 232, 245, 0.16);
+  }
+
+  html.notes-article nav#toc .generated-toc .toc-children {
+    border-left-color: rgba(225, 232, 245, 0.1);
+  }
+
+  html.notes-article nav#toc .toc-level-2 > a {
+    color: #cdd6e8;
+  }
+
+  html.notes-article nav#toc .toc-level-3 > a {
+    color: #aab4cb;
   }
 
   html.notes-site .tag-pill:hover,

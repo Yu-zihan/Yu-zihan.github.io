@@ -257,20 +257,42 @@
     details.appendChild(summary);
 
     var list = document.createElement("ul");
+    list.className = "toc-root";
+    var currentTopItem = null;
 
     headings.forEach(function (heading, index) {
       if (!heading.id) {
         heading.id = "section-" + (index + 1);
       }
 
+      var level = heading.tagName.toLowerCase().slice(1);
       var item = document.createElement("li");
-      item.className = "toc-level-" + heading.tagName.toLowerCase().slice(1);
+      item.className = "toc-level-" + level;
 
       var link = document.createElement("a");
       link.href = "#" + heading.id;
       link.textContent = headingTextForToc(heading);
 
       item.appendChild(link);
+
+      if (level === "2") {
+        currentTopItem = item;
+        list.appendChild(item);
+        return;
+      }
+
+      if (level === "3" && currentTopItem) {
+        var childList = currentTopItem.querySelector(":scope > ul");
+        if (!childList) {
+          childList = document.createElement("ul");
+          childList.className = "toc-children";
+          currentTopItem.classList.add("has-children");
+          currentTopItem.appendChild(childList);
+        }
+        childList.appendChild(item);
+        return;
+      }
+
       list.appendChild(item);
     });
 

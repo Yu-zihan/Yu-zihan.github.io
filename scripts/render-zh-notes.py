@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = ROOT / "trees" / "notes"
 OUTPUT_DIR = ROOT / "site-overrides" / "zh" / "notes"
-ASSET_VERSION = "zh-notes"
+ASSET_VERSION = "zh-toc-loose"
 
 
 @dataclass(frozen=True)
@@ -130,7 +130,7 @@ def is_table_start(lines: list[str], index: int) -> bool:
     first = lines[index].strip()
     second = lines[index + 1].strip()
     return first.startswith("|") and first.endswith("|") and bool(
-        re.match(r"^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$", second)
+        re.match(r"^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?$", second)
     )
 
 
