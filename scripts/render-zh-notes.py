@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = ROOT / "trees" / "notes"
 OUTPUT_DIR = ROOT / "site-overrides" / "zh" / "notes"
-ASSET_VERSION = "zh-toc-loose"
+ASSET_VERSION = "notes-mobile"
 
 
 @dataclass(frozen=True)

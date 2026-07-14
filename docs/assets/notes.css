@@ -746,6 +746,27 @@ html[lang^="zh"].notes-article nav#toc .toc-level-3 > a {
   }
 }
 
+@media (max-width: 1180px) {
+  html.notes-article #grid-wrapper,
+  html[lang^="zh"].notes-article #grid-wrapper {
+    grid-template-areas: "article" !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-content: stretch;
+    column-gap: 0 !important;
+  }
+
+  html.notes-article #grid-wrapper > article,
+  html[lang^="zh"].notes-article #grid-wrapper > article {
+    width: 100%;
+    max-width: min(100%, var(--article-max-width)) !important;
+    margin: 0 auto;
+  }
+
+  html.notes-article nav#toc {
+    display: none !important;
+  }
+}
+
 @media (max-width: 760px) {
   html.notes-list #grid-wrapper,
   html.notes-article #grid-wrapper {
