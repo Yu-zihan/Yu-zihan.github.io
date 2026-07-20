@@ -231,7 +231,6 @@ F(v^{(t)})
             <p>由于 <span class="math math-inline">\mathcal C_a</span> 和 <span class="math math-inline">\mathcal C_b</span> 都是凸集，KL 散度对应的 Bregman 投影具有良好的收敛性质，所以交替 KL 投影会收敛到交集中的最优点。</p>
             <p>因此，从集合角度看，Sinkhorn 收敛的原因是：</p>
             <blockquote><p>它不是随意地更新矩阵，而是在 KL 几何下不断把矩阵投影回”正确行边缘”和”正确列边缘”这两个凸集合；凸性和 KL 投影结构保证了这个过程会收敛。</p></blockquote>
-            <hr>
             <h2 id="小结">小结</h2>
             <p>这篇笔记的主线是：普通 OT 计算昂贵 <span class="math math-inline">\to</span> 加入熵正则 <span class="math math-inline">\to</span> 拉格朗日求导得到解析结构 <span class="math math-inline">P_{ij}=u_iK_{ij}v_j</span> <span class="math math-inline">\to</span> 写成矩阵形式 <span class="math math-inline">P=\operatorname{diag}(u)K\operatorname{diag}(v)</span> <span class="math math-inline">\to</span> 代入边缘约束导出 Sinkhorn 迭代。</p>
             <p>Sinkhorn 迭代的收敛性可以从两个角度理解：从<strong>矩阵缩放</strong>角度看，迭代映射 <span class="math math-inline">F</span> 是压缩映射，不动点唯一；从 <strong>KL 投影</strong>角度看，每一步都是在两个凸集合 <span class="math math-inline">\mathcal{C}_a</span> 和 <span class="math math-inline">\mathcal{C}_b</span> 之间做交替 Bregman 投影，凸性保证收敛。</p>

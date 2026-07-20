@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en-US" class="notes-site notes-article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Does the &quot;Neuron-Wave&quot; Tactic Work?</title>
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="/assets/notes.css?v=notes-mobile">
+    <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+    <script defer src="/assets/notes.js?v=notes-mobile"></script>
+    <script defer src="/assets/vendor/katex/katex.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.katex) return;
+
+        document.querySelectorAll(".math.math-inline").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: false,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        document.querySelectorAll(".math.math-display").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: true,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false },
+              { left: "\\(", right: "\\)", display: false },
+              { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"></nav>
+      <article>
+        <section class="block">
+          <details open>
+            <summary>
+              <header>
+                <h1>Does the &quot;Neuron-Wave&quot; Tactic Work?</h1>
+                <div class="metadata">
+                  <ul>
+                    <li class="meta-item">2026-07-20</li>
+                    <li class="meta-item">note</li>
+                    <li class="meta-item">Deep learning</li>
+                    <li class="meta-item">Part 2: From many neurons to layered networks.</li>
+                  </ul>
+                </div>
+              </header>
+            </summary>
+
+            <p>In the last note, we mentioned wanting to design the model itself so that it can learn hidden representations on its own to handle problems. Let&#x27;s not rush to solve that yet. First, let&#x27;s think briefly, within the framework we&#x27;ve been discussing, about the representational limits of linear threshold neurons.</p>
+            <h2 id="the-representational-power-of-many-neurons">The Representational Power of &quot;Many Neurons&quot;</h2>
+            <p>Consider a simple question: does adding more neurons increase a model&#x27;s expressive power? And if so, is there an intuitive way to understand why?</p>
+            <p>The answer is of course yes. Intuitively, adding neurons can at worst be reduced back to the fewer-neuron case by some means (for example, setting the extra neurons&#x27; weights to zero) — things won&#x27;t get worse as you add more.</p>
+            <p>But then the question becomes: how should we add neurons for a given problem? The way neurons are connected also matters a great deal; how the extra neurons are arranged is itself a question.</p>
+            <p>From simple intuition, there are roughly these options:</p>
+            <ul><li>Infinite series: one neuron per layer, stacked one after another indefinitely;</li><li>Infinite parallel: add many neurons side by side, hoping unlimited parallelism brings unlimited representational power;</li><li>Series-parallel combination: multiple stacked layers, with several neurons per layer;</li><li>Fully connected as a complete graph: every neuron connected to every other, forming a neural network in the shape of a complete graph.</li></ul>
+            <p>Below we discuss the characteristics of each of these structures in turn.</p>
+            <h2 id="neurons-in-infinite-series">Neurons in Infinite Series</h2>
+            <p>Linear threshold neurons in infinite series — think about it for a moment. Each neuron takes the single-valued output of the previous one as its input. In the linear case this is essentially still a linear equation, which makes it a rather silly scheme.</p>
+            <p>First consider the case where we drop the threshold and keep only the linear part. Let the first neuron output <span class="math math-inline">s_1=w_1^\top x+b_1</span>, and let the second neuron take <span class="math math-inline">s_1</span> as input and output <span class="math math-inline">s_2=w_2s_1+b_2</span>. Substituting and expanding: <span class="math math-inline">s_2=w_2(w_1^\top x+b_1)+b_2=(w_2w_1)^\top x+(w_2b_1+b_2)</span>. This is still a linear function of <span class="math math-inline">x</span>. Setting <span class="math math-inline">w&#x27;=w_2w_1</span> and <span class="math math-inline">b&#x27;=w_2b_1+b_2</span>, we are right back to a single linear neuron <span class="math math-inline">s=w&#x27;^\top x+b&#x27;</span>. No matter how many layers you chain, it&#x27;s equivalent to one.</p>
+            <p>Now consider the case with the threshold kept — things get even worse. The first neuron outputs <span class="math math-inline">h_1(x)=\mathbf 1[w_1^\top x+b_1&gt;0]\in\{0,1\}</span>, and every subsequent neuron <span class="math math-inline">h_2=\mathbf 1[wh_1+b&gt;0]</span> is just a function from <span class="math math-inline">\{0,1\}</span> to <span class="math math-inline">\{0,1\}</span>. Count them: there are only four possibilities — constant <span class="math math-inline">0</span>, constant <span class="math math-inline">1</span>, identity, and negation. In other words, the input information gets compressed down to a single bit at the very first layer, and no amount of further chaining can recover it. Expressive power goes down, not up.</p>
+            <h2 id="partitioning-with-parallel-neurons">Partitioning with Parallel Neurons</h2>
+            <p>Adding neurons in parallel, as discussed in the previous note, is geometrically simple for linear threshold neurons: it amounts to partitioning the space. We use multiple neurons to carve up the space sensibly, and in a well-behaved space we can in principle carve out representations of arbitrary shape.</p>
+            <p>Concretely, <span class="math math-inline">k</span> parallel neurons <span class="math math-inline">h_i(x)=\mathbf 1[w_i^\top x+b_i&gt;0]</span> each make one cut through the plane. For example, three lines can enclose a triangular region; in general, <span class="math math-inline">k</span> lines can divide the two-dimensional plane into at most <span class="math math-inline">1+k+\binom{k}{2}</span> cells. Which cell an input point <span class="math math-inline">x</span> falls into is exactly encoded by this group of neurons&#x27; outputs as a binary vector <span class="math math-inline">(h_1(x),h_2(x),\dots,h_k(x))</span>.</p>
+            <p>Once the space has been partitioned and subdivided, a lookup table over these codes is enough to classify spatial features. This feels like a workable scheme.</p>
+            <p>You can try the following code, which shows how three neurons cut the plane into multiple regions:</p>
+            <pre><code class="language-wolfram">ClearAll[&quot;Global`*&quot;];
+
+h[x1_, x2_, w1_, w2_, b_] := Boole[w1*x1 + w2*x2 + b &gt; 0];
+
+(* three neurons, three lines *)
+code[x1_, x2_] := {h[x1, x2, 1, 0, 0.5], h[x1, x2, 0, 1, 0.5], h[x1, x2, -1, -1, 1.5]};
+
+Show[
+ RegionPlot[
+  Evaluate[Table[code[x1, x2] == c,
+    {c, Tuples[{0, 1}, 3]}]],
+  {x1, -3, 3}, {x2, -3, 3},
+  PlotPoints -&gt; 80,
+  FrameLabel -&gt; {&quot;x1&quot;, &quot;x2&quot;},
+  BoundaryStyle -&gt; None
+ ],
+ ContourPlot[{x1 + 0.5 == 0, x2 + 0.5 == 0, -x1 - x2 + 1.5 == 0},
+  {x1, -3, 3}, {x2, -3, 3},
+  ContourStyle -&gt; {Red, Thick}],
+ ImageSize -&gt; Large,
+ PlotLabel -&gt; &quot;Three neurons cut the plane into cells, each cell has a binary code&quot;
+]</code></pre>
+            <p>Each colored patch corresponds to a distinct code <span class="math math-inline">(h_1,h_2,h_3)</span>. The more neurons, the finer the cuts, and the closer the enclosed shapes get to arbitrary regions.</p>
+            <h2 id="series-meets-parallel-the-emergence-of-layered-networks">Series Meets Parallel: The Emergence of Layered Networks</h2>
+            <p>Based on the discussion in the previous section, parallel neurons can encode regions of the space, splitting it into distinct pieces.</p>
+            <p>Given such a split, intuitively speaking, we can apply conditional filtering to specific regions, thereby achieving a selection effect.</p>
+            <p>From the previous note we know that neurons can implement AND and OR. So with OR and AND, we can express the membership conditions for each of the partitioned regions.</p>
+            <p>Let&#x27;s take an example — XOR, the very thing the previous note couldn&#x27;t do. In the first layer, place two parallel neurons: <span class="math math-inline">h_1(x)=\mathbf 1[x_1+x_2-0.5&gt;0]</span> implements OR, and <span class="math math-inline">h_2(x)=\mathbf 1[x_1+x_2-1.5&gt;0]</span> implements AND. In the second layer, place one more neuron taking <span class="math math-inline">(h_1,h_2)</span> as input: <span class="math math-inline">\hat y=\mathbf 1[h_1-h_2-0.5&gt;0]</span>. Let&#x27;s verify point by point:</p>
+            <div class="table-wrap"><table><thead><tr><th><span class="math math-inline">x_1</span></th><th><span class="math math-inline">x_2</span></th><th><span class="math math-inline">h_1</span> (OR)</th><th><span class="math math-inline">h_2</span> (AND)</th><th><span class="math math-inline">\hat y=\mathbf 1[h_1-h_2-0.5&gt;0]</span></th><th>XOR</th></tr></thead><tbody><tr><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td></tr><tr><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td></tr><tr><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td></tr><tr><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td></tr></tbody></table></div>
+            <p>XOR is exactly &quot;OR holds and AND does not.&quot; The first layer does the encoding, the second layer does the filtering — two layers suffice. The feature <span class="math math-inline">x_3=x_1x_2</span> that required a sage to hand-craft in the previous note is here played &quot;automatically&quot; by the first-layer neurons.</p>
+            <p>Following this line of thought, one layer of neurons is clearly not enough; we need extra neurons to filter the initial encoding results, and this is how the layered network structure arises. Drawn as a diagram, it looks roughly like this:</p>
+            <pre><code>x1 ──┬──&gt; [h1 : OR ] ──┐
+     │                 ├──&gt; [ y : 1[h1 - h2 - 0.5 &gt; 0] ] ──&gt; XOR
+x2 ──┴──&gt; [h2 : AND] ──┘</code></pre>
+            <p>You can try the following code to see what this two-layer network actually carves out in the plane:</p>
+            <pre><code class="language-wolfram">ClearAll[&quot;Global`*&quot;];
+
+(* first layer: two parallel neurons *)
+h1[x1_, x2_] := Boole[x1 + x2 - 0.5 &gt; 0];  (* OR *)
+h2[x1_, x2_] := Boole[x1 + x2 - 1.5 &gt; 0];  (* AND *)
+
+(* second layer: a filtering neuron taking (h1, h2) as input *)
+xorNet[x1_, x2_] := Boole[h1[x1, x2] - h2[x1, x2] - 0.5 &gt; 0];
+
+Show[
+ RegionPlot[
+  xorNet[x1, x2] == 1,
+  {x1, -0.5, 1.5}, {x2, -0.5, 1.5},
+  PlotPoints -&gt; 100,
+  PlotStyle -&gt; LightBlue,
+  BoundaryStyle -&gt; None,
+  FrameLabel -&gt; {&quot;x1&quot;, &quot;x2&quot;}
+ ],
+ ContourPlot[
+  {x1 + x2 - 0.5 == 0, x1 + x2 - 1.5 == 0},
+  {x1, -0.5, 1.5}, {x2, -0.5, 1.5},
+  ContourStyle -&gt; {{Red, Thick, Dashed}, {Darker[Green], Thick, Dashed}}
+ ],
+ Graphics[{
+   PointSize[Large],
+   Blue, Point[{{1, 0}, {0, 1}}],
+   Black, Point[{{0, 0}, {1, 1}}],
+   Text[Style[&quot;1&quot;, Blue, 16], {1.08, 0.08}],
+   Text[Style[&quot;1&quot;, Blue, 16], {0.08, 1.08}],
+   Text[Style[&quot;0&quot;, Black, 16], {0.08, 0.08}],
+   Text[Style[&quot;0&quot;, Black, 16], {1.08, 1.08}]
+ }],
+ ImageSize -&gt; Large,
+ PlotLabel -&gt; &quot;Two layers carve out the strip between the OR line and the AND line&quot;
+]</code></pre>
+            <p>The red dashed line is the OR boundary <span class="math math-inline">x_1+x_2-0.5=0</span>, and the green dashed line is the AND boundary <span class="math math-inline">x_1+x_2-1.5=0</span>. The blue region is where the network outputs <span class="math math-inline">1</span> — precisely the strip sandwiched between the two lines: <span class="math math-inline">(1,0)</span> and <span class="math math-inline">(0,1)</span> fall inside the strip, while <span class="math math-inline">(0,0)</span> and <span class="math math-inline">(1,1)</span> fall outside. The four points that no single line could separate are separated by the strip between two lines. This is the geometric meaning of the second layer&#x27;s &quot;filtering.&quot;</p>
+            <p>But then: how do we construct such a network automatically? How many neurons should each layer have, exactly? How can this relationship be realized through automatic iteration? These remain open questions.</p>
+            <h2 id="how-to-obtain-a-usable-network-automatically">How to Obtain a Usable Network Automatically</h2>
+            <p>This brings us to the evaluation criterion. Generally speaking, an algorithm needs a clear criterion for judging what counts as good. Reusing the notation from the first note, that criterion is the loss function <span class="math math-inline">L(\theta)=\sum_i L(f_\theta(x_i),y_i)</span>. But knowing what&#x27;s good is not enough by itself —</p>
+            <p>we also need to iterate against the current standard and revise the current parameters.</p>
+            <p>I&#x27;ve thought about it back and forth, and I honestly can&#x27;t derive such an algorithm from scratch on my own. So here let&#x27;s stand on the shoulders of giants: the algorithms that have proven successful are gradient descent and backpropagation.</p>
+            <p>The loss <span class="math math-inline">L(\theta)</span> is a function of the parameters <span class="math math-inline">\theta</span>, so we need a corresponding way to correct this function. The basic idea is to keep taking derivatives and keep adjusting the parameters in the direction that decreases the loss: <span class="math math-inline">\theta_{t+1}=\theta_t-\eta\nabla_\theta L(\theta_t)</span>, where <span class="math math-inline">\eta</span> is the step size (learning rate) and <span class="math math-inline">\nabla_\theta L</span> is the gradient of the loss with respect to the parameters. For a layered network, the gradient is passed back layer by layer via the chain rule; for example, the gradient of some layer&#x27;s parameters <span class="math math-inline">\theta^{(l)}</span> takes the form <span class="math math-inline">\frac{\partial L}{\partial\theta^{(l)}}=\frac{\partial L}{\partial h^{(L)}}\cdot\frac{\partial h^{(L)}}{\partial h^{(L-1)}}\cdots\frac{\partial h^{(l)}}{\partial\theta^{(l)}}</span>. This is backpropagation; the details are left to the next note.</p>
+            <h2 id="summary">Summary</h2>
+            <p>First, let&#x27;s take stock of the elements we now have:</p>
+            <ul><li>A representable input <span class="math math-inline">x</span>, and the minimal computable model — the linear threshold neuron <span class="math math-inline">h(x)=\mathbf 1[w^\top x+b&gt;0]</span>;</li><li>Pure series stacking is meaningless, while parallel neurons can partition and encode the space;</li><li>Adding a filtering layer on top of the encoding gives us layered networks; two layers already solve XOR;</li><li>The evaluation criterion (the loss function <span class="math math-inline">L</span>) tells us what &quot;good&quot; means, and gradient descent gives us the direction to iterate;</li><li>But the hard threshold is non-differentiable, so gradient descent can&#x27;t be applied just yet.</li></ul>
+            <p>In the next note, we will discuss backpropagation and gradient descent.</p>
+            <h2 id="appendix-fully-connected-as-a-complete-graph">Appendix: Fully Connected as a Complete Graph</h2>
+            <p>Of the four options, full connectivity is the one we haven&#x27;t discussed head-on, so let me briefly address it here. From the perspective of graph theory (graph theory being the study of abstract nodes and edges), each neuron is a node, and the communication pathways between neurons are the edges. Series and parallel are then arguably the simplest possible graph structures, so it&#x27;s natural to want to level up the structure — for instance, by connecting all neurons (or some subset of them) pairwise, forming a complete graph.</p>
+            <p>This kind of structure is quite interesting, and it corresponds to Hopfield networks and Boltzmann machines: the network is no longer a feedforward &quot;input in, output out&quot; pipeline; rather, the network itself carries information, with states iterating back and forth among the neurons until they stabilize. These lie on a different path from the feedforward main line of this series, so we set them aside for now and will develop them separately as extension material later.</p>
+          </details>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

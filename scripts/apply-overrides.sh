@@ -5,11 +5,19 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOURCE_DIR="$ROOT/site-overrides"
 TARGET_DIR="${1:-$ROOT/docs}"
 
+python3 "$ROOT/scripts/render-zh-notes.py"
+
 mkdir -p "$TARGET_DIR"
 rm -rf \
   "$TARGET_DIR/zh" \
+  "$TARGET_DIR/en" \
   "$TARGET_DIR/about.html" \
   "$TARGET_DIR/blog/reading-math-papers.html" \
+  "$TARGET_DIR/notes/cp_ot_foundations_en.html" \
+  "$TARGET_DIR/notes/Kantorovich 对偶.html" \
+  "$TARGET_DIR/notes/从最小可计算模型开始.html" \
+  "$TARGET_DIR/notes/元海战术行不行.html" \
+  "$TARGET_DIR/notes/熵正则最优传输.html" \
   "$TARGET_DIR/notes/research-notes.html" \
   "$TARGET_DIR/assets/profile-placeholder.svg"
 
@@ -21,8 +29,14 @@ mkdir -p \
 
 cp "$SOURCE_DIR/index.html" "$TARGET_DIR/index.html"
 cp "$SOURCE_DIR/blog/index.html" "$TARGET_DIR/blog/index.html"
+cp "$SOURCE_DIR/blog/notes_on_interests.html" "$TARGET_DIR/blog/notes_on_interests.html"
 cp "$SOURCE_DIR/notes/index.html" "$TARGET_DIR/notes/index.html"
+cp "$SOURCE_DIR/notes/entropic_regularized_optimal_transport.html" "$TARGET_DIR/notes/entropic_regularized_optimal_transport.html"
+cp "$SOURCE_DIR/notes/kantorovich_duality.html" "$TARGET_DIR/notes/kantorovich_duality.html"
+cp "$SOURCE_DIR/notes/neuron_wave_tactic.html" "$TARGET_DIR/notes/neuron_wave_tactic.html"
+cp "$SOURCE_DIR/notes/one_neuron_1.html" "$TARGET_DIR/notes/one_neuron_1.html"
 cp "$SOURCE_DIR/zh/notes/index.html" "$TARGET_DIR/zh/notes/index.html"
+cp "$SOURCE_DIR/zh/notes/neuron_wave_tactic.html" "$TARGET_DIR/zh/notes/neuron_wave_tactic.html"
 cp "$SOURCE_DIR/zh/notes/one_neuron_1.html" "$TARGET_DIR/zh/notes/one_neuron_1.html"
 cp "$SOURCE_DIR/zh/notes/kantorovich_duality.html" "$TARGET_DIR/zh/notes/kantorovich_duality.html"
 cp "$SOURCE_DIR/zh/notes/entropic_regularized_optimal_transport.html" "$TARGET_DIR/zh/notes/entropic_regularized_optimal_transport.html"

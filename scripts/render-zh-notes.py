@@ -9,8 +9,28 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = ROOT / "trees" / "notes"
-OUTPUT_DIR = ROOT / "site-overrides" / "zh" / "notes"
+EN_OUTPUT_DIR = ROOT / "site-overrides" / "notes"
+ZH_OUTPUT_DIR = ROOT / "site-overrides" / "zh" / "notes"
+BLOG_OUTPUT_DIR = ROOT / "site-overrides" / "blog"
 ASSET_VERSION = "notes-mobile"
+
+LANGUAGE_SETTINGS = {
+    "blog": {
+        "html_lang": "en-US",
+        "output_dir": BLOG_OUTPUT_DIR,
+        "kind": "blog",
+    },
+    "en": {
+        "html_lang": "en-US",
+        "output_dir": EN_OUTPUT_DIR,
+        "kind": "note",
+    },
+    "zh": {
+        "html_lang": "zh-CN",
+        "output_dir": ZH_OUTPUT_DIR,
+        "kind": "笔记",
+    },
+}
 
 
 @dataclass(frozen=True)
@@ -21,9 +41,63 @@ class Note:
     date: str
     tag: str
     summary: str
+    lang: str = "zh"
 
 
 NOTES = [
+    Note(
+        source="blog/notes_on_interests.md",
+        output="notes_on_interests.html",
+        title="Beyond Research",
+        date="2026-06-02",
+        tag="Interests",
+        summary="A few interests and curiosities beyond academic work.",
+        lang="blog",
+    ),
+    Note(
+        source="neuron_wave_tactic.md",
+        output="neuron_wave_tactic.html",
+        title='Does the "Neuron-Wave" Tactic Work?',
+        date="2026-07-20",
+        tag="Deep learning",
+        summary="Part 2: From many neurons to layered networks.",
+        lang="en",
+    ),
+    Note(
+        source="one_neuron_1.md",
+        output="one_neuron_1.html",
+        title="Starting with One Neuron",
+        date="2026-07-01",
+        tag="Deep learning",
+        summary="Part 1: From the smallest computable model to XOR.",
+        lang="en",
+    ),
+    Note(
+        source="kantorovich_duality.md",
+        output="kantorovich_duality.html",
+        title="Kantorovich Duality",
+        date="2026-06-05",
+        tag="Optimal transport",
+        summary="Annotated notes on the derivation and meaning of Kantorovich duality.",
+        lang="en",
+    ),
+    Note(
+        source="entropic_regularized_optimal_transport.md",
+        output="entropic_regularized_optimal_transport.html",
+        title="Entropic Regularized Optimal Transport",
+        date="2026-06-02",
+        tag="Optimal transport",
+        summary="Personal notes on entropic regularized optimal transport.",
+        lang="en",
+    ),
+    Note(
+        source="元海战术行不行.md",
+        output="neuron_wave_tactic.html",
+        title="“元”海战术行不行",
+        date="2026-07-20",
+        tag="深度学习",
+        summary="第 2 部分：从多神经元到分层网络。",
+    ),
     Note(
         source="从最小可计算模型开始.md",
         output="one_neuron_1.html",
@@ -159,6 +233,18 @@ def normalize_heading(text: str) -> str:
     return re.sub(r"^(\d+)\.\s+(\d+)\s*", r"\1.\2 ", text.strip())
 
 
+def strip_frontmatter(markdown: str) -> str:
+    lines = markdown.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return markdown
+
+    for index, line in enumerate(lines[1:], start=1):
+        if line.strip() == "---":
+            return "\n".join(lines[index + 1 :]).lstrip("\n")
+
+    return markdown
+
+
 def render_blocks(markdown: str) -> str:
     lines = markdown.splitlines()
     blocks: list[str] = []
@@ -178,7 +264,7 @@ def render_blocks(markdown: str) -> str:
             code_lines: list[str] = []
             i += 1
             while i < len(lines) and not lines[i].strip().startswith("```"):
-                code_lines.append(lines[i])
+                code_lines.append(lines[i].rstrip())
                 i += 1
             i += 1
             class_name = f' class="language-{html.escape(language)}"' if language else ""
@@ -289,14 +375,22 @@ def render_blocks(markdown: str) -> str:
 
 
 def render_page(note: Note) -> str:
-    markdown = (SOURCE_DIR / note.source).read_text(encoding="utf-8")
+    settings = LANGUAGE_SETTINGS[note.lang]
+    html_lang = settings["html_lang"]
+    kind = html.escape(settings["kind"])
+    source_path = Path(note.source)
+    if len(source_path.parts) > 1:
+        source_path = ROOT / "trees" / source_path
+    else:
+        source_path = SOURCE_DIR / source_path
+    markdown = strip_frontmatter(source_path.read_text(encoding="utf-8"))
     body = render_blocks(markdown)
     title = html.escape(note.title)
     summary = html.escape(note.summary)
     tag = html.escape(note.tag)
 
     return f"""<!DOCTYPE html>
-<html lang="zh-CN" class="notes-site notes-article">
+<html lang="{html_lang}" class="notes-site notes-article">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -356,7 +450,7 @@ def render_page(note: Note) -> str:
                 <div class="metadata">
                   <ul>
                     <li class="meta-item">{note.date}</li>
-                    <li class="meta-item">笔记</li>
+                    <li class="meta-item">{kind}</li>
                     <li class="meta-item">{tag}</li>
                     <li class="meta-item">{summary}</li>
                   </ul>
@@ -375,9 +469,15 @@ def render_page(note: Note) -> str:
 
 
 def main() -> None:
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    for settings in LANGUAGE_SETTINGS.values():
+        settings["output_dir"].mkdir(parents=True, exist_ok=True)
+
     for note in NOTES:
-        (OUTPUT_DIR / note.output).write_text(render_page(note), encoding="utf-8")
+        output = LANGUAGE_SETTINGS[note.lang]["output_dir"] / note.output
+        rendered = render_page(note)
+        if output.exists() and output.read_text(encoding="utf-8") == rendered:
+            continue
+        output.write_text(rendered, encoding="utf-8")
 
 
 if __name__ == "__main__":

@@ -79,7 +79,6 @@
             <p>也就是说，学习算法要某种输入 <span class="math math-inline">x</span> ：</p>
             <div class="math math-display">x = (x_1,x_2,\dots,x_d)</div>
             <p>这里的 <span class="math math-inline">x</span> 不是现象本身，而是仪器经过测量后得到的数值表示。</p>
-            <hr>
             <h3 id="02-学习发生在某个可计算的模型空间里">0.2 学习发生在某个可计算的模型空间里</h3>
             <p>机器学习不是在所有可能规则里随意搜索，我们必须先规定模型长什么样，不然怎么计算呢。</p>
             <p>例如一个模型可以写成：</p>
@@ -88,7 +87,6 @@
             <ul><li><span class="math math-inline">x</span> 是输入；</li><li><span class="math math-inline">\hat y</span> 是模型输出；</li><li><span class="math math-inline">\theta</span> 是模型参数；</li><li><span class="math math-inline">f_\theta</span> 是某个可计算的函数。</li></ul>
             <p>学习不是凭空产生规则，而是在一个给定的模型族里在特定的标准下寻找合适的参数。 这意味着模型本身带有先验。</p>
             <p>例如，如果我们选择线性模型，就等于假设有用的规律可以被线性关系捕捉。 如果我们选择高斯模型，就等于假设输入服从的分布近似为高斯分布 如果我们选择神经网络，就等于假设复杂关系可以由许多简单的可计算单元组合出来？（我还不知道。）</p>
-            <hr>
             <h3 id="03-学习需要评价准则">0.3 学习需要评价准则</h3>
             <p>模型需要知道什么叫“好”，基于所谓的好，模型才能进行迭代更新。</p>
             <p>在监督学习中，评价准则通常是损失函数：</p>
@@ -97,7 +95,6 @@
             <p>学习目标可以写成：</p>
             <div class="math math-display">\min_\theta \sum_i L(f_\theta(x_i),y_i)</div>
             <p>没有评价准则，就没有“改进”的方向。</p>
-            <hr>
             <h3 id="04-模型内部处理的是数值语义由任务赋予">0.4 模型内部处理的是数值，语义由任务赋予</h3>
             <p>模型输出的首先是数值，计算模型的输出都是数值，具体语义是人类赋予的</p>
             <p>例如：</p>
@@ -112,12 +109,10 @@
             <div class="math math-display">\hat y = 1</div>
             <p>可以被解释为“存在某种风险”。</p>
             <p>所以机器学习模型内部处理的是数值结构，输出之前模型会处理成基于人类的语义结果。</p>
-            <hr>
             <h3 id="05-模型总是带有先验">0.5 模型总是带有先验</h3>
             <p>没有完全中立的学习模型。 选择一个模型，就是选择一种看世界的方式。 例如：</p>
             <ul><li>线性模型假设某些关系可以近似为线性关系；</li><li>决策树假设可以通过一系列条件判断划分数据；</li><li>卷积神经网络假设局部结构和平移共享很重要；</li><li>Transformer 假设 token 之间的关系可以通过注意力机制建模。</li></ul>
             <p>这一点可以从著名的NO free lunch定理也可以看出，</p>
-            <hr>
             <h2 id="1-从最小的非平凡可计算模型开始">1. 从最小的非平凡可计算模型开始</h2>
             <p>那看看最简单的模型能做些什么吧。</p>
             <p>首先，”能做些什么“的概念很宽泛，我们且假设最简单的模型能够拟合什么函数。 为什么这样呢，因为函数是显式表达变量间关系的映射，是某种规律的直观体现，存在抽象的函数关系，我们就能更好地了解某些现象，我个人认为是数学抽象化的处理</p>
@@ -132,7 +127,6 @@
             <p>但如果我们研究的是二分类，那么还需要把这个分数变成 <span class="math math-inline">0</span> 或 <span class="math math-inline">1</span>。最简单的方法就是加一个阈值判断：</p>
             <div class="math math-display">h(x)=\mathbf 1[s&gt;0]</div>
             <p>于是我们得到线性阈值神经元。</p>
-            <hr>
             <h2 id="2-线性阈值神经元">2. 线性阈值神经元</h2>
             <h3 id="21-为什么从线性阈值神经元开始">2.1 为什么从线性阈值神经元开始？</h3>
             <p>在讨论神经元之前，需要先说清楚一个问题：</p>
@@ -148,7 +142,6 @@
             <div class="math math-display">y\in\{0,1\}</div>
             <p>此时模型要做的事情很具体：</p>
             <blockquote><p>给定一个输入 <span class="math math-inline">x</span>，判断它属于类别 <span class="math math-inline">0</span> 还是类别 <span class="math math-inline">1</span>。</p></blockquote>
-            <hr>
             <h3 id="22-二分类模型需要什么">2.2 二分类模型需要什么？</h3>
             <p>根据我们之前的提出的公理，一个简单模型应该是</p>
             <div class="math math-display">\hat y = f_\theta(x)</div>
@@ -156,7 +149,6 @@
             <p>所以，综上，一个二分类模型至少需要两步。 第一步：根据输入 <span class="math math-inline">x</span> 计算出一个分数。 第二步：把这个分数转化成类别 <span class="math math-inline">0</span> 或类别 <span class="math math-inline">1</span>。 也就是：</p>
             <div class="math math-display">x \longrightarrow s \longrightarrow \hat y</div>
             <p>其中 <span class="math math-inline">s</span> 是模型内部计算出的分数，<span class="math math-inline">\hat y</span> 是最终分类结果。</p>
-            <hr>
             <h3 id="23-线性阈值神经元的定义及特点">2.3 线性阈值神经元的定义及特点</h3>
             <p>把前面的两步合在一起，就得到线性阈值神经元。</p>
             <p>第一步，计算线性分数：</p>
@@ -225,7 +217,6 @@ Manipulate[
             <p>蓝色区域是：</p>
             <div class="math math-display">w_1x_1+w_2x_2+b&gt;0</div>
             <p>这说明一个神经元不是在“理解”平面上的点。 它只是用一个线性条件，把平面切成两边。</p>
-            <hr>
             <h2 id="3-单个线性阈值神经元的能力边界">3. 单个线性阈值神经元的能力边界</h2>
             <p>因为线性阈值神经元只能产生一个线性边界，所以它只能解决线性可分的二分类问题。</p>
             <p>如果存在某个 <span class="math math-inline">w,b</span>，使得所有正类样本都在边界一侧，所有负类样本都在另一侧，那么这个问题就是线性可分的。</p>
@@ -235,7 +226,6 @@ Manipulate[
             <p>下面举一个经典的例子，用线性神经元来尝试逻辑函数，进行发现线性神经元的表达限制。</p>
             <p>这个例子初看很反直觉（至少反我的直觉）。怎么初等函数就跳到逻辑函数上了，逻辑函数在模拟或者数字电路上就能计算得很好了。</p>
             <p>关键不在于用神经元替代逻辑门，而在于：它们是最小的二输入二分类任务。</p>
-            <hr>
             <p>现在假设输入空间是二维的， AND、OR、XOR 都接收两个二值输入：</p>
             <div class="math math-display">x_1,x_2\in\{0,1\}</div>
             <p>输出也是二值：</p>
@@ -246,7 +236,6 @@ Manipulate[
             <p>这四个点刚好是二维平面中一个正方形的四个角。</p>
             <p>因此，我们可以把逻辑问题变成分类问题，因为逻辑值是两个，分类问题的值也是两个：</p>
             <blockquote><p>能不能画一条直线，把输出为 <span class="math math-inline">1</span> 的点和输出为 <span class="math math-inline">0</span> 的点分开？</p></blockquote>
-            <hr>
             <p>现在来看一看这些函数的真值表，真值表的意思是输入分别对应了什么输出</p>
             <p>AND 的真值表是：</p>
             <div class="table-wrap"><table><thead><tr><th><span class="math math-inline">x_1</span></th><th><span class="math math-inline">x_2</span></th><th>AND</th></tr></thead><tbody><tr><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td></tr><tr><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td></tr><tr><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td></tr><tr><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td></tr></tbody></table></div>
@@ -272,7 +261,6 @@ Manipulate[
             <div class="math math-display">w_1+w_2+b\le 0</div>
             <p>矛盾。</p>
             <p>一个线性阈值神经元做不到XOR操作，这是最简单的例子了。</p>
-            <hr>
             <h2 id="4-线性阈值神经元失败之后">4. 线性阈值神经元失败之后</h2>
             <p>XOR 失败以后，我们当然可以直接换模型。比如写一个专门的 XOR 规则，或者用决策树，甚至回到逻辑门电路。</p>
             <p>但是，聪明的逻辑学家一拍脑袋，说了一句“尤里卡”，直接给出了一个很好的表达式：</p>
@@ -355,7 +343,7 @@ points =
   {
    Blue, PointSize[Large], Point[pos],
    Black, PointSize[Large], Point[neg],
-   
+
    Text[Style[&quot;1&quot;, Blue, 16], # + {0.05, 0.05, 0.05}] &amp; /@ pos,
    Text[Style[&quot;0&quot;, Black, 16], # + {0.05, 0.05, 0.05}] &amp; /@ neg
   }

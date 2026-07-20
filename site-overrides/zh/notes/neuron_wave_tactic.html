@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="notes-site notes-article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>“元”海战术行不行</title>
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="/assets/notes.css?v=notes-mobile">
+    <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+    <script defer src="/assets/notes.js?v=notes-mobile"></script>
+    <script defer src="/assets/vendor/katex/katex.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.katex) return;
+
+        document.querySelectorAll(".math.math-inline").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: false,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        document.querySelectorAll(".math.math-display").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: true,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false },
+              { left: "\\(", right: "\\)", display: false },
+              { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"></nav>
+      <article>
+        <section class="block">
+          <details open>
+            <summary>
+              <header>
+                <h1>“元”海战术行不行</h1>
+                <div class="metadata">
+                  <ul>
+                    <li class="meta-item">2026-07-20</li>
+                    <li class="meta-item">笔记</li>
+                    <li class="meta-item">深度学习</li>
+                    <li class="meta-item">第 2 部分：从多神经元到分层网络。</li>
+                  </ul>
+                </div>
+              </header>
+            </summary>
+
+            <p>上一篇笔记我们提到，想要通过模型本身的设计，让它自己学出隐藏表示来处理问题。 先不急着解决这个问题，我们首先简单想一想，在现在讨论的框架下，线性阈值神经元的表征边界问题。</p>
+            <h2 id="多元的表征能力">“多元”的表征能力</h2>
+            <p>考虑一个简单的问题：增加神经元的数量能否增加模型的表达能力？如果能的话，有什么直觉上的理解吗？</p>
+            <p>问题的答案当然是肯定的。从直觉上来说，增加神经元个数，顶多用某种方法将模型退化成少神经元的情况（比如把多余神经元的权重置零），不会越添越差的。</p>
+            <p>那么问题来了，如何针对问题增加神经元？神经元的连接方式也很重要，多加上去的神经元如何排布，也是一个问题。</p>
+            <p>从简单直觉来看，增加大致有这么几种方案：</p>
+            <ul><li>无限串行：每层只放一个神经元，一个接一个地无限堆下去；</li><li>无限并行：并列增加很多神经元，希望无限的并列能带来无限的表征能力；</li><li>串并结合：多层堆叠，每层若干个神经元；</li><li>全连接成完全图：所有神经元都连在一起，形成一个完全图形式的神经网络。</li></ul>
+            <p>我们接下来分别讨论这些结构的特点。</p>
+            <h2 id="无限串行的神经元">无限串行的神经元</h2>
+            <p>无限串行的线性阈值神经元，稍微想一想，基于上一个神经元的单值输出作为自己的输入，这个东西在线性情况下本质上还是线性方程，这是个很蠢的方案。</p>
+            <p>先看去掉阈值、只保留线性部分的情况。设第一个神经元输出 <span class="math math-inline">s_1=w_1^\top x+b_1</span>，第二个神经元以 <span class="math math-inline">s_1</span> 为输入，输出 <span class="math math-inline">s_2=w_2s_1+b_2</span>，代入展开：<span class="math math-inline">s_2=w_2(w_1^\top x+b_1)+b_2=(w_2w_1)^\top x+(w_2b_1+b_2)</span>。这仍然是 <span class="math math-inline">x</span> 的线性函数，令 <span class="math math-inline">w&#x27;=w_2w_1</span>、<span class="math math-inline">b&#x27;=w_2b_1+b_2</span>，就又回到了单个线性神经元 <span class="math math-inline">s=w&#x27;^\top x+b&#x27;</span>。串多少层，都等价于一层。</p>
+            <p>再看带阈值的情况，情况甚至更糟。第一个神经元输出 <span class="math math-inline">h_1(x)=\mathbf 1[w_1^\top x+b_1&gt;0]\in{0,1}</span>，之后的神经元 <span class="math math-inline">h_2=\mathbf 1[wh_1+b&gt;0]</span> 只是一个 <span class="math math-inline">{0,1}\to{0,1}</span> 的函数，数一数只有四种可能：恒 <span class="math math-inline">0</span>、恒 <span class="math math-inline">1</span>、恒等、取反。也就是说，输入信息在第一层就被压缩成了一个比特，后面串再多神经元也无法恢复，表达能力不升反降。</p>
+            <h2 id="并行神经元的划分">并行神经元的划分</h2>
+            <p>并行神经元的增加，正如上篇笔记讨论的那样，对于线性阈值神经元的情况来说，在空间中很简单，属于空间的划分：用多个神经元来对空间进行合理划分，理论上的规整空间中能够划分出任意形状的表征。</p>
+            <p>具体来说，<span class="math math-inline">k</span> 个并行的神经元 <span class="math math-inline">h_i(x)=\mathbf 1[w_i^\top x+b_i&gt;0]</span>，每个都在平面上切一刀。比如三条直线可以围出一个三角形区域；一般地，<span class="math math-inline">k</span> 条直线最多能把二维平面划分成 <span class="math math-inline">1+k+\binom{k}{2}</span> 个胞腔。每个输入点 <span class="math math-inline">x</span> 落在哪个胞腔里，恰好被这组神经元的输出编码成一个二值向量 <span class="math math-inline">(h_1(x),h_2(x),\dots,h_k(x))</span>。</p>
+            <p>划分出来之后，将各个空间细分之后，对每个编码查表就能对空间特征进行分类了，感觉这是可行的方案。</p>
+            <p>可以试试下面的代码，展示三个神经元如何把平面切出多个区域：</p>
+            <pre><code class="language-wolfram">ClearAll[&quot;Global`*&quot;];
+
+h[x1_, x2_, w1_, w2_, b_] := Boole[w1*x1 + w2*x2 + b &gt; 0];
+
+(* 三个神经元，三条直线 *)
+code[x1_, x2_] := {h[x1, x2, 1, 0, 0.5], h[x1, x2, 0, 1, 0.5], h[x1, x2, -1, -1, 1.5]};
+
+Show[
+ RegionPlot[
+  Evaluate[Table[code[x1, x2] == c,
+    {c, Tuples[{0, 1}, 3]}]],
+  {x1, -3, 3}, {x2, -3, 3},
+  PlotPoints -&gt; 80,
+  FrameLabel -&gt; {&quot;x1&quot;, &quot;x2&quot;},
+  BoundaryStyle -&gt; None
+ ],
+ ContourPlot[{x1 + 0.5 == 0, x2 + 0.5 == 0, -x1 - x2 + 1.5 == 0},
+  {x1, -3, 3}, {x2, -3, 3},
+  ContourStyle -&gt; {Red, Thick}],
+ ImageSize -&gt; Large,
+ PlotLabel -&gt; &quot;Three neurons cut the plane into cells, each cell has a binary code&quot;
+]</code></pre>
+            <p>每个颜色块对应一个不同的编码 <span class="math math-inline">(h_1,h_2,h_3)</span>。神经元越多，切得越细，能围出的形状就越接近任意区域。</p>
+            <h2 id="串并结合分层网络的出现">串并结合：分层网络的出现</h2>
+            <p>基于上一小节的讨论，并行神经元能够对空间中的区域进行编码，对不同区域进行分割。</p>
+            <p>基于这种分割，直观地来说，能对特定区域进行条件筛选，进而达到一个选择的效果。</p>
+            <p>从上一篇的讨论我们知道，神经元能做出 AND 与 OR 的操作，所以基于 OR 和 AND，我们可以得到各个分割区域的条件。</p>
+            <p>举个例子，还是上一篇做不到的 XOR。第一层放两个并行神经元：<span class="math math-inline">h_1(x)=\mathbf 1[x_1+x_2-0.5&gt;0]</span> 实现 OR，<span class="math math-inline">h_2(x)=\mathbf 1[x_1+x_2-1.5&gt;0]</span> 实现 AND。第二层再放一个神经元，以 <span class="math math-inline">(h_1,h_2)</span> 为输入：<span class="math math-inline">\hat y=\mathbf 1[h_1-h_2-0.5&gt;0]</span>。逐点验证一下：</p>
+            <div class="table-wrap"><table><thead><tr><th><span class="math math-inline">x_1</span></th><th><span class="math math-inline">x_2</span></th><th><span class="math math-inline">h_1</span> (OR)</th><th><span class="math math-inline">h_2</span> (AND)</th><th><span class="math math-inline">\hat y=\mathbf 1[h_1-h_2-0.5&gt;0]</span></th><th>XOR</th></tr></thead><tbody><tr><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td></tr><tr><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td></tr><tr><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td></tr><tr><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">1</span></td><td><span class="math math-inline">0</span></td><td><span class="math math-inline">0</span></td></tr></tbody></table></div>
+            <p>XOR 就是“OR 成立且 AND 不成立”，第一层负责编码，第二层负责筛选，两层就够了。上一篇需要智者手工构造的特征 <span class="math math-inline">x_3=x_1x_2</span>，在这里被第一层的神经元“自动”充当了。</p>
+            <p>基于这种思考，一层神经元显然是不够的，需要额外的神经元来对最初的编码结果进行筛选，这样就产生了分层的网络结构。画成图大概是这样：</p>
+            <pre><code>x1 ──┬──&gt; [h1 : OR ] ──┐
+     │                 ├──&gt; [ y : 1[h1 - h2 - 0.5 &gt; 0] ] ──&gt; XOR
+x2 ──┴──&gt; [h2 : AND] ──┘</code></pre>
+            <p>可以试试下面的代码，看看这个两层网络在平面上到底切出了什么：</p>
+            <pre><code class="language-wolfram">ClearAll[&quot;Global`*&quot;];
+
+(* 第一层：两个并行神经元 *)
+h1[x1_, x2_] := Boole[x1 + x2 - 0.5 &gt; 0];  (* OR *)
+h2[x1_, x2_] := Boole[x1 + x2 - 1.5 &gt; 0];  (* AND *)
+
+(* 第二层：以 (h1, h2) 为输入的筛选神经元 *)
+xorNet[x1_, x2_] := Boole[h1[x1, x2] - h2[x1, x2] - 0.5 &gt; 0];
+
+Show[
+ RegionPlot[
+  xorNet[x1, x2] == 1,
+  {x1, -0.5, 1.5}, {x2, -0.5, 1.5},
+  PlotPoints -&gt; 100,
+  PlotStyle -&gt; LightBlue,
+  BoundaryStyle -&gt; None,
+  FrameLabel -&gt; {&quot;x1&quot;, &quot;x2&quot;}
+ ],
+ ContourPlot[
+  {x1 + x2 - 0.5 == 0, x1 + x2 - 1.5 == 0},
+  {x1, -0.5, 1.5}, {x2, -0.5, 1.5},
+  ContourStyle -&gt; {{Red, Thick, Dashed}, {Darker[Green], Thick, Dashed}}
+ ],
+ Graphics[{
+   PointSize[Large],
+   Blue, Point[{{1, 0}, {0, 1}}],
+   Black, Point[{{0, 0}, {1, 1}}],
+   Text[Style[&quot;1&quot;, Blue, 16], {1.08, 0.08}],
+   Text[Style[&quot;1&quot;, Blue, 16], {0.08, 1.08}],
+   Text[Style[&quot;0&quot;, Black, 16], {0.08, 0.08}],
+   Text[Style[&quot;0&quot;, Black, 16], {1.08, 1.08}]
+ }],
+ ImageSize -&gt; Large,
+ PlotLabel -&gt; &quot;Two layers carve out the strip between the OR line and the AND line&quot;
+]</code></pre>
+            <p>红色虚线是 OR 的边界 <span class="math math-inline">x_1+x_2-0.5=0</span>，绿色虚线是 AND 的边界 <span class="math math-inline">x_1+x_2-1.5=0</span>。蓝色区域是网络输出 <span class="math math-inline">1</span> 的地方——正好是两条直线之间夹出的条带：<span class="math math-inline">(1,0)</span> 和 <span class="math math-inline">(0,1)</span> 落在条带里，<span class="math math-inline">(0,0)</span> 和 <span class="math math-inline">(1,1)</span> 落在条带外。单条直线切不开的四个点，两条直线夹出的条带就切开了，这就是第二层&quot;筛选&quot;的几何意义。</p>
+            <p>但是，如何自动构造这种网络呢？ 具体每层要用几个神经元呢？ 如何靠自动迭代来实现这种关系呢？仍然是个问题。</p>
+            <h2 id="如何自动得到一个可用网络">如何自动得到一个可用网络</h2>
+            <p>这就引入到评价准则上。通常来说，算法需要有一个明确的评价准则判断好不好。沿用第一篇的记号，就是损失函数 <span class="math math-inline">L(\theta)=\sum_i L(f_\theta(x_i),y_i)</span>。另外，光有好不好也不够——</p>
+            <p>还得根据目前的标准进行迭代，修改目前的参数。</p>
+            <p>但是我思来想去，自觉推演不出这种算法。这里且站在巨人的肩膀上：目前成功的算法是梯度下降和反向传播。</p>
+            <p>损失 <span class="math math-inline">L(\theta)</span> 是参数 <span class="math math-inline">\theta</span> 的一个函数，那么针对这个函数需要有对应的修正。基本思路就是不断求导，然后沿着让损失变小的方向不断修正参数：<span class="math math-inline">\theta_{t+1}=\theta_t-\eta\nabla_\theta L(\theta_t)</span>，其中 <span class="math math-inline">\eta</span> 是步长（学习率），<span class="math math-inline">\nabla_\theta L</span> 是损失对参数的梯度。对于分层网络，梯度靠链式法则一层一层往回传，例如某一层参数 <span class="math math-inline">\theta^{(l)}</span> 的梯度形如 <span class="math math-inline">\frac{\partial L}{\partial\theta^{(l)}}=\frac{\partial L}{\partial h^{(L)}}\cdot\frac{\partial h^{(L)}}{\partial h^{(L-1)}}\cdots\frac{\partial h^{(l)}}{\partial\theta^{(l)}}</span>，这就是反向传播，细节留到下一篇。</p>
+            <h2 id="总结">总结</h2>
+            <p>首先总结一下我们现有的元素：</p>
+            <ul><li>可表示的输入 <span class="math math-inline">x</span>，以及最小的可计算模型——线性阈值神经元 <span class="math math-inline">h(x)=\mathbf 1[w^\top x+b&gt;0]</span>；</li><li>单纯串行没有意义，并行神经元可以对空间划分编码；</li><li>在编码之上再加一层做筛选，就得到了分层网络，两层即可解决 XOR；</li><li>评价准则（损失函数 <span class="math math-inline">L</span>）给出了“好不好”的标准，梯度下降给出了迭代的方向；</li><li>但硬阈值不可导，梯度下降暂时还用不上。 下一篇我们将讨论反向传播与梯度下降。</li></ul>
+            <h2 id="附录全连接成完全图">附录：全连接成完全图</h2>
+            <p>四种方案里还剩全连接没有正面讨论，这里简单交代一下。从图论的角度来看（图论就是研究抽象的点和边的学问），每个神经元是一个节点，神经元之间的信息交互通路就是边。那么串行和并行可以说是最简单的图结构，自然会想把结构 level up——比如让所有神经元（或其某个子集）两两相连，形成完全图。</p>
+            <p>这种结构较为有趣，对应的是 Hopfield 网络和玻尔兹曼机：网络不再是“输入进、输出出”的前馈流水线，而是网络本身携带信息，状态在神经元之间反复迭代直至稳定。它们和本系列的前馈主线不在同一条路上，此处暂且略过，之后作为拓展内容单独展开。</p>
+          </details>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
