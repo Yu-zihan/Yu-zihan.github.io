@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>从单个神经元开始</title>
     <link rel="icon" href="/assets/favicon.ico">
-    <link rel="stylesheet" href="/assets/notes.css?v=notes-mobile">
+    <script src="/main.js"></script>
     <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+
+    <link rel="stylesheet" href="/assets/notes.css?v=notes-mobile">
     <script defer src="/assets/notes.js?v=notes-mobile"></script>
     <script defer src="/assets/vendor/katex/katex.min.js"></script>
     <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
@@ -49,19 +51,20 @@
   </head>
   <body>
     <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
-      <nav id="toc" class="sticky-nav mobile-sticky-nav"></nav>
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"><div id="theme-options"></div></nav>
+
       <article>
-        <section class="block">
+        <section class="block" data-taxon="">
           <details open>
-            <summary>
+            <summary id="zh-notes-one_neuron_1">
               <header>
-                <h1>从单个神经元开始</h1>
+                <h1><span class="taxon"></span>从单个神经元开始 <a class="slug" href="/zh/notes/one_neuron_1.html">[one_neuron_1]</a></h1>
                 <div class="metadata">
                   <ul>
-                    <li class="meta-item">2026-07-01</li>
-                    <li class="meta-item">笔记</li>
-                    <li class="meta-item">深度学习</li>
-                    <li class="meta-item">第 1 部分：从最小的可计算模型到 XOR</li>
+                    <li class="meta-item meta-date">2026-07-01</li>
+                    <li class="meta-item meta-kind">笔记</li>
+                    <li class="meta-item meta-tags">深度学习</li>
+                    <li class="meta-item meta-summary">第 1 部分：从最小的可计算模型到 XOR</li>
                   </ul>
                 </div>
               </header>

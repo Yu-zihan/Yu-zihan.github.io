@@ -5,6 +5,7 @@
 
 # local tooling
 .tools/
+__pycache__/
 
 # build outputs that we intentionally do not keep
 docs/kodama.json

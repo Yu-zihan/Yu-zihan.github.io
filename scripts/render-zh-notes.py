@@ -11,26 +11,67 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = ROOT / "trees" / "notes"
 EN_OUTPUT_DIR = ROOT / "site-overrides" / "notes"
 ZH_OUTPUT_DIR = ROOT / "site-overrides" / "zh" / "notes"
-BLOG_OUTPUT_DIR = ROOT / "site-overrides" / "blog"
 ASSET_VERSION = "notes-mobile"
 
+TAG_SLUGS = {
+    "Deep learning": "deep-learning",
+    "Optimal transport": "optimal-transport",
+    "深度学习": "deep-learning",
+    "最优传输": "optimal-transport",
+}
+
 LANGUAGE_SETTINGS = {
-    "blog": {
-        "html_lang": "en-US",
-        "output_dir": BLOG_OUTPUT_DIR,
-        "kind": "blog",
-    },
     "en": {
         "html_lang": "en-US",
         "output_dir": EN_OUTPUT_DIR,
         "kind": "note",
+        "archive_title": "Notes archive",
+        "archive_description": "Research notes by Zihan Yu.",
+        "archive_intro": "Working notes and topic pages.",
+        "archive_nav_label": "Archive sections",
+        "archive_links": [
+            ("/", "Home"),
+            ("/notes/index.html", "Notes"),
+            ("/blog/index.html", "Essays"),
+            ("/zh/notes/index.html", "中文"),
+        ],
+        "archive_path": "/notes/index.html",
+        "filter_label": "Filter",
+        "all_label": "All",
+        "known_tags": [("deep-learning", "Deep learning"), ("optimal-transport", "Optimal transport")],
+        "article_class": "notes-site notes-article notes-article-legacy",
+        "archive_class": "notes-site notes-list",
+        "font_links": True,
     },
     "zh": {
         "html_lang": "zh-CN",
         "output_dir": ZH_OUTPUT_DIR,
         "kind": "笔记",
+        "archive_title": "笔记归档",
+        "archive_description": "于子涵的中文笔记归档。",
+        "archive_intro": "一些学习笔记、阅读记录和主题整理。",
+        "archive_nav_label": "归档导航",
+        "archive_links": [
+            ("/", "主页"),
+            ("/zh/notes/index.html", "笔记"),
+            ("/notes/index.html", "English"),
+        ],
+        "archive_path": "/zh/notes/index.html",
+        "filter_label": "筛选",
+        "all_label": "全部",
+        "known_tags": [("deep-learning", "深度学习"), ("optimal-transport", "最优传输")],
+        "article_class": "notes-site notes-article",
+        "archive_class": "notes-site notes-list",
+        "font_links": False,
     },
 }
+
+
+@dataclass(frozen=True)
+class NoteEntry:
+    source: str
+    output: str
+    lang: str
 
 
 @dataclass(frozen=True)
@@ -41,88 +82,386 @@ class Note:
     date: str
     tag: str
     summary: str
-    lang: str = "zh"
+    lang: str
+
+    @property
+    def tag_slug(self) -> str:
+        return TAG_SLUGS.get(self.tag, slugify_plain(self.tag))
 
 
-NOTES = [
-    Note(
-        source="blog/notes_on_interests.md",
-        output="notes_on_interests.html",
-        title="Beyond Research",
-        date="2026-06-02",
-        tag="Interests",
-        summary="A few interests and curiosities beyond academic work.",
-        lang="blog",
-    ),
-    Note(
-        source="neuron_wave_tactic.md",
-        output="neuron_wave_tactic.html",
-        title='Does the "Neuron-Wave" Tactic Work?',
-        date="2026-07-20",
-        tag="Deep learning",
-        summary="Part 2: From many neurons to layered networks.",
-        lang="en",
-    ),
-    Note(
-        source="one_neuron_1.md",
-        output="one_neuron_1.html",
-        title="Starting with One Neuron",
-        date="2026-07-01",
-        tag="Deep learning",
-        summary="Part 1: From the smallest computable model to XOR.",
-        lang="en",
-    ),
-    Note(
-        source="kantorovich_duality.md",
-        output="kantorovich_duality.html",
-        title="Kantorovich Duality",
-        date="2026-06-05",
-        tag="Optimal transport",
-        summary="Annotated notes on the derivation and meaning of Kantorovich duality.",
-        lang="en",
-    ),
-    Note(
-        source="entropic_regularized_optimal_transport.md",
-        output="entropic_regularized_optimal_transport.html",
-        title="Entropic Regularized Optimal Transport",
-        date="2026-06-02",
-        tag="Optimal transport",
-        summary="Personal notes on entropic regularized optimal transport.",
-        lang="en",
-    ),
-    Note(
-        source="元海战术行不行.md",
-        output="neuron_wave_tactic.html",
-        title="“元”海战术行不行",
-        date="2026-07-20",
-        tag="深度学习",
-        summary="第 2 部分：从多神经元到分层网络。",
-    ),
-    Note(
-        source="从最小可计算模型开始.md",
-        output="one_neuron_1.html",
-        title="从单个神经元开始",
-        date="2026-07-01",
-        tag="深度学习",
-        summary="第 1 部分：从最小的可计算模型到 XOR",
-    ),
-    Note(
-        source="Kantorovich 对偶.md",
-        output="kantorovich_duality.html",
-        title="Kantorovich 对偶",
-        date="2026-06-05",
-        tag="最优传输",
-        summary="关于 Kantorovich 对偶推导和含义的整理",
-    ),
-    Note(
-        source="熵正则最优传输.md",
-        output="entropic_regularized_optimal_transport.html",
-        title="熵正则化最优传输",
-        date="2026-06-02",
-        tag="最优传输",
-        summary="关于熵正则化最优传输的一些个人笔记",
-    ),
+# This list is the public archive source of truth. Files can remain in
+# trees/notes while staying unpublished if they are not listed here.
+NOTE_ENTRIES = [
+    NoteEntry("neuron_wave_tactic.md", "neuron_wave_tactic.html", "en"),
+    NoteEntry("one_neuron_1.md", "one_neuron_1.html", "en"),
+    NoteEntry("kantorovich_duality.md", "kantorovich_duality.html", "en"),
+    NoteEntry("entropic_regularized_optimal_transport.md", "entropic_regularized_optimal_transport.html", "en"),
+    NoteEntry("元海战术行不行.md", "neuron_wave_tactic.html", "zh"),
+    NoteEntry("从最小可计算模型开始.md", "one_neuron_1.html", "zh"),
+    NoteEntry("Kantorovich 对偶.md", "kantorovich_duality.html", "zh"),
+    NoteEntry("熵正则最优传输.md", "entropic_regularized_optimal_transport.html", "zh"),
 ]
+
+
+LEGACY_ARTICLE_CSS = """
+<style>
+  html {
+    font-size: 18px;
+  }
+
+  :root body {
+    color-scheme: light dark;
+    --content-gap: 15px;
+    --radius: 5px;
+    --article-max-width: 90ex;
+    --toc-max-width: 90ex;
+    --text-font-family: "Inria Sans", sans-serif;
+    --kaiti-font-family: "LXGW WenKai TC", "FandolKai", "KaiTi", "SimKai", "STKaiti", "Kaiti SC", "Kaiti TC", "华文楷体", "楷体", serif;
+    --pre-font-size: 1rem;
+    --code-font-size: 1rem;
+    --katex-font-size: 1em;
+    --katex-frac-line-font-size: 1.25em;
+    --details-h1-font-size: 1.2rem;
+    --article-details-h1-font-size: 1.5rem;
+    --article-details-h1-taxon-font-size: 1.35rem;
+    --logo-font-size: 1.5rem;
+    --p-line-height: 1.55rem;
+    --text-color: black;
+    --toc-link-color: #555;
+    --background-color: white;
+    --background-color-pre: rgba(0, 100, 100, 0.04);
+    --background-color-code: rgba(0, 100, 100, 0.04);
+    --hover-color-block: rgba(0, 100, 255, 0.04);
+    --hover-color-link: rgba(0, 100, 255, 0.1);
+    --target-color: rgb(67, 92, 255);
+    --link-color: black;
+    --slug-color: gray;
+    --logo-color: #666;
+    --logo-hover-color: #aaa;
+    --span-taxon-color: #444;
+    --article-taxon-color: #888;
+    --mark-color: rgb(255, 255, 151);
+    --em-color: var(--text-color);
+    --alert-border-color: gray;
+  }
+
+  body {
+    color: var(--text-color);
+    font-optical-sizing: auto;
+    font-size: 1rem;
+    font-family: var(--text-font-family);
+    hyphens: auto;
+    background-color: var(--background-color);
+  }
+
+  p,
+  pre {
+    line-height: var(--p-line-height);
+  }
+
+  pre {
+    border-radius: var(--radius);
+    background-color: var(--background-color-pre);
+    padding: 0.5rem;
+    font-size: var(--pre-font-size);
+    margin-top: 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  code {
+    border-radius: var(--radius);
+    background-color: var(--background-color-code);
+    padding: 0.1rem;
+    font-size: var(--code-font-size);
+  }
+
+  pre,
+  code {
+    font-family: monospace;
+  }
+
+  .table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0 5px;
+    margin-bottom: 1rem;
+    display: block;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  th {
+    font-weight: normal;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: 0 15px;
+    vertical-align: top;
+  }
+
+  pre > code {
+    border-radius: 0;
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .math.math-display,
+  .katex-display {
+    display: block;
+    margin: 0.55rem 0 0.65rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.05rem 0.1rem 0.12rem;
+  }
+
+  .katex-display > .katex {
+    min-width: fit-content;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin-top: 0.5em;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 500;
+    margin-bottom: 0;
+  }
+
+  h5,
+  h6,
+  p {
+    margin-top: 0;
+  }
+
+  details > summary {
+    list-style-type: none;
+    outline: none;
+  }
+
+  details > summary > header {
+    display: inline;
+  }
+
+  details > summary::marker,
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details h1 {
+    font-size: var(--details-h1-font-size);
+    display: inline;
+  }
+
+  span.taxon {
+    color: var(--span-taxon-color);
+    font-weight: 500;
+  }
+
+  article > section > details > summary > header > h1 {
+    font-size: var(--article-details-h1-font-size);
+  }
+
+  article > section > details > summary > header {
+    display: block;
+    margin-bottom: 0.5em;
+  }
+
+  section.block > details {
+    margin-bottom: 0.4em;
+  }
+
+  section.block > details[open] {
+    margin-bottom: 1em;
+  }
+
+  .block {
+    padding-left: 5px;
+    padding-right: 10px;
+    padding-bottom: 2px;
+    border-radius: var(--radius);
+  }
+
+  .block:hover {
+    background-color: var(--hover-color-block);
+  }
+
+  img {
+    object-fit: cover;
+    max-width: 100%;
+  }
+
+  hr {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    background-color: gray;
+    border: 0 none;
+    width: 100%;
+    height: 1pt;
+  }
+
+  ul,
+  ol {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .metadata ul {
+    padding-left: 0;
+    display: inline;
+  }
+
+  .metadata li::after {
+    content: " · ";
+  }
+
+  .metadata li:last-child::after {
+    content: "";
+  }
+
+  .metadata * {
+    display: inline;
+  }
+
+  a {
+    color: var(--link-color);
+    text-decoration: inherit;
+  }
+
+  .slug,
+  .edit {
+    color: var(--slug-color);
+    font-weight: 200;
+  }
+
+  #grid-wrapper > article {
+    max-width: var(--article-max-width);
+    margin-right: auto;
+    grid-area: article;
+  }
+
+  nav#toc ul {
+    list-style-type: none;
+  }
+
+  nav#toc li > ul {
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  nav#toc,
+  nav#toc a {
+    color: var(--toc-link-color);
+  }
+
+  nav#toc {
+    grid-area: toc;
+  }
+
+  @media only screen and (min-width: 1000px) {
+    body {
+      margin-top: 2rem;
+      margin-left: 2rem;
+      transition: ease all 0.2s;
+    }
+
+    #grid-wrapper {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-columns: var(--article-max-width) var(--toc-max-width);
+    }
+
+    .sticky-nav {
+      position: sticky;
+      top: 0;
+      max-height: 100vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    nav#toc {
+      max-width: 45ex;
+    }
+  }
+
+  @media only screen and (max-width: 1000px) {
+    :root body {
+      --code-font-size: 0.9rem;
+    }
+
+    .block {
+      padding-left: 2px;
+      padding-right: 2px;
+      padding-bottom: 2px;
+      border-radius: 5px;
+    }
+
+    .mobile-sticky-nav {
+      position: sticky;
+      top: 0;
+      max-height: 100vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      background-color: var(--background-color);
+      z-index: 7;
+      border-bottom: solid var(--text-color);
+    }
+  }
+
+  article {
+    font-size: 19px;
+    line-height: 1.78;
+  }
+
+  article h1 {
+    font-size: 2.35rem;
+    line-height: 1.15;
+  }
+
+  article h2 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  article h3 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+
+  article p,
+  article li {
+    margin-bottom: 0.72em;
+  }
+
+  article pre {
+    padding: 1.2rem;
+  }
+</style>
+"""
+
+
+def slugify_plain(text: str) -> str:
+    slug = text.strip().lower().replace("&", "and")
+    slug = re.sub(r"[^a-z0-9\u4e00-\u9fff]+", "-", slug)
+    return slug.strip("-") or "tag"
 
 
 def slugify(text: str, used: dict[str, int]) -> str:
@@ -132,6 +471,38 @@ def slugify(text: str, used: dict[str, int]) -> str:
     count = used.get(base, 0)
     used[base] = count + 1
     return base if count == 0 else f"{base}-{count + 1}"
+
+
+def strip_wrapping_quotes(value: str) -> str:
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+        return value[1:-1]
+    return value
+
+
+def split_frontmatter(markdown: str) -> tuple[dict[str, str], str]:
+    lines = markdown.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}, markdown
+
+    end = None
+    for index, line in enumerate(lines[1:], start=1):
+        if line.strip() == "---":
+            end = index
+            break
+
+    if end is None:
+        return {}, markdown
+
+    frontmatter: dict[str, str] = {}
+    for line in lines[1:end]:
+        if ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        frontmatter[key.strip()] = strip_wrapping_quotes(value)
+
+    body = "\n".join(lines[end + 1 :]).lstrip("\n")
+    return frontmatter, body
 
 
 def protect_inline(text: str, pattern: re.Pattern[str], renderer) -> tuple[str, dict[str, str]]:
@@ -231,18 +602,6 @@ def render_table(lines: list[str]) -> str:
 
 def normalize_heading(text: str) -> str:
     return re.sub(r"^(\d+)\.\s+(\d+)\s*", r"\1.\2 ", text.strip())
-
-
-def strip_frontmatter(markdown: str) -> str:
-    lines = markdown.splitlines()
-    if not lines or lines[0].strip() != "---":
-        return markdown
-
-    for index, line in enumerate(lines[1:], start=1):
-        if line.strip() == "---":
-            return "\n".join(lines[index + 1 :]).lstrip("\n")
-
-    return markdown
 
 
 def render_blocks(markdown: str) -> str:
@@ -374,31 +733,64 @@ def render_blocks(markdown: str) -> str:
     return "\n            ".join(blocks)
 
 
-def render_page(note: Note) -> str:
+def source_path_for(entry: NoteEntry) -> Path:
+    return SOURCE_DIR / entry.source
+
+
+def load_note(entry: NoteEntry) -> tuple[Note, str]:
+    source_path = source_path_for(entry)
+    markdown = source_path.read_text(encoding="utf-8")
+    frontmatter, body = split_frontmatter(markdown)
+    note = Note(
+        source=entry.source,
+        output=entry.output,
+        title=frontmatter.get("title", source_path.stem),
+        date=frontmatter.get("date", ""),
+        tag=frontmatter.get("tags", ""),
+        summary=frontmatter.get("summary", ""),
+        lang=entry.lang,
+    )
+    return note, body
+
+
+def render_head_extras(note: Note) -> str:
+    settings = LANGUAGE_SETTINGS[note.lang]
+    font_links = ""
+    if settings["font_links"]:
+        font_links = """
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&display=swap" rel="stylesheet">"""
+
+    legacy_css = LEGACY_ARTICLE_CSS if note.lang == "en" else ""
+    return f"""{legacy_css}{font_links}
+    <link rel="stylesheet" href="/assets/notes.css?v={ASSET_VERSION}">
+    <script defer src="/assets/notes.js?v={ASSET_VERSION}"></script>"""
+
+
+def render_article_page(note: Note, markdown_body: str) -> str:
     settings = LANGUAGE_SETTINGS[note.lang]
     html_lang = settings["html_lang"]
     kind = html.escape(settings["kind"])
-    source_path = Path(note.source)
-    if len(source_path.parts) > 1:
-        source_path = ROOT / "trees" / source_path
-    else:
-        source_path = SOURCE_DIR / source_path
-    markdown = strip_frontmatter(source_path.read_text(encoding="utf-8"))
-    body = render_blocks(markdown)
     title = html.escape(note.title)
     summary = html.escape(note.summary)
     tag = html.escape(note.tag)
+    body = render_blocks(markdown_body)
+    slug = html.escape(note.output.removesuffix(".html"))
+    summary_id = html.escape(f"{note.lang}-notes-{note.output.removesuffix('.html')}")
+    page_path = "/zh/notes/" + note.output if note.lang == "zh" else "/notes/" + note.output
 
     return f"""<!DOCTYPE html>
-<html lang="{html_lang}" class="notes-site notes-article">
+<html lang="{html_lang}" class="{settings["article_class"]}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{title}</title>
     <link rel="icon" href="/assets/favicon.ico">
-    <link rel="stylesheet" href="/assets/notes.css?v={ASSET_VERSION}">
+    <script src="/main.js"></script>
     <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
-    <script defer src="/assets/notes.js?v={ASSET_VERSION}"></script>
+{render_head_extras(note)}
     <script defer src="/assets/vendor/katex/katex.min.js"></script>
     <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
     <script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
@@ -440,19 +832,20 @@ def render_page(note: Note) -> str:
   </head>
   <body>
     <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
-      <nav id="toc" class="sticky-nav mobile-sticky-nav"></nav>
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"><div id="theme-options"></div></nav>
+
       <article>
-        <section class="block">
+        <section class="block" data-taxon="">
           <details open>
-            <summary>
+            <summary id="{summary_id}">
               <header>
-                <h1>{title}</h1>
+                <h1><span class="taxon"></span>{title} <a class="slug" href="{html.escape(page_path)}">[{slug}]</a></h1>
                 <div class="metadata">
                   <ul>
-                    <li class="meta-item">{note.date}</li>
-                    <li class="meta-item">{kind}</li>
-                    <li class="meta-item">{tag}</li>
-                    <li class="meta-item">{summary}</li>
+                    <li class="meta-item meta-date">{html.escape(note.date)}</li>
+                    <li class="meta-item meta-kind">{kind}</li>
+                    <li class="meta-item meta-tags">{tag}</li>
+                    <li class="meta-item meta-summary">{summary}</li>
                   </ul>
                 </div>
               </header>
@@ -468,16 +861,122 @@ def render_page(note: Note) -> str:
 """
 
 
+def render_tag_menu(settings: dict[str, object]) -> str:
+    archive_path = str(settings["archive_path"])
+    all_label = html.escape(str(settings["all_label"]))
+    items = [f'<a class="tag-pill is-current" href="{archive_path}" data-tag-filter="all">{all_label}</a>']
+    for slug, label in settings["known_tags"]:
+        items.append(
+            f'<a class="tag-pill" href="{archive_path}?tag={html.escape(slug)}" '
+            f'data-tag-filter="{html.escape(slug)}">{html.escape(label)}</a>'
+        )
+    return "\n                  ".join(items)
+
+
+def render_archive_page(lang: str, notes: list[Note]) -> str:
+    settings = LANGUAGE_SETTINGS[lang]
+    title = html.escape(str(settings["archive_title"]))
+    description = html.escape(str(settings["archive_description"]))
+    intro = html.escape(str(settings["archive_intro"]))
+    archive_path = str(settings["archive_path"])
+    filter_label = html.escape(str(settings["filter_label"]))
+    all_label = html.escape(str(settings["all_label"]))
+    nav_links = []
+
+    for href, label in settings["archive_links"]:
+        current = ' class="is-current"' if href == archive_path else ""
+        nav_links.append(f'<a{current} href="{html.escape(href)}">{html.escape(label)}</a>')
+
+    posts = []
+    for note in notes:
+        href = "/zh/notes/" + note.output if lang == "zh" else "/notes/" + note.output
+        tag_href = f"{archive_path}?tag={note.tag_slug}"
+        posts.append(
+            f"""              <li class="post-item" data-tags="{html.escape(note.tag_slug)}">
+                <div class="post-date">{html.escape(note.date)}</div>
+                <a href="{html.escape(href)}">
+                  {html.escape(note.title)}
+                </a>
+                <div class="post-summary">
+                  {html.escape(note.summary)}
+                </div>
+                <div class="post-tags">
+                  <a class="tag-pill" href="{html.escape(tag_href)}" data-tag-filter="{html.escape(note.tag_slug)}">{html.escape(note.tag)}</a>
+                </div>
+              </li>"""
+        )
+
+    return f"""<!DOCTYPE html>
+<html lang="{settings["html_lang"]}" class="{settings["archive_class"]}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{title}</title>
+    <meta name="description" content="{description}">
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="/assets/notes.css?v={ASSET_VERSION}">
+    <script defer src="/assets/notes.js?v={ASSET_VERSION}"></script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper">
+      <article>
+        <main class="academic">
+          <header>
+            <h1>{title}</h1>
+            <p>{intro}</p>
+            <div class="archive-toolbar">
+              <nav aria-label="{html.escape(str(settings["archive_nav_label"]))}">
+                {"\n                ".join(nav_links)}
+              </nav>
+              <details class="tag-filter" aria-label="{filter_label}">
+                <summary>
+                  <span class="tag-filter-label">{filter_label}</span>
+                  <span class="tag-filter-current">{all_label}</span>
+                </summary>
+                <div class="tag-filter-menu">
+                  {render_tag_menu(settings)}
+                </div>
+              </details>
+            </div>
+          </header>
+
+          <section>
+            <ul class="post-list">
+{"\n".join(posts)}
+            </ul>
+          </section>
+        </main>
+      </article>
+    </div>
+  </body>
+</html>
+"""
+
+
+def write_if_changed(path: Path, content: str) -> None:
+    normalized = "\n".join(line.rstrip() for line in content.splitlines()) + "\n"
+    if path.exists() and path.read_text(encoding="utf-8") == normalized:
+        return
+    path.write_text(normalized, encoding="utf-8")
+
+
 def main() -> None:
+    notes_by_language: dict[str, list[Note]] = {"en": [], "zh": []}
+
     for settings in LANGUAGE_SETTINGS.values():
         settings["output_dir"].mkdir(parents=True, exist_ok=True)
 
-    for note in NOTES:
-        output = LANGUAGE_SETTINGS[note.lang]["output_dir"] / note.output
-        rendered = render_page(note)
-        if output.exists() and output.read_text(encoding="utf-8") == rendered:
-            continue
-        output.write_text(rendered, encoding="utf-8")
+    for entry in NOTE_ENTRIES:
+        note, body = load_note(entry)
+        notes_by_language[entry.lang].append(note)
+        output = LANGUAGE_SETTINGS[entry.lang]["output_dir"] / entry.output
+        write_if_changed(output, render_article_page(note, body))
+
+    for lang, notes in notes_by_language.items():
+        output_dir = LANGUAGE_SETTINGS[lang]["output_dir"]
+        write_if_changed(output_dir / "index.html", render_archive_page(lang, notes))
 
 
 if __name__ == "__main__":
