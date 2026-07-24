@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en-US" class="notes-site notes-article notes-article-legacy">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Optimal Transport in One Dimension</title>
+    <link rel="icon" href="/assets/favicon.ico">
+    <script src="/main.js"></script>
+    <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+
+<style>
+  html {
+    font-size: 18px;
+  }
+
+  :root body {
+    color-scheme: light dark;
+    --content-gap: 15px;
+    --radius: 5px;
+    --article-max-width: 90ex;
+    --toc-max-width: 90ex;
+    --text-font-family: "Inria Sans", sans-serif;
+    --kaiti-font-family: "LXGW WenKai TC", "FandolKai", "KaiTi", "SimKai", "STKaiti", "Kaiti SC", "Kaiti TC", "华文楷体", "楷体", serif;
+    --pre-font-size: 1rem;
+    --code-font-size: 1rem;
+    --katex-font-size: 1em;
+    --katex-frac-line-font-size: 1.25em;
+    --details-h1-font-size: 1.2rem;
+    --article-details-h1-font-size: 1.5rem;
+    --article-details-h1-taxon-font-size: 1.35rem;
+    --logo-font-size: 1.5rem;
+    --p-line-height: 1.55rem;
+    --text-color: black;
+    --toc-link-color: #555;
+    --background-color: white;
+    --background-color-pre: rgba(0, 100, 100, 0.04);
+    --background-color-code: rgba(0, 100, 100, 0.04);
+    --hover-color-block: rgba(0, 100, 255, 0.04);
+    --hover-color-link: rgba(0, 100, 255, 0.1);
+    --target-color: rgb(67, 92, 255);
+    --link-color: black;
+    --slug-color: gray;
+    --logo-color: #666;
+    --logo-hover-color: #aaa;
+    --span-taxon-color: #444;
+    --article-taxon-color: #888;
+    --mark-color: rgb(255, 255, 151);
+    --em-color: var(--text-color);
+    --alert-border-color: gray;
+  }
+
+  body {
+    color: var(--text-color);
+    font-optical-sizing: auto;
+    font-size: 1rem;
+    font-family: var(--text-font-family);
+    hyphens: auto;
+    background-color: var(--background-color);
+  }
+
+  p,
+  pre {
+    line-height: var(--p-line-height);
+  }
+
+  pre {
+    border-radius: var(--radius);
+    background-color: var(--background-color-pre);
+    padding: 0.5rem;
+    font-size: var(--pre-font-size);
+    margin-top: 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  code {
+    border-radius: var(--radius);
+    background-color: var(--background-color-code);
+    padding: 0.1rem;
+    font-size: var(--code-font-size);
+  }
+
+  pre,
+  code {
+    font-family: monospace;
+  }
+
+  .table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0 5px;
+    margin-bottom: 1rem;
+    display: block;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  th {
+    font-weight: normal;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: 0 15px;
+    vertical-align: top;
+  }
+
+  pre > code {
+    border-radius: 0;
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .math.math-display,
+  .katex-display {
+    display: block;
+    margin: 0.55rem 0 0.65rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.05rem 0.1rem 0.12rem;
+  }
+
+  .katex-display > .katex {
+    min-width: fit-content;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin-top: 0.5em;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 500;
+    margin-bottom: 0;
+  }
+
+  h5,
+  h6,
+  p {
+    margin-top: 0;
+  }
+
+  details > summary {
+    list-style-type: none;
+    outline: none;
+  }
+
+  details > summary > header {
+    display: inline;
+  }
+
+  details > summary::marker,
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details h1 {
+    font-size: var(--details-h1-font-size);
+    display: inline;
+  }
+
+  span.taxon {
+    color: var(--span-taxon-color);
+    font-weight: 500;
+  }
+
+  article > section > details > summary > header > h1 {
+    font-size: var(--article-details-h1-font-size);
+  }
+
+  article > section > details > summary > header {
+    display: block;
+    margin-bottom: 0.5em;
+  }
+
+  section.block > details {
+    margin-bottom: 0.4em;
+  }
+
+  section.block > details[open] {
+    margin-bottom: 1em;
+  }
+
+  .block {
+    padding-left: 5px;
+    padding-right: 10px;
+    padding-bottom: 2px;
+    border-radius: var(--radius);
+  }
+
+  .block:hover {
+    background-color: var(--hover-color-block);
+  }
+
+  img {
+    object-fit: cover;
+    max-width: 100%;
+  }
+
+  hr {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    background-color: gray;
+    border: 0 none;
+    width: 100%;
+    height: 1pt;
+  }
+
+  ul,
+  ol {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .metadata ul {
+    padding-left: 0;
+    display: inline;
+  }
+
+  .metadata li::after {
+    content: " · ";
+  }
+
+  .metadata li:last-child::after {
+    content: "";
+  }
+
+  .metadata * {
+    display: inline;
+  }
+
+  a {
+    color: var(--link-color);
+    text-decoration: inherit;
+  }
+
+  .slug,
+  .edit {
+    color: var(--slug-color);
+    font-weight: 200;
+  }
+
+  #grid-wrapper > article {
+    max-width: var(--article-max-width);
+    margin-right: auto;
+    grid-area: article;
+  }
+
+  nav#toc ul {
+    list-style-type: none;
+  }
+
+  nav#toc li > ul {
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  nav#toc,
+  nav#toc a {
+    color: var(--toc-link-color);
+  }
+
+  nav#toc {
+    grid-area: toc;
+  }
+
+  @media only screen and (min-width: 1000px) {
+    body {
+      margin-top: 2rem;
+      margin-left: 2rem;
+      transition: ease all 0.2s;
+    }
+
+    #grid-wrapper {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-columns: var(--article-max-width) var(--toc-max-width);
+    }
+
+    .sticky-nav {
+      position: sticky;
+      top: 0;
+      max-height: 100vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    nav#toc {
+      max-width: 45ex;
+    }
+  }
+
+  @media only screen and (max-width: 1000px) {
+    :root body {
+      --code-font-size: 0.9rem;
+    }
+
+    .block {
+      padding-left: 2px;
+      padding-right: 2px;
+      padding-bottom: 2px;
+      border-radius: 5px;
+    }
+
+    .mobile-sticky-nav {
+      position: sticky;
+      top: 0;
+      max-height: 100vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      background-color: var(--background-color);
+      z-index: 7;
+      border-bottom: solid var(--text-color);
+    }
+  }
+
+  article {
+    font-size: 19px;
+    line-height: 1.78;
+  }
+
+  article h1 {
+    font-size: 2.35rem;
+    line-height: 1.15;
+  }
+
+  article h2 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  article h3 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+
+  article p,
+  article li {
+    margin-bottom: 0.72em;
+  }
+
+  article pre {
+    padding: 1.2rem;
+  }
+</style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/notes.css?v=notes-mobile">
+    <script defer src="/assets/notes.js?v=notes-mobile"></script>
+    <script defer src="/assets/vendor/katex/katex.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.katex) return;
+
+        document.querySelectorAll(".math.math-inline").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: false,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        document.querySelectorAll(".math.math-display").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: true,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false },
+              { left: "\\(", right: "\\)", display: false },
+              { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"><div id="theme-options"></div></nav>
+
+      <article>
+        <section class="block" data-taxon="">
+          <details open>
+            <summary id="en-notes-optimal-transport-in-one-dimension">
+              <header>
+                <h1><span class="taxon"></span>Optimal Transport in One Dimension <a class="slug" href="/notes/optimal-transport-in-one-dimension.html">[optimal-transport-in-one-dimension]</a></h1>
+                <div class="metadata">
+                  <ul>
+                    <li class="meta-item meta-date">2026-07-24</li>
+                    <li class="meta-item meta-kind">note</li>
+                    <li class="meta-item meta-tags">Optimal transport</li>
+                    <li class="meta-item meta-summary">Why sorted matching and equal quantiles solve optimal transport on the real line</li>
+                  </ul>
+                </div>
+              </header>
+            </summary>
+
+            <p>Optimal transport is traditionally introduced through the image of moving a pile of dirt: the source distribution is a heap of earth, the target distribution prescribes how that earth should end up arranged, and our job is to pick the transport plan that minimizes the total cost.</p>
+            <p>In a general space this is a genuinely hard optimization problem. On the real line, however, it becomes easy, and the answer fits into a single sentence:</p>
+            <blockquote><p><strong>Main result</strong>　Positions on the real line come with a natural total order, from left to right. For the cost <span class="math math-inline">c(x,y)=|x-y|^p</span> (with <span class="math math-inline">p\ge 1</span>), optimal transport obeys the principle that <strong>mass of equal rank is matched to mass of equal rank</strong>: in the equally weighted discrete case this means pairing up the points after sorting; in general it means matching equal quantiles.</p></blockquote>
+            <p>The statement sounds reasonable enough at first glance, but there is a lot of detail hidden inside it. The thread running through this article is to make that sentence concrete, step by step, and to understand the result from both an intuitive and an analytic angle.</p>
+            <h2 id="1-notation-keep-positions-and-masses-apart">1. Notation: keep positions and masses apart</h2>
+            <p>A discrete probability distribution on the real line is written</p>
+            <div class="math math-display">\alpha=\sum_{i=1}^n a_i\,\delta_{x_i}, \qquad a_i\ge 0, \qquad \sum_{i=1}^n a_i=1.</div>
+            <p>Here <span class="math math-inline">\delta_{x_i}</span> is the unit Dirac mass concentrated at <span class="math math-inline">x_i</span>, so <span class="math math-inline">a_i\delta_{x_i}</span> reads &quot;place mass <span class="math math-inline">a_i</span> at position <span class="math math-inline">x_i</span>.&quot; <strong>Positions live in the subscript of <span class="math math-inline">\delta</span>, masses live in the coefficient</strong>, and the two roles stay separate throughout: position tells us where, mass tells us how much.</p>
+            <p>Given <span class="math math-inline">n</span> sample points <span class="math math-inline">x_1,\dots,x_n</span>, the corresponding empirical distribution is <span class="math math-inline">\alpha=\frac1n\sum_{i=1}^n\delta_{x_i}</span>. This does not mean the points carry no mass; it means that by default every sample point carries the same mass <span class="math math-inline">1/n</span>. If a position occurs more than once, the masses simply add up:</p>
+            <div class="math math-display">\frac14(\delta_{0.1}+\delta_{0.2}+\delta_{0.2}+\delta_{0.9}) = \frac14\delta_{0.1}+\frac12\delta_{0.2}+\frac14\delta_{0.9}.</div>
+            <h2 id="2-the-simplest-case-equal-weights-discrete">2. The simplest case: equal weights, discrete</h2>
+            <p>Take two equally weighted empirical distributions</p>
+            <div class="math math-display">\alpha=\frac1n\sum_{i=1}^n\delta_{x_i}, \qquad \beta=\frac1n\sum_{i=1}^n\delta_{y_i},</div>
+            <p>and sort each set of <strong>positions</strong>: <span class="math math-inline">x_{(1)}\le\cdots\le x_{(n)}</span> and <span class="math math-inline">y_{(1)}\le\cdots\le y_{(n)}</span>.</p>
+            <p>What gets sorted here are the positions. With equal weights every point carries the same mass <span class="math math-inline">\frac1n</span> and is therefore equally heavy, so mass takes no part in the sorting and only reappears at the end as a coefficient. For the cost <span class="math math-inline">c(x,y)=|x-y|^p</span> (with <span class="math math-inline">p\ge1</span>), one optimal plan is to pair points by rank, <span class="math math-inline">x_{(i)}\to y_{(i)}</span>, which gives</p>
+            <div class="math math-display">W_p(\alpha,\beta) = \left( \frac1n\sum_{i=1}^n |x_{(i)}-y_{(i)}|^p \right)^{1/p}.</div>
+            <p>In other words, the Wasserstein distance between two equally weighted empirical distributions on the line is nothing but the normalized <span class="math math-inline">\ell^p</span> distance between the two <strong>sorted coordinate vectors</strong>:</p>
+            <div class="math math-display">W_p(\alpha,\beta) = n^{-1/p}\,\big\|(x_{(1)},\dots,x_{(n)})-(y_{(1)},\dots,y_{(n)})\big\|_p.</div>
+            <p><strong>Example.</strong>　Let <span class="math math-inline">x=(4,0,3)</span> and <span class="math math-inline">y=(6,2,1)</span>. After sorting, <span class="math math-inline">x_{(\cdot)}=(0,3,4)</span> and <span class="math math-inline">y_{(\cdot)}=(1,2,6)</span>, so the optimal matching is <span class="math math-inline">0\to1</span>, <span class="math math-inline">3\to2</span>, <span class="math math-inline">4\to6</span>. For <span class="math math-inline">p=2</span> we get <span class="math math-inline">W_2^2 = \frac13(1^2+1^2+2^2)=2</span>, that is, <span class="math math-inline">W_2=\sqrt2</span>.</p>
+            <p>The formula looks almost too good to be true: how can a <span class="math math-inline">p</span>-norm between two sorted vectors possibly be enough?</p>
+            <p>The fundamental reason sorted matching is optimal is this: <strong>for a cost that is a convex function of distance, crossing routes are never cheaper than ordered ones.</strong> Start with just two points. Let <span class="math math-inline">x_1\le x_2</span> and <span class="math math-inline">y_1\le y_2</span>, and compare the ordered matching (<span class="math math-inline">x_1\to y_1</span>, <span class="math math-inline">x_2\to y_2</span>) with the crossed one (<span class="math math-inline">x_1\to y_2</span>, <span class="math math-inline">x_2\to y_1</span>). For every <span class="math math-inline">p\ge1</span>,</p>
+            <div class="math math-display">|x_1-y_1|^p+|x_2-y_2|^p \le |x_1-y_2|^p+|x_2-y_1|^p.</div>
+            <p>This is the <strong>Monge inequality</strong> for one-dimensional Wasserstein costs. It is intuitively easy to accept: crossing means the two routes retrace a common stretch of road twice, and uncrossing them saves exactly that duplicated stretch.</p>
+            <p><strong>Proof.</strong>　Let <span class="math math-inline">\varphi(t)=|t|^p</span>, which is convex for <span class="math math-inline">p\ge1</span>. Write <span class="math math-inline">a=x_2-x_1\ge0</span>, <span class="math math-inline">b=y_2-y_1\ge0</span> and <span class="math math-inline">z=x_1-y_2</span>, so that the four differences are <span class="math math-inline">x_1-y_2=z</span>, <span class="math math-inline">x_1-y_1=z+b</span>, <span class="math math-inline">x_2-y_2=z+a</span> and <span class="math math-inline">x_2-y_1=z+a+b</span>. The claimed inequality becomes</p>
+            <div class="math math-display">\varphi(z+b)+\varphi(z+a) \le \varphi(z)+\varphi(z+a+b).</div>
+            <p>For fixed <span class="math math-inline">b\ge0</span>, define the increment <span class="math math-inline">D_b(t)=\varphi(t+b)-\varphi(t)</span>. The slopes of a convex function are non-decreasing, so <span class="math math-inline">D_b</span> is non-decreasing; since <span class="math math-inline">z+a\ge z</span> we get <span class="math math-inline">D_b(z+a)\ge D_b(z)</span>, and rearranging gives the result. <span class="math math-inline">\blacksquare</span></p>
+            <p>With this inequality in hand we can go further: in any plan that contains a pair matched out of order, we can isolate one such crossing (four points) and swap it by the inequality above without increasing the cost. Repeat until no crossings remain, and what is left is exactly the sorted matching. Hence no out-of-order matching can be strictly better.</p>
+            <p>Two remarks, to mark the boundaries of the result:</p>
+            <ul><li><strong>The cost must be convex</strong> (for <span class="math math-inline">c(x,y)=|x-y|^p</span>, the condition <span class="math math-inline">p\ge1</span> cannot be dropped). If <span class="math math-inline">0&lt;p&lt;1</span> then <span class="math math-inline">|t|^p</span> is concave and sorting may no longer be optimal. Take <span class="math math-inline">x_1=0</span>, <span class="math math-inline">x_2=1</span>, <span class="math math-inline">y_1=1</span>, <span class="math math-inline">y_2=2</span>: the ordered matching costs <span class="math math-inline">1^p+1^p=2</span>, the crossed one costs <span class="math math-inline">2^p+0</span>, and for <span class="math math-inline">0&lt;p&lt;1</span> we have <span class="math math-inline">2^p&lt;2</span>, so crossing is actually cheaper.</li><li><strong>The optimal plan need not be unique.</strong> When <span class="math math-inline">p&gt;1</span>, the positions are strictly increasing and the mass structure is non-degenerate, strict convexity usually yields a stronger uniqueness statement. When <span class="math math-inline">p=1</span> the sorted plan is still optimal, but it may be tied with others; repeated positions or intervals of zero distance can also destroy uniqueness. For instance, with <span class="math math-inline">p=1</span> and both source points on the same side of both target points (say <span class="math math-inline">x=(2,3)</span> and <span class="math math-inline">y=(0,1)</span>), the ordered and the crossed matching both cost <span class="math math-inline">4</span>, so the two plans are tied for optimal.</li></ul>
+            <h2 id="3-one-step-looser-unequal-masses">3. One step looser: unequal masses</h2>
+            <p>Now allow arbitrary masses on both sides:</p>
+            <div class="math math-display">\alpha=\sum_{i=1}^n a_i\delta_{x_i}, \qquad \beta=\sum_{j=1}^m b_j\delta_{y_j}, \qquad x_1\le\cdots\le x_n,\quad y_1\le\cdots\le y_m.</div>
+            <p>At first sight the premise behind the equally weighted sorting argument is gone, and sorting no longer applies.</p>
+            <p>A moment&#x27;s thought, though, reduces the problem to one we have already solved: <strong>picture a heavy point as a large number of tiny, equally weighted points all stacked at the same position.</strong> For example, <span class="math math-inline">0.6\delta_0</span> can be read as six little points of mass <span class="math math-inline">0.1</span> all standing at <span class="math math-inline">0</span>. Once both sides are shattered this way we are back in the equally weighted case and sorted matching proceeds as usual. What people call &quot;splitting one point across several targets&quot; is nothing more than these co-located little points setting off for the same destination or for different ones.</p>
+            <p>As an algorithm this becomes the familiar &quot;two-pointer&quot; sweep: send a pointer along each side starting from the leftmost cell, ship <span class="math math-inline">\min(\text{remaining mass on either side})</span> each time, advance whichever pointer has just been emptied, and continue until the whole ruler has been traversed.</p>
+            <p><strong>Example.</strong>　Let <span class="math math-inline">\alpha=0.6\delta_0+0.4\delta_3</span> and <span class="math math-inline">\beta=0.3\delta_1+0.7\delta_2</span>. The sweep runs as follows. First ship <span class="math math-inline">\min(0.6,0.3)=0.3</span> of mass from <span class="math math-inline">0</span> to <span class="math math-inline">1</span>; the first cell of <span class="math math-inline">\beta</span> empties and its pointer advances, while the first cell of <span class="math math-inline">\alpha</span> still holds <span class="math math-inline">0.3</span>. Next ship <span class="math math-inline">\min(0.3,0.7)=0.3</span> from <span class="math math-inline">0</span> to <span class="math math-inline">2</span>; now the first cell of <span class="math math-inline">\alpha</span> empties and its pointer advances, while the second cell of <span class="math math-inline">\beta</span> still holds <span class="math math-inline">0.4</span>. Finally ship <span class="math math-inline">\min(0.4,0.4)=0.4</span> from <span class="math math-inline">3</span> to <span class="math math-inline">2</span>; both sides empty simultaneously and we are done. For <span class="math math-inline">p=1</span> the total cost is <span class="math math-inline">0.3\times1+0.3\times2+0.4\times1=1.3</span>. Notice that the mass at position <span class="math math-inline">0</span> was &quot;split&quot; between two targets, which is exactly what you get once you view it as a cluster of little points heading off separately.</p>
+            <h2 id="4-a-common-language-the-cdf-and-the-quantile-function">4. A common language: the CDF and the quantile function</h2>
+            <p>The sorted matching above is well suited to finite point sets, and the idea behind it is already the right one. But for continuous distributions, mixed distributions, or arbitrary weights, &quot;shatter into equally weighted little points, then sort&quot; cannot be carried over directly: a continuous distribution puts zero mass at every single point, so there are no individual &quot;little points&quot; to speak of, and there are infinitely many points anyway, so we cannot enumerate them one by one in order. The idea itself is fine — cut the mass into small pieces, then queue the pieces up by position — what is missing is a language general enough to state it precisely for every distribution. The tools for this section are the cumulative distribution function and its generalized inverse.</p>
+            <p>Two definitions first. Let <span class="math math-inline">\alpha</span> be a probability measure on the real line.</p>
+            <p><strong>Cumulative distribution function (CDF)</strong>: <span class="math math-inline">F_\alpha(x) = \alpha((-\infty,x])</span>, the mass of <span class="math math-inline">\alpha</span> accumulated to the left of <span class="math math-inline">x</span> (inclusive). For example, <span class="math math-inline">\alpha=0.3\delta_0+0.7\delta_2</span> gives</p>
+            <div class="math math-display">F_\alpha(x)=
+\begin{cases}
+0, &amp; x&lt;0,\\
+0.3, &amp; 0\le x&lt;2,\\
+1, &amp; x\ge 2.
+\end{cases}</div>
+            <p>Anyone who has taken a probability course will find this familiar. Its great virtue here is <strong>universality</strong>: discrete, continuous and mixed distributions may fail to have a density, but all of them have a CDF, which makes it a natural vehicle for a unified description.</p>
+            <p><strong>Quantile function</strong> (generalized inverse):</p>
+            <div class="math math-display">Q_{\alpha}(u)
+\coloneqq
+F_{\alpha}^{\leftarrow}(u)
+\coloneqq
+\inf\left\{
+x\in\mathbb{R}
+\,\middle|\,
+F_{\alpha}(x)\ge u
+\right\},
+\qquad u\in(0,1).</div>
+            <p><span class="math math-inline">Q_\alpha(u)</span> is the <span class="math math-inline">u</span>-th quantile of <span class="math math-inline">\alpha</span>: <span class="math math-inline">Q_\alpha(0.5)</span> is the median, <span class="math math-inline">Q_\alpha(0.25)</span> the first quartile. For the example above, <span class="math math-inline">Q_\alpha(u)=0</span> for <span class="math math-inline">0&lt;u\le0.3</span> and <span class="math math-inline">Q_\alpha(u)=2</span> for <span class="math math-inline">0.3&lt;u&lt;1</span>. Read it intuitively as follows: feed in a cumulative probability <span class="math math-inline">u</span>, and out comes the position at which the accumulated probability first reaches <span class="math math-inline">u</span> — a concrete real number.</p>
+            <p>With these two tools, let us go back and see how the &quot;cut the mass up, then move it in order&quot; operation of Sections 2 and 3 should be expressed.</p>
+            <p>The reason to start from the CDF, beyond the fact that every distribution has one, is a key property: it is <strong>non-decreasing</strong>. Walking in the positive direction along the line, accumulated mass can only grow (and if <span class="math math-inline">F_\alpha</span> is flat on some stretch, the distribution simply places no mass there). This means the left-to-right order of positions and the order in which mass gets accumulated agree automatically: the further left a piece of mass sits, the earlier it enters the running total.</p>
+            <p>That suggests cutting the mass along a different axis: instead of cutting by position, cut <strong>by accumulated mass <span class="math math-inline">u</span></strong>. Flatten the total mass onto the interval <span class="math math-inline">(0,1)</span> and slice it into infinitely many elements <span class="math math-inline">\mathrm{d}u</span>; the quantile function <span class="math math-inline">Q_\alpha(u)</span> answers precisely the question &quot;where on the line does the <span class="math math-inline">u</span>-th element sit?&quot; Every element has the same size, which makes this the continuum version of the equally weighted little points from Section 3 — only now the little points have become infinitesimal mass elements, and &quot;being sorted&quot; is guaranteed for free by the monotonicity of <span class="math math-inline">F_\alpha</span>.</p>
+            <p>Matching then becomes easy: the <span class="math math-inline">u</span>-th element of the source sits at <span class="math math-inline">Q_\alpha(u)</span>, the <span class="math math-inline">u</span>-th element of the target sits at <span class="math math-inline">Q_\beta(u)</span>, and we simply move the former to the latter. The key reading is that <strong><span class="math math-inline">u\in(0,1)</span> is the &quot;rank&quot; of a piece of mass</strong>. <span class="math math-inline">F_\alpha</span> translates positions into ranks, <span class="math math-inline">Q_\alpha</span> translates ranks back into positions; the two are a mutually inverse pair of lookup tables.</p>
+            <p>Let <span class="math math-inline">\alpha,\beta\in\mathcal P_p(\mathbb R)</span>, i.e. both have finite <span class="math math-inline">p</span>-th moments. For <span class="math math-inline">p\ge1</span>,</p>
+            <div class="math math-display">W_p(\alpha,\beta)^p = \int_0^1 |Q_\alpha(u)-Q_\beta(u)|^p\,\mathrm{d}u.</div>
+            <p>The essence of one-dimensional optimal transport is now fully exposed: <strong>send the <span class="math math-inline">u</span>-th quantile of the source to the <span class="math math-inline">u</span>-th quantile of the target</strong>.</p>
+            <h2 id="5-a-bonus-at-p1-the-area-between-the-cdfs">5. A bonus at <span class="math math-inline">p=1</span>: the area between the CDFs</h2>
+            <p>When <span class="math math-inline">p=1</span> the quantile formula can be evaluated along the other axis — instead of integrating the &quot;horizontal&quot; difference of quantiles, integrate the &quot;vertical&quot; difference of CDFs:</p>
+            <div class="math math-display">W_1(\alpha,\beta) = \int_{\mathbb R} |F_\alpha(x)-F_\beta(x)|\,\mathrm{d}x.</div>
+            <p>(The geometric reason the two agree: integrating <span class="math math-inline">|Q_\alpha-Q_\beta|</span> over <span class="math math-inline">u</span> and integrating <span class="math math-inline">|F_\alpha-F_\beta|</span> over <span class="math math-inline">x</span> both measure the area of the same region between two monotone curves; one slices it horizontally, the other vertically.)</p>
+            <p>There is a very physical way to read it. Fix a position <span class="math math-inline">x</span> and make a cut there on the line. Then <span class="math math-inline">F_\alpha(x)-F_\beta(x)</span> is the net discrepancy between source mass and target mass to the left of the cut. If the discrepancy is non-zero, at least <span class="math math-inline">|F_\alpha(x)-F_\beta(x)|</span> worth of mass has to pass through that cut. And a piece of mass travelling from <span class="math math-inline">a</span> to <span class="math math-inline">b</span> passes through exactly the cuts lying between <span class="math math-inline">a</span> and <span class="math math-inline">b</span>, so integrating over all cuts adds up precisely &quot;mass × distance travelled&quot; — which is <span class="math math-inline">W_1</span>.</p>
+            <h2 id="6-summary">6. Summary</h2>
+            <p>One-dimensional optimal transport is easy because positions on the real line are totally ordered. For the convex cost <span class="math math-inline">c(x,y)=|x-y|^p</span> with <span class="math math-inline">p\ge1</span>, the Monge inequality guarantees that crossings can be eliminated, so the optimal coupling must be monotone, and the whole theory collapses into a single sentence: <strong>sort the discrete points, or equivalently, match equal quantiles</strong>. The formula comes in three levels:</p>
+            <ul><li>discrete with equal weights: <span class="math math-inline">W_p^p = \frac1n\sum_i|x_{(i)}-y_{(i)}|^p</span>;</li><li>general distributions on the line: <span class="math math-inline">W_p^p = \int_0^1|Q_\alpha(u)-Q_\beta(u)|^p\,\mathrm{d}u</span>;</li><li>the special case <span class="math math-inline">p=1</span>: <span class="math math-inline">W_1 = \int_{\mathbb R}|F_\alpha(x)-F_\beta(x)|\,\mathrm{d}x</span>.</li></ul>
+            <p>They are all saying the same thing. I think it finally clicks — cool!</p>
+          </details>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

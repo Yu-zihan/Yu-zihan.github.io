@@ -92,10 +92,12 @@ class Note:
 # This list is the public archive source of truth. Files can remain in
 # trees/notes while staying unpublished if they are not listed here.
 NOTE_ENTRIES = [
+    NoteEntry("optimal-transport-in-one-dimension.md", "optimal-transport-in-one-dimension.html", "en"),
     NoteEntry("neuron_wave_tactic.md", "neuron_wave_tactic.html", "en"),
     NoteEntry("one_neuron_1.md", "one_neuron_1.html", "en"),
     NoteEntry("kantorovich_duality.md", "kantorovich_duality.html", "en"),
     NoteEntry("entropic_regularized_optimal_transport.md", "entropic_regularized_optimal_transport.html", "en"),
+    NoteEntry("一维最优传输.md", "optimal-transport-in-one-dimension.html", "zh"),
     NoteEntry("元海战术行不行.md", "neuron_wave_tactic.html", "zh"),
     NoteEntry("从最小可计算模型开始.md", "one_neuron_1.html", "zh"),
     NoteEntry("Kantorovich 对偶.md", "kantorovich_duality.html", "zh"),

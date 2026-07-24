@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="notes-site notes-article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>一维最优传输</title>
+    <link rel="icon" href="/assets/favicon.ico">
+    <script src="/main.js"></script>
+    <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+
+    <link rel="stylesheet" href="/assets/notes.css?v=notes-mobile">
+    <script defer src="/assets/notes.js?v=notes-mobile"></script>
+    <script defer src="/assets/vendor/katex/katex.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.katex) return;
+
+        document.querySelectorAll(".math.math-inline").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: false,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        document.querySelectorAll(".math.math-display").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: true,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false },
+              { left: "\\(", right: "\\)", display: false },
+              { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"><div id="theme-options"></div></nav>
+
+      <article>
+        <section class="block" data-taxon="">
+          <details open>
+            <summary id="zh-notes-optimal-transport-in-one-dimension">
+              <header>
+                <h1><span class="taxon"></span>一维最优传输 <a class="slug" href="/zh/notes/optimal-transport-in-one-dimension.html">[optimal-transport-in-one-dimension]</a></h1>
+                <div class="metadata">
+                  <ul>
+                    <li class="meta-item meta-date">2026-07-24</li>
+                    <li class="meta-item meta-kind">笔记</li>
+                    <li class="meta-item meta-tags">最优传输</li>
+                    <li class="meta-item meta-summary">从排序匹配到分位数公式的一维最优传输笔记</li>
+                  </ul>
+                </div>
+              </header>
+            </summary>
+
+            <p>最优传输一直以&quot;搬土堆&quot;作为直觉上的例子：源分布是一堆土，目标分布规定土最终应当怎么摆，我们要选运输方案使总成本最小。</p>
+            <p>在一般空间里这是个不折不扣的困难优化问题，但在实数轴上，问题就变得简单了，答案可以用一句话说完：</p>
+            <blockquote><p><strong>核心结论</strong>　实数轴上的位置天然具有从左到右的全序。对于成本 <span class="math math-inline">c(x,y)=|x-y|^p</span>（<span class="math math-inline">p\ge 1</span>），最优运输遵循<strong>相同排名的质量互相匹配</strong>的原则：离散等权情形下是排序后逐点配对，一般情形下是匹配相同分位数。</p></blockquote>
+            <p>这句话乍一看很合理，但其中蕴含丰富的细节可以思考。本文的主线就是把这句话逐步做实，从直觉和分析两个角度理解这个结论。</p>
+            <h2 id="1-记号位置与质量分开写">1. 记号：位置与质量分开写</h2>
+            <p>实数轴上的离散概率分布写成</p>
+            <div class="math math-display">\alpha=\sum_{i=1}^n a_i\,\delta_{x_i}, \qquad a_i\ge 0, \qquad \sum_{i=1}^n a_i=1.</div>
+            <p>这里 <span class="math math-inline">\delta_{x_i}</span> 是集中在 <span class="math math-inline">x_i</span> 处的单位 Dirac 质量，所以 <span class="math math-inline">a_i\delta_{x_i}</span> 读作&quot;在位置 <span class="math math-inline">x_i</span> 放置质量 <span class="math math-inline">a_i</span>&quot;。<strong>位置写在 <span class="math math-inline">\delta</span> 的下标里，质量写在系数里</strong>，两个角色始终分开：位置负责&quot;在哪&quot;，质量负责&quot;有多少&quot;。</p>
+            <p>若有 <span class="math math-inline">n</span> 个样本点 <span class="math math-inline">x_1,\dots,x_n</span>，其经验分布写成 <span class="math math-inline">\alpha=\frac1n\sum_{i=1}^n\delta_{x_i}</span>。这不是&quot;每个点没有质量&quot;，而是每个样本点默认携带相同质量 <span class="math math-inline">1/n</span>；若某个位置重复出现，质量自动累加：</p>
+            <div class="math math-display">\frac14(\delta_{0.1}+\delta_{0.2}+\delta_{0.2}+\delta_{0.9})
+= \frac14\delta_{0.1}+\frac12\delta_{0.2}+\frac14\delta_{0.9}.</div>
+            <h2 id="2-最简单的情形等权离散">2. 最简单的情形：等权离散</h2>
+            <p>设两个等权经验分布</p>
+            <div class="math math-display">\alpha=\frac1n\sum_{i=1}^n\delta_{x_i}, \qquad
+\beta=\frac1n\sum_{i=1}^n\delta_{y_i},</div>
+            <p>将两组<strong>位置</strong>分别排序：<span class="math math-inline">x_{(1)}\le\cdots\le x_{(n)}</span>，<span class="math math-inline">y_{(1)}\le\cdots\le y_{(n)}</span>。</p>
+            <p>这里排序排的是位置；等权时每个点质量都是 <span class="math math-inline">\frac1n</span>、一样重，质量不参与排序，只在最后作为系数出现。对于成本 <span class="math math-inline">c(x,y)=|x-y|^p</span>（<span class="math math-inline">p\ge1</span>），一个最优方案就是按排名配对 <span class="math math-inline">x_{(i)}\to y_{(i)}</span>，于是就有</p>
+            <div class="math math-display">W_p(\alpha,\beta)
+= \left(\frac1n\sum_{i=1}^n |x_{(i)}-y_{(i)}|^p\right)^{1/p}.</div>
+            <p>换句话说，一维等权经验分布之间的 Wasserstein 距离，就是两个<strong>排序后坐标向量</strong>之间的归一化 <span class="math math-inline">\ell^p</span> 距离：</p>
+            <div class="math math-display">W_p(\alpha,\beta)
+= n^{-1/p}\,\big\|(x_{(1)},\dots,x_{(n)})-(y_{(1)},\dots,y_{(n)})\big\|_p.</div>
+            <p><strong>例</strong>　设 <span class="math math-inline">x=(4,0,3)</span>，<span class="math math-inline">y=(6,2,1)</span>。排序后 <span class="math math-inline">x_{(\cdot)}=(0,3,4)</span>，<span class="math math-inline">y_{(\cdot)}=(1,2,6)</span>，最优匹配为 <span class="math math-inline">0\to1</span>、<span class="math math-inline">3\to2</span>、<span class="math math-inline">4\to6</span>。当 <span class="math math-inline">p=2</span> 时 <span class="math math-inline">W_2^2 = \frac13(1^2+1^2+2^2)=2</span>，即 <span class="math math-inline">W_2=\sqrt2</span>。</p>
+            <p>这个公式好到令人怀疑：怎么排序向量的 <span class="math math-inline">p</span> 范数就够了呢？</p>
+            <p>排序匹配最优的根本原因是：<strong>对凸的距离成本函数来说，交叉运输不会比顺序运输更便宜</strong>。先看只有两个点的情形。设 <span class="math math-inline">x_1\le x_2</span>、<span class="math math-inline">y_1\le y_2</span>，比较顺序匹配（<span class="math math-inline">x_1\to y_1</span>、<span class="math math-inline">x_2\to y_2</span>）与交叉匹配（<span class="math math-inline">x_1\to y_2</span>、<span class="math math-inline">x_2\to y_1</span>）。对 <span class="math math-inline">p\ge1</span>，总有</p>
+            <div class="math math-display">|x_1-y_1|^p+|x_2-y_2|^p
+\le |x_1-y_2|^p+|x_2-y_1|^p.</div>
+            <p>这就是一维 Wasserstein 成本的 <strong>Monge 不等式</strong>。直觉上很好接受：交叉意味着两条运输路线有一段路被重复走了两遍，把交叉解开，重复的那段就省了。</p>
+            <p><strong>证明</strong>　令 <span class="math math-inline">\varphi(t)=|t|^p</span>，当 <span class="math math-inline">p\ge1</span> 时它是凸函数。记 <span class="math math-inline">a=x_2-x_1\ge0</span>、<span class="math math-inline">b=y_2-y_1\ge0</span>、<span class="math math-inline">z=x_1-y_2</span>，则四个差值分别为 <span class="math math-inline">x_1-y_2=z</span>、<span class="math math-inline">x_1-y_1=z+b</span>、<span class="math math-inline">x_2-y_2=z+a</span>、<span class="math math-inline">x_2-y_1=z+a+b</span>，要证的不等式化为</p>
+            <div class="math math-display">\varphi(z+b)+\varphi(z+a)
+\le \varphi(z)+\varphi(z+a+b).</div>
+            <p>对固定的 <span class="math math-inline">b\ge0</span>，定义增量 <span class="math math-inline">D_b(t)=\varphi(t+b)-\varphi(t)</span>。凸函数的斜率随位置增大而不减，故 <span class="math math-inline">D_b</span> 非递减；由 <span class="math math-inline">z+a\ge z</span> 得 <span class="math math-inline">D_b(z+a)\ge D_b(z)</span>，移项即得。<span class="math math-inline">\blacksquare</span></p>
+            <p>有了这个不等式，可以进一步考虑：对于任何一个含逆序配对的方案，都能找出其中一对交叉（四个点）、按上式交换而不增加成本；反复交换直到没有交叉，剩下的正是排序匹配。所以任何不按顺序来的匹配都不可能严格更优。</p>
+            <p>两点备注，划定这个结论的边界：</p>
+            <ul><li><strong>成本函数得是凸函数（当 <span class="math math-inline">c(x,y)=|x-y|^p</span> 时，条件 <span class="math math-inline">p\ge1</span> 不能丢）。</strong> 若 <span class="math math-inline">0&lt;p&lt;1</span>，<span class="math math-inline">|t|^p</span> 是凹函数，排序可能不再最优。例如 <span class="math math-inline">x_1=0</span>、<span class="math math-inline">x_2=1</span>、<span class="math math-inline">y_1=1</span>、<span class="math math-inline">y_2=2</span>：顺序匹配成本 <span class="math math-inline">1^p+1^p=2</span>，交叉匹配成本 <span class="math math-inline">2^p+0</span>，当 <span class="math math-inline">0&lt;p&lt;1</span> 时 <span class="math math-inline">2^p&lt;2</span>，交叉反而更便宜。</li><li><strong>最优方案未必唯一。</strong> <span class="math math-inline">p&gt;1</span> 且位置严格递增、质量结构不退化时，严格凸性通常给出更强的唯一性；<span class="math math-inline">p=1</span> 时排序方案仍最优，但可能与别的方案并列最优；存在重复位置或零距离区间时也可能不唯一。例如 <span class="math math-inline">p=1</span>、源的两个点都在目标两个点的同一侧时（如 <span class="math math-inline">x=(2,3)</span>、<span class="math math-inline">y=(0,1)</span>），顺序匹配和交叉匹配的成本同为 <span class="math math-inline">4</span>，两种方案并列最优。</li></ul>
+            <h2 id="3-放宽一步质量不相等">3. 放宽一步：质量不相等</h2>
+            <p>现在允许两边质量任意：</p>
+            <div class="math math-display">\alpha=\sum_{i=1}^n a_i\delta_{x_i}, \qquad
+\beta=\sum_{j=1}^m b_j\delta_{y_j}, \qquad
+x_1\le\cdots\le x_n,\quad y_1\le\cdots\le y_m.</div>
+            <p>乍一看之前基于等权离散的排序方法的前提不在了，排序不能继续用了。但是稍微思考，能把问题稍稍转换成我们已经解决的问题：<strong>把一个质量大的点想象成许多个质量很小的等权小点叠在同一个位置。</strong> 比如 <span class="math math-inline">0.6\delta_0</span> 可以看成 6 个质量 <span class="math math-inline">0.1</span> 的小点全站在 <span class="math math-inline">0</span> 处。两边都这样打散之后，又变回了等权情形，排序匹配照常进行；所谓&quot;一个点拆给多个目标&quot;，无非是这些站在同一位置的小点被分头送往了相同或者不同的地方。</p>
+            <p>落实成算法就是所谓&quot;双指针&quot;：两边各派一个指针从最左的格子出发，每次运走 <span class="math math-inline">\min(\text{两边当前剩余质量})</span>，谁的格子清零谁前进，直到走完整根尺子。</p>
+            <p><strong>例</strong>　设 <span class="math math-inline">\alpha=0.6\delta_0+0.4\delta_3</span>，<span class="math math-inline">\beta=0.3\delta_1+0.7\delta_2</span>。 双指针过程如下：先运 <span class="math math-inline">\min(0.6,0.3)=0.3</span> 的质量 <span class="math math-inline">0\to1</span>，<span class="math math-inline">\beta</span> 的第一格清零、指针前进，<span class="math math-inline">\alpha</span> 的第一格还剩 <span class="math math-inline">0.3</span>；再运 <span class="math math-inline">\min(0.3,0.7)=0.3</span> 的质量 <span class="math math-inline">0\to2</span>，<span class="math math-inline">\alpha</span> 的第一格清零、指针前进，<span class="math math-inline">\beta</span> 的第二格还剩 <span class="math math-inline">0.4</span>；最后运 <span class="math math-inline">\min(0.4,0.4)=0.4</span> 的质量 <span class="math math-inline">3\to2</span>，两边同时清零，结束。当 <span class="math math-inline">p=1</span> 时总成本为 <span class="math math-inline">0.3\times1+0.3\times2+0.4\times1=1.3</span>。可以看到，位置 <span class="math math-inline">0</span> 处的质量被&quot;拆&quot;给了两个目标，这正是把它视为一堆小点后小点分头出发的结果。</p>
+            <h2 id="4-统一的语言累积分布与分位数函数">4. 统一的语言：累积分布与分位数函数</h2>
+            <p>前面的排序匹配适合有限点集，思路已经很好了。但对连续分布、混合分布或任意权重，&quot;打散成等权小点再排序&quot;没法直接照搬：连续分布在每个点上的质量都是零，谈不上一个个&quot;小点&quot;；点又有无穷多个，也无法逐一列举出来排序。好在思路本身并没有问题——按质量切小、按位置排队——缺的只是一套对所有分布都通用的语言，把这个思路严格写下来。本节的工具就是累积分布函数和它的广义逆。</p>
+            <p>先给出两个定义：设 <span class="math math-inline">\alpha</span> 是实数轴上的概率测度。</p>
+            <p><strong>累积分布函数（CDF）</strong>：<span class="math math-inline">F_\alpha(x) = \alpha((-\infty,x])</span>，表示 <span class="math math-inline">\alpha</span> 位于 <span class="math math-inline">x</span> 左侧（含 <span class="math math-inline">x</span>）的累计质量。例如 <span class="math math-inline">\alpha=0.3\delta_0+0.7\delta_2</span> 对应</p>
+            <div class="math math-display">F_\alpha(x)=
+\begin{cases}
+0, &amp; x&lt;0,\\
+0.3, &amp; 0\le x&lt;2,\\
+1, &amp; x\ge 2.
+\end{cases}</div>
+            <p>这个概念学过概率论的应该很熟悉。它的一大好处是<strong>普适</strong>：离散、连续、混合类型的分布可能没有密度函数，但都有累积分布函数，天然适合用来统一描述。</p>
+            <p><strong>分位数函数</strong>（广义逆）：</p>
+            <div class="math math-display">Q_{\alpha}(u)
+\coloneqq F_{\alpha}^{\leftarrow}(u)
+\coloneqq\inf\left\{
+x\in\mathbb{R}
+\,\middle|\,
+F_{\alpha}(x)\ge u
+\right\},
+\qquad u\in(0,1).</div>
+            <p><span class="math math-inline">Q_\alpha(u)</span> 是 <span class="math math-inline">\alpha</span> 的第 <span class="math math-inline">u</span> 分位数：<span class="math math-inline">Q_\alpha(0.5)</span> 是中位数，<span class="math math-inline">Q_\alpha(0.25)</span> 是第一四分位数。对上面的例子，<span class="math math-inline">Q_\alpha(u)=0</span>（<span class="math math-inline">0&lt;u\le0.3</span>），<span class="math math-inline">Q_\alpha(u)=2</span>（<span class="math math-inline">0.3&lt;u&lt;1</span>）。直观读法：输入一个累计概率 <span class="math math-inline">u</span>，输出累计概率第一次达到 <span class="math math-inline">u</span> 时所在的位置——一个具体的实数。</p>
+            <p>有了这两个工具，回头看第 2、3 节&quot;切碎质量、按序搬运&quot;的操作，在这套语言里应该怎么表达。</p>
+            <p>之所以从累积分布函数下手，除了它人人都有之外，更因为它有一个关键性质：<strong>单调不减</strong>——沿数轴正方向走，累积质量只增不减（若某段上 <span class="math math-inline">F_\alpha</span> 完全不变，说明分布在那一段上根本没有质量）。这意味着&quot;位置的左右顺序&quot;和&quot;质量被累积的先后顺序&quot;天然一致：越靠左的质量，越早被计入累积。</p>
+            <p>这就提示我们换一根轴来切分质量：不再按位置切，而是<strong>按累积质量 <span class="math math-inline">u</span> 切</strong>。把总质量摊平成区间 <span class="math math-inline">(0,1)</span>，切成无穷多份微元 <span class="math math-inline">\mathrm{d}u</span>；分位数函数 <span class="math math-inline">Q_\alpha(u)</span> 恰好回答&quot;第 <span class="math math-inline">u</span> 份微元在数轴上的哪个位置&quot;。每份微元大小相同，这正是第 3 节里等权小点的连续极限版本——只不过小点变成了无穷小的质量微元，&quot;排好序&quot;这件事由 <span class="math math-inline">F_\alpha</span> 的单调性自动保证。</p>
+            <p>匹配也更容易：源分布的第 <span class="math math-inline">u</span> 份微元位于 <span class="math math-inline">Q_\alpha(u)</span>，目标分布的第 <span class="math math-inline">u</span> 份微元位于 <span class="math math-inline">Q_\beta(u)</span>，把前者搬到后者即可。关键的读法是：<strong><span class="math math-inline">u\in(0,1)</span> 就是&quot;质量的排名&quot;</strong>。<span class="math math-inline">F_\alpha</span> 把位置翻译成排名，<span class="math math-inline">Q_\alpha</span> 把排名翻译回位置，这是一对互逆的查询表。</p>
+            <p>设 <span class="math math-inline">\alpha,\beta\in\mathcal P_p(\mathbb R)</span>（即有有限 <span class="math math-inline">p</span> 阶矩）。对 <span class="math math-inline">p\ge1</span>，</p>
+            <div class="math math-display">W_p(\alpha,\beta)^p
+= \int_0^1 |Q_\alpha(u)-Q_\beta(u)|^p\,\mathrm{d}u.</div>
+            <p>一维最优传输的本质由此完全显形：<strong>把源分布的第 <span class="math math-inline">u</span> 分位数送到目标分布的第 <span class="math math-inline">u</span> 分位数</strong>。</p>
+            <h2 id="5-p1-的额外礼物cdf-之间的面积">5. <span class="math math-inline">p=1</span> 的额外礼物：CDF 之间的面积</h2>
+            <p>当 <span class="math math-inline">p=1</span> 时，分位数公式还能换一个坐标轴来算——不积&quot;横着的&quot;分位数差，改积&quot;竖着的&quot;CDF 差：</p>
+            <div class="math math-display">W_1(\alpha,\beta)
+= \int_{\mathbb R} |F_\alpha(x)-F_\beta(x)|\,\mathrm{d}x.</div>
+            <p>（两式相等的几何原因：<span class="math math-inline">|Q_\alpha-Q_\beta|</span> 对 <span class="math math-inline">u</span> 的积分和 <span class="math math-inline">|F_\alpha-F_\beta|</span> 对 <span class="math math-inline">x</span> 的积分，量的都是两条单调曲线之间同一块区域的面积，只是一个横着切、一个竖着切。）</p>
+            <p>它有一个很物理的解释：固定位置 <span class="math math-inline">x</span>，在数轴上切一刀。<span class="math math-inline">F_\alpha(x)-F_\beta(x)</span> 是切口左边源质量与目标质量的净差额；差额不为零，就至少有 <span class="math math-inline">|F_\alpha(x)-F_\beta(x)|</span> 的质量必须穿过这个切口。而一份质量从 <span class="math math-inline">a</span> 运到 <span class="math math-inline">b</span> 时，恰好穿过 <span class="math math-inline">a,b</span> 之间的每一个切口，所以对全部切口积分，正好把&quot;质量 × 运输距离&quot;累计起来——这就是 <span class="math math-inline">W_1</span>。</p>
+            <h2 id="6-总结">6. 总结</h2>
+            <p>一维最优传输之所以简单，是因为实数轴上的位置可以完全排序。对凸成本 <span class="math math-inline">c(x,y)=|x-y|^p</span>（<span class="math math-inline">p\ge1</span>），Monge 不等式保证交叉可以被消除，最优耦合必然单调，于是全部理论收束成一句话：<strong>排序离散点，或等价地，匹配相同分位数</strong>。三个层次的公式分别是：</p>
+            <ul><li>离散等权：<span class="math math-inline">W_p^p = \frac1n\sum_i|x_{(i)}-y_{(i)}|^p</span>；</li><li>一般一维分布：<span class="math math-inline">W_p^p = \int_0^1|Q_\alpha(u)-Q_\beta(u)|^p\,\mathrm{d}u</span>；</li><li><span class="math math-inline">p=1</span> 特例：<span class="math math-inline">W_1 = \int_{\mathbb R}|F_\alpha(x)-F_\beta(x)|\,\mathrm{d}x</span>。</li></ul>
+            <p>其实说的都是同样的事情，终于有点懂了，cool！</p>
+          </details>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
