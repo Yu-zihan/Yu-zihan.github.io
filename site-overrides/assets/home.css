@@ -72,7 +72,7 @@ a {
 
 .home-heading {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 136px 84px;
+  grid-template-columns: minmax(0, 1fr) 160px 84px;
   gap: 16px;
   align-items: center;
 }
@@ -185,8 +185,8 @@ a {
 .profile-photo {
   display: block;
   grid-column: 2;
-  width: 136px;
-  aspect-ratio: 3 / 4;
+  width: 160px;
+  aspect-ratio: 1;
   object-fit: cover;
   object-position: center top;
   border: 1px solid rgba(31, 36, 48, 0.1);
@@ -297,11 +297,11 @@ a {
   }
 
   .profile-photo {
-    width: 112px;
+    width: 136px;
   }
 
   .home-heading {
-    grid-template-columns: minmax(0, 1fr) 112px;
+    grid-template-columns: minmax(0, 1fr) 136px;
     gap: 16px;
   }
 
@@ -317,6 +317,6 @@ a {
 
   .profile-photo {
     grid-column: auto;
-    width: 118px;
+    width: 136px;
   }
 }
