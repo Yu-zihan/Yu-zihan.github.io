@@ -3,21 +3,25 @@ from __future__ import annotations
 
 import html
 import re
+import shutil
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = ROOT / "trees" / "notes"
 EN_OUTPUT_DIR = ROOT / "site-overrides" / "notes"
 ZH_OUTPUT_DIR = ROOT / "site-overrides" / "zh" / "notes"
+NOTE_ASSET_OUTPUT_DIR = ROOT / "site-overrides" / "assets" / "notes"
 ASSET_VERSION = "notes-mobile"
 
 TAG_SLUGS = {
     "Deep learning": "deep-learning",
     "Optimal transport": "optimal-transport",
+    "Imprecise probability": "imprecise-probability",
     "深度学习": "deep-learning",
     "最优传输": "optimal-transport",
+    "不精确概率": "imprecise-probability",
 }
 
 LANGUAGE_SETTINGS = {
@@ -38,7 +42,11 @@ LANGUAGE_SETTINGS = {
         "archive_path": "/notes/index.html",
         "filter_label": "Filter",
         "all_label": "All",
-        "known_tags": [("deep-learning", "Deep learning"), ("optimal-transport", "Optimal transport")],
+        "known_tags": [
+            ("deep-learning", "Deep learning"),
+            ("optimal-transport", "Optimal transport"),
+            ("imprecise-probability", "Imprecise probability"),
+        ],
         "article_class": "notes-site notes-article notes-article-legacy",
         "archive_class": "notes-site notes-list",
         "font_links": True,
@@ -59,7 +67,11 @@ LANGUAGE_SETTINGS = {
         "archive_path": "/zh/notes/index.html",
         "filter_label": "筛选",
         "all_label": "全部",
-        "known_tags": [("deep-learning", "深度学习"), ("optimal-transport", "最优传输")],
+        "known_tags": [
+            ("deep-learning", "深度学习"),
+            ("optimal-transport", "最优传输"),
+            ("imprecise-probability", "不精确概率"),
+        ],
         "article_class": "notes-site notes-article",
         "archive_class": "notes-site notes-list",
         "font_links": False,
@@ -92,11 +104,21 @@ class Note:
 # This list is the public archive source of truth. Files can remain in
 # trees/notes while staying unpublished if they are not listed here.
 NOTE_ENTRIES = [
+    NoteEntry(
+        "imprecise-probability-notes-1-ternary-simplex-and-credal-sets.md",
+        "imprecise-probability-ternary-simplex-and-credal-sets.html",
+        "en",
+    ),
     NoteEntry("optimal-transport-in-one-dimension.md", "optimal-transport-in-one-dimension.html", "en"),
     NoteEntry("neuron_wave_tactic.md", "neuron_wave_tactic.html", "en"),
     NoteEntry("one_neuron_1.md", "one_neuron_1.html", "en"),
     NoteEntry("kantorovich_duality.md", "kantorovich_duality.html", "en"),
     NoteEntry("entropic_regularized_optimal_transport.md", "entropic_regularized_optimal_transport.html", "en"),
+    NoteEntry(
+        "不精确概率学习笔记（一）：三元概率单纯形与 Credal Set.md",
+        "imprecise-probability-ternary-simplex-and-credal-sets.html",
+        "zh",
+    ),
     NoteEntry("一维最优传输.md", "optimal-transport-in-one-dimension.html", "zh"),
     NoteEntry("元海战术行不行.md", "neuron_wave_tactic.html", "zh"),
     NoteEntry("从最小可计算模型开始.md", "one_neuron_1.html", "zh"),
@@ -606,7 +628,35 @@ def normalize_heading(text: str) -> str:
     return re.sub(r"^(\d+)\.\s+(\d+)\s*", r"\1.\2 ", text.strip())
 
 
-def render_blocks(markdown: str) -> str:
+WIKI_IMAGE_PATTERN = re.compile(r"^!\[\[([^\]|]+)(?:\|([^\]]+))?\]\]$")
+
+
+def resolve_wiki_image(target: str, lang: str) -> PurePosixPath:
+    path = PurePosixPath(target.strip())
+    if path.is_absolute() or ".." in path.parts:
+        raise ValueError(f"Unsafe note image path: {target}")
+    if len(path.parts) == 1:
+        path = PurePosixPath("enattachment" if lang == "en" else "attachments") / path
+    if path.parts[0] not in {"attachments", "enattachment"}:
+        raise ValueError(f"Unsupported note image directory: {target}")
+    return path
+
+
+def render_wiki_image(match: re.Match[str], lang: str) -> str:
+    path = resolve_wiki_image(match.group(1), lang)
+    src = "/assets/notes/" + path.as_posix()
+    alt = (match.group(2) or path.stem.replace("-", " ")).strip()
+    escaped_src = html.escape(src, quote=True)
+    escaped_alt = html.escape(alt, quote=True)
+    return (
+        '<figure class="note-figure">'
+        f'<a href="{escaped_src}" target="_blank" rel="noopener">'
+        f'<img src="{escaped_src}" alt="{escaped_alt}" loading="lazy" decoding="async">'
+        "</a></figure>"
+    )
+
+
+def render_blocks(markdown: str, lang: str) -> str:
     lines = markdown.splitlines()
     blocks: list[str] = []
     used_slugs: dict[str, int] = {}
@@ -617,6 +667,12 @@ def render_blocks(markdown: str) -> str:
         stripped = raw.strip()
 
         if not stripped:
+            i += 1
+            continue
+
+        wiki_image = WIKI_IMAGE_PATTERN.match(stripped)
+        if wiki_image:
+            blocks.append(render_wiki_image(wiki_image, lang))
             i += 1
             continue
 
@@ -720,6 +776,7 @@ def render_blocks(markdown: str) -> str:
                 break
             if (
                 candidate.startswith(("```", "$$", ">", "---"))
+                or WIKI_IMAGE_PATTERN.match(candidate)
                 or re.match(r"^(#{1,6})\s+", candidate)
                 or re.match(r"^\*\*(.+?)\*\*$", candidate)
                 or re.match(r"^[-*]\s+", candidate)
@@ -778,7 +835,7 @@ def render_article_page(note: Note, markdown_body: str) -> str:
     title = html.escape(note.title)
     summary = html.escape(note.summary)
     tag = html.escape(note.tag)
-    body = render_blocks(markdown_body)
+    body = render_blocks(markdown_body, note.lang)
     slug = html.escape(note.output.removesuffix(".html"))
     summary_id = html.escape(f"{note.lang}-notes-{note.output.removesuffix('.html')}")
     page_path = "/zh/notes/" + note.output if note.lang == "zh" else "/notes/" + note.output
@@ -790,6 +847,7 @@ def render_article_page(note: Note, markdown_body: str) -> str:
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{title}</title>
     <link rel="icon" href="/assets/favicon.ico">
+    <template id="theme-option-template"><input type="radio" name="theme"><label></label></template>
     <script src="/main.js"></script>
     <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 {render_head_extras(note)}
@@ -964,6 +1022,21 @@ def write_if_changed(path: Path, content: str) -> None:
     path.write_text(normalized, encoding="utf-8")
 
 
+def copy_note_images(markdown_body: str, lang: str) -> None:
+    for raw_line in markdown_body.splitlines():
+        match = WIKI_IMAGE_PATTERN.match(raw_line.strip())
+        if not match:
+            continue
+        relative_path = resolve_wiki_image(match.group(1), lang)
+        source = SOURCE_DIR.joinpath(*relative_path.parts)
+        if not source.is_file():
+            raise FileNotFoundError(f"Missing note image: {source}")
+        destination = NOTE_ASSET_OUTPUT_DIR.joinpath(*relative_path.parts)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if not destination.exists() or source.read_bytes() != destination.read_bytes():
+            shutil.copy2(source, destination)
+
+
 def main() -> None:
     notes_by_language: dict[str, list[Note]] = {"en": [], "zh": []}
 
@@ -973,6 +1046,7 @@ def main() -> None:
     for entry in NOTE_ENTRIES:
         note, body = load_note(entry)
         notes_by_language[entry.lang].append(note)
+        copy_note_images(body, entry.lang)
         output = LANGUAGE_SETTINGS[entry.lang]["output_dir"] / entry.output
         write_if_changed(output, render_article_page(note, body))
 

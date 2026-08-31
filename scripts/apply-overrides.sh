@@ -14,10 +14,12 @@ rm -rf \
   "$TARGET_DIR/about.html" \
   "$TARGET_DIR/blog/reading-math-papers.html" \
   "$TARGET_DIR/notes/cp_ot_foundations_en.html" \
+  "$TARGET_DIR/notes/imprecise-probability-notes-1-ternary-simplex-and-credal-sets.html" \
   "$TARGET_DIR/notes/Kantorovich 对偶.html" \
   "$TARGET_DIR/notes/从最小可计算模型开始.html" \
   "$TARGET_DIR/notes/元海战术行不行.html" \
   "$TARGET_DIR/notes/熵正则最优传输.html" \
+  "$TARGET_DIR/notes/不精确概率学习笔记（一）：三元概率单纯形与 Credal Set.html" \
   "$TARGET_DIR/notes/research-notes.html" \
   "$TARGET_DIR/assets/profile-placeholder.svg"
 
@@ -38,3 +40,8 @@ cp "$SOURCE_DIR/assets/notes.js" "$TARGET_DIR/assets/notes.js"
 cp "$SOURCE_DIR/assets/favicon.ico" "$TARGET_DIR/assets/favicon.ico"
 cp "$SOURCE_DIR/assets/favicon.png" "$TARGET_DIR/assets/favicon.png"
 cp "$SOURCE_DIR/assets/profile.jpg" "$TARGET_DIR/assets/profile.jpg"
+
+if [[ -d "$SOURCE_DIR/assets/notes" ]]; then
+  mkdir -p "$TARGET_DIR/assets/notes"
+  cp -R "$SOURCE_DIR/assets/notes/." "$TARGET_DIR/assets/notes/"
+fi

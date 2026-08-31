@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="notes-site notes-article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>不精确概率学习笔记（一）：三元概率单纯形与 Credal Set</title>
+    <link rel="icon" href="/assets/favicon.ico">
+    <template id="theme-option-template"><input type="radio" name="theme"><label></label></template>
+    <script src="/main.js"></script>
+    <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+
+    <link rel="stylesheet" href="/assets/notes.css?v=notes-mobile">
+    <script defer src="/assets/notes.js?v=notes-mobile"></script>
+    <script defer src="/assets/vendor/katex/katex.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.katex) return;
+
+        document.querySelectorAll(".math.math-inline").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: false,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        document.querySelectorAll(".math.math-display").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: true,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false },
+              { left: "\\(", right: "\\)", display: false },
+              { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"><div id="theme-options"></div></nav>
+
+      <article>
+        <section class="block" data-taxon="">
+          <details open>
+            <summary id="zh-notes-imprecise-probability-ternary-simplex-and-credal-sets">
+              <header>
+                <h1><span class="taxon"></span>不精确概率学习笔记（一）：三元概率单纯形与 Credal Set <a class="slug" href="/zh/notes/imprecise-probability-ternary-simplex-and-credal-sets.html">[imprecise-probability-ternary-simplex-and-credal-sets]</a></h1>
+                <div class="metadata">
+                  <ul>
+                    <li class="meta-item meta-date">2026-08-31</li>
+                    <li class="meta-item meta-kind">笔记</li>
+                    <li class="meta-item meta-tags">不精确概率</li>
+                    <li class="meta-item meta-summary">从三元概率单纯形、linear-vacuous 模型到 gamble 与期望约束的几何直觉</li>
+                  </ul>
+                </div>
+              </header>
+            </summary>
+
+            <p>上个月底在德国慕尼黑参加了偶数年举办的不精确概率暑期学校。总体来说，我觉得课程很有趣。但是我认为课程本身对一些概念强调得不够，解释也不够透彻；细节一下子介绍得太多，很多地方我听过一遍根本get不到。所以我打算把这几天学到的东西重新梳理一遍，在已有slides的基础上，从我自己的偏好出发，对我不太清楚且感兴趣的地方用更直观的方式说明，供之后复习参考，也许能给初学者提供一个思路。今天是八月最后一天，我之后争取每个月至少更新一篇笔记。这个系列应该会是一个四到五篇的系列，我争取今年更新完 :)</p>
+            <p>参考资料见：<a href="https://www.ifi.lmu.de/kiml/en/school26/materials/">暑期学校材料链接</a>。YouTube 上也可以找到前年的课程视频：<a href="https://www.youtube.com/watch?v=gyDqpSY5B5s">视频链接</a>。</p>
+            <h2 id="三元概率单纯形的几何解释">三元概率单纯形的几何解释</h2>
+            <p>在引入阶段，课程介绍了三元概率单纯形的几何解释。这种三角形在 credal set 相关论文里总能出现，大家也总喜欢拿它来强调某种“几何直觉”。</p>
+            <p>但是我认为，很多纸面材料对单纯形的解释并不够透彻。比如我第一次接触这个概念时，虽然看见了一个三角形，但并不能立刻明白这个三角形到底是怎么来的，更不用说快速画出一些已知的概率点。下面按我的理解，从头解释一下。</p>
+            <h3 id="为什么三元概率会变成一个三角形">为什么三元概率会变成一个三角形？</h3>
+            <p>首先，三元概率单纯形为什么是三角形？</p>
+            <p>乍一看，这个设定好像很合理：三元对应三角形。那么很自然地会想，四元是不是对应四边形，五元对应五边形？但是实际上是不是的。</p>
+            <p>设样本空间只有三个基本结果：<span class="math math-inline">\Omega=\{\omega_1,\omega_2,\omega_3\}.</span> 一个概率分布可以写成向量<span class="math math-inline">p=(p_1,p_2,p_3),</span> 其中<span class="math math-inline">p_i=P(\omega_i).</span></p>
+            <p>概率首先需要满足归一化条件，那么对于三维向量来说，就有如下约束条件：</p>
+            <div class="math math-display">p_1+p_2+p_3=1.</div>
+            <p>如果把 <span class="math math-inline">p_1,p_2,p_3</span> 当成三维空间中的三个坐标，那么这个等式描述的是三维空间中的一个平面。</p>
+            <p>所以，只基于归一化条件的三元概率单纯形最开始并不是一个三角形，而是一个平面。 但是显然，整个平面不可能都是合法概率。概率还需要满足非负性：</p>
+            <div class="math math-display">p_1\geq 0,\qquad p_2\geq 0,\qquad p_3\geq 0.</div>
+            <p>这三个条件把我们限制在三维空间的第一卦限。于是，归一化平面</p>
+            <div class="math math-display">p_1+p_2+p_3=1</div>
+            <p>和第一卦限相交，最后截出来的正好是一个三角形。 这个三角形的三个顶点分别是</p>
+            <div class="math math-display">(1,0,0),\qquad(0,1,0),\qquad(0,0,1).</div>
+            <p>它们分别表示把全部概率质量都放在 <span class="math math-inline">\omega_1,\omega_2,\omega_3</span> 上。 这里放一个示意图：</p>
+            <figure class="note-figure"><a href="/assets/notes/attachments/fig1-simplex.png" target="_blank" rel="noopener"><img src="/assets/notes/attachments/fig1-simplex.png" alt="fig1 simplex" loading="lazy" decoding="async"></a></figure>
+            <p>左边就是我想说的事情：灰色的是整个归一化平面，它是无限大的，往四面八方铺出去；红色那块才是和非负卦限相交剩下来的部分。从某些角度看过去，红三角形会正对着你，这么看就是我们平时画的那张二维图。所以这个三角形并不是“因为有三个事件，所以随便画一个三角形”，而是归一化约束和非负约束共同作用后的几何结果。</p>
+            <p>顺着这个思路继续推：如果有 <span class="math math-inline">n</span> 个基本结果，那么概率向量满足</p>
+            <div class="math math-display">p_1+\cdots+p_n=1,\qquad p_i\geq 0.</div>
+            <p>它得到的是一个 <span class="math math-inline">(n-1)</span> 维单纯形。四元概率对应的是三维四面体，而不是平面上的四边形；五元概率对应的是四维单纯形，已经没法直接在普通三维空间里完整画出来了。</p>
+            <p>顺便说一句，这也解释了为什么不精确概率的论文永远在画三元的例子：三元是唯一一个“既不平凡、又能画在纸上”的情况。二元的单纯形只是一条线段，credal set 就是线段上的一个区间，实在没什么好说的；四元开始就要画立体图，更难想了。</p>
+            <h3 id="三角形里的坐标应该怎么读">三角形里的坐标应该怎么读？</h3>
+            <p>课程 slides 里说，某个顶点对应的坐标，要从这个顶点的对边开始计算。我第一次看这句话时，觉得它说得有点突然，是这么画的没错了，根据这个规律对应找也很方便，但是我总觉得没有讲透。</p>
+            <p>按照上一节的叙述可以知道，这个其实就是对应事件的纵坐标，投影到平面三角形上就是这个结果。根据相似三角形的性质可以看出，纵坐标对应的比例就是概率变化的比例。</p>
+            <p>说得再具体一点。固定 <span class="math math-inline">p_1=c</span>，剩下的约束是</p>
+            <div class="math math-display">p_2+p_3=1-c,\qquad p_2,p_3\geq 0,</div>
+            <p>这在归一化平面里本身就是一条线段。<span class="math math-inline">c=0</span> 时它就是 <span class="math math-inline">\omega_1</span> 的对边（<span class="math math-inline">p_1=0</span> 那条边），<span class="math math-inline">c=1</span> 时它缩成 <span class="math math-inline">\omega_1</span> 这个顶点。中间的 <span class="math math-inline">c</span> 就是这两者之间按比例的插值：线段的长度是对边的 <span class="math math-inline">(1-c)</span> 倍，位置也是从对边往顶点走了 <span class="math math-inline">c</span> 的比例。所以 <span class="math math-inline">p_1</span> 这个数值在图上表现出来的，恰好是“这个点离 <span class="math math-inline">\omega_1</span> 的对边有多远”，而且是按整个三角形的高归一化之后的那个比例。</p>
+            <figure class="note-figure"><a href="/assets/notes/attachments/fig2-read-coords.png" target="_blank" rel="noopener"><img src="/assets/notes/attachments/fig2-read-coords.png" alt="fig2 read coords" loading="lazy" decoding="async"></a></figure>
+            <p>左边这张图：一个点 <span class="math math-inline">p=(0.5,0.3,0.2)</span>，往三条边各作一条垂线，三条垂距按三角形的高归一化之后，正好就是 <span class="math math-inline">0.5,0.3,0.2</span>。而且三条垂距之和是个常数（等于三角形的高），这件事在几何里叫 Viviani 定理（AI说的），在这里就是 <span class="math math-inline">p_1+p_2+p_3=1</span> 换了身衣服而已。归一化条件在三维里是一个平面方程，在三角形里就是“三条垂距之和不变”。我觉得这个对应关系才是 slides 那句话真正的意思。</p>
+            <p>右边那张图是同一件事的另一种读法：<span class="math math-inline">p_1=c</span> 是一族平行于 <span class="math math-inline">\omega_1</span> 对边的直线，越靠近 <span class="math math-inline">\omega_1</span> 这个顶点，<span class="math math-inline">p_1</span> 越大。实际画点的时候，其实用不着真去量垂线，找两条平行线交一下就行了，比如要画 <span class="math math-inline">(0.5,0.3,0.2)</span>，就取 <span class="math math-inline">p_1=0.5</span> 那条线和 <span class="math math-inline">p_2=0.3</span> 那条线的交点，<span class="math math-inline">p_3</span> 会自动对上——因为三个约束只有两个是独立的。</p>
+            <h2 id="三元概率单纯形中的-linear-vacuous-模型">三元概率单纯形中的 Linear-vacuous 模型</h2>
+            <p>接下来是三元概率单纯形中的 linear-vacuous 模型。课程里有时会把它说成某种 neighborhood，但更准确地说，它是一种 linear-vacuous mixture，也经常叫作 <span class="math math-inline">\varepsilon</span>-contamination 模型。</p>
+            <p>slides中直接给出了对应的形状，是个三角形。那么其实我会好奇，它对应的 credal set 为什么仍然是一个三角形？我并没看到书面的解释，经过一些思考，我认为这个可以解释为向量运算的结果。</p>
+            <p>先给定一个参考概率分布</p>
+            <div class="math math-display">p^0=(p^0_1,p^0_2,p^0_3),</div>
+            <p>再允许有比例为 <span class="math math-inline">\varepsilon</span> 的概率质量来自一个完全未知的分布 <span class="math math-inline">q</span>。于是新的概率分布写成</p>
+            <div class="math math-display">p=(1-\varepsilon)p^0+\varepsilon q, \quad q\in\Delta_2,</div>
+            <p>其中 <span class="math math-inline">\Delta_2</span> 就是完整的三元概率单纯形。</p>
+            <p>因此，对应的 credal set 是</p>
+            <div class="math math-display">K_\varepsilon = \left\{(1-\varepsilon)p^0+\varepsilon q:q\in\Delta_2\right\}.</div>
+            <p>这实际上就是基于<span class="math math-inline">p^0</span>向量的一个加法运算。</p>
+            <p>首先，向量<span class="math math-inline">p^0</span>的几何表示可以画成从原点指向点<span class="math math-inline">p^0=(p^0_1,p^0_2,p^0_3)</span>的有向线段，那么<span class="math math-inline">(1-\varepsilon)p^0</span>就是向量的缩放了：它还是指着同一个方向，只是短了一截，短掉的那一截就是被“污染”出去的 <span class="math math-inline">\varepsilon</span> 部分。注意这时候 <span class="math math-inline">(1-\varepsilon)p^0</span> 的三个分量加起来只有 <span class="math math-inline">1-\varepsilon</span>，它已经不在归一化平面上了，是个“欠了 <span class="math math-inline">\varepsilon</span> 的质量”的东西。剩下的 <span class="math math-inline">\varepsilon</span> 要由 <span class="math math-inline">\varepsilon q</span> 补回来，而 <span class="math math-inline">q</span> 可以是单纯形里的任何一点，所以 <span class="math math-inline">\varepsilon q</span> 就是把整个 <span class="math math-inline">\Delta_2</span> 按 <span class="math math-inline">\varepsilon</span> 缩小之后的一个小三角形。</p>
+            <p>一个固定向量加上一个小三角形，得到的当然还是那个小三角形，只不过整体平移了。这就是为什么 linear-vacuous 的 credal set 仍然是三角形：它就是 <span class="math math-inline">\Delta_2</span> 做了一次仿射变换（先按 <span class="math math-inline">\varepsilon</span> 缩放，再平移到 <span class="math math-inline">(1-\varepsilon)p^0</span>），而仿射变换把三角形还是变成三角形，边数一条都不会多。</p>
+            <p>换个更容易在图上看的说法：把式子改写成</p>
+            <div class="math math-display">p-p^0=\varepsilon\,(q-p^0),</div>
+            <p>也就是说，从 <span class="math math-inline">p^0</span> 出发朝任何一个方向走，都只能走“原本能走的距离”的 <span class="math math-inline">\varepsilon</span> 倍。所以整个 <span class="math math-inline">\Delta_2</span> 就是以 <span class="math math-inline">p^0</span> 为中心、按 <span class="math math-inline">\varepsilon</span> 做了一次位似（homothety）。<span class="math math-inline">\varepsilon=0</span> 时缩成一个点，就是精确概率；<span class="math math-inline">\varepsilon=1</span> 时铺满整个单纯形，就是完全无知（vacuous）。</p>
+            <figure class="note-figure"><a href="/assets/notes/attachments/fig3-linear-vacuous.png" target="_blank" rel="noopener"><img src="/assets/notes/attachments/fig3-linear-vacuous.png" alt="fig3 linear vacuous" loading="lazy" decoding="async"></a></figure>
+            <p>左图是结果，右图是过程：三条粗箭头是从 <span class="math math-inline">p^0</span> 指向三个顶点方向的那一段，虚线是“如果不缩放会走到哪里”。可以看出小三角形和大三角形的三条边是分别平行的，顶点方向也一一对应——这就是位似的标志。这里也顺便回答了一个我自己一开始的疑问：为什么小三角形的“重心”不在正中间。因为它的中心是 <span class="math math-inline">p^0</span> 而不是均匀分布，<span class="math math-inline">p^0</span> 偏在哪，小三角形就整体偏在哪。</p>
+            <h2 id="不精确概率的赌博解释">不精确概率的赌博解释</h2>
+            <p>在学习不精确概率理论的过程中，我发现“赌博”这个概念经常被用来解释概率。毕竟概率论本身就和赌博问题有很深的历史关系。但是这种赌博和我之前认为的打麻将、打扑克不一样，且看之后的介绍。</p>
+            <p>在这种解释里，赌博是赌一件事情 <span class="math math-inline">A</span> 会不会发生。</p>
+            <p>定义一张彩票：</p>
+            <div class="math math-display">I_A(\omega)= \begin{cases} 1,&amp;\omega\in A,\\ 0,&amp;\omega\notin A. \end{cases}</div>
+            <p>也就是说，事件 <span class="math math-inline">A</span> 发生时，拿这张彩票能领一块钱；不发生时，什么都拿不到。这里的一块钱并不重要，它只是把赌注的尺度标准化成了 <span class="math math-inline">0</span> 和 <span class="math math-inline">1</span>。</p>
+            <p>假设你花价格 <span class="math math-inline">p</span> 买下它，那么你的净收益是</p>
+            <div class="math math-display">I_A-p.</div>
+            <p>事件真的发生时，净收益是 <span class="math math-inline">1-p</span>；事件不发生时，净收益是 <span class="math math-inline">-p</span>。</p>
+            <p>还可以从卖方的方向看同一个赌局。你以价格 <span class="math math-inline">p</span> 把这份合约卖给别人，现在收到 <span class="math math-inline">p</span>，但之后需要按照 <span class="math math-inline">I_A</span> 支付：如果 <span class="math math-inline">A</span> 发生就付 1，不发生就付 0。所以卖方的净收益是</p>
+            <div class="math math-display">p-I_A.</div>
+            <p>这里的“卖”更准确地说，是站在这份赌博合约的卖方一边，而不是单纯把一张免费得到的彩票转手卖掉。</p>
+            <p>从买方和卖方两个方向讨论，就会得到概率的一种行为解释。</p>
+            <p>这里其实藏着一个非常重要的理想化假设：如果 <span class="math math-inline">p</span> 被称作你对 <span class="math math-inline">A</span> 的“公平价格”，那么在这个价格附近，你既愿意站在买方，也愿意站在卖方。换句话说，对手可以选择和你赌哪个方向。精确主观概率中的 Dutch book 论证正是在这个意义下工作的。</p>
+            <p>于是 <span class="math math-inline">p</span> 不只是“我觉得这张彩票大概值多少钱”，而是一个会约束你实际选择的 betting quotient：如果你的这些价格彼此不协调，对方就有可能把若干笔单独看来都能接受的交易拼在一起，让你无论发生什么都亏钱。</p>
+            <h3 id="非负性归一化和可加性从哪里来">非负性、归一化和可加性从哪里来？</h3>
+            <p>非负性其实很自然。彩票 <span class="math math-inline">I_A</span> 在任何结果下的收益都不小于 0，所以它是一张“白拿也不亏”的票。如果你给它标一个负价格 <span class="math math-inline">p&lt;0</span>，那就等于说你愿意倒贴钱把它送出去：对方拿走 <span class="math math-inline">I_A</span> 还倒收你 <span class="math math-inline">|p|</span>，他在每一个结果下的净收益都是 <span class="math math-inline">I_A+|p|\geq|p|&gt;0</span>，稳赚不赔，这就是一个现成的荷兰赌。所以一个一致的价格不应该是负数。</p>
+            <p>对事件彩票来说，价格还不应该超过 1，因为 <span class="math math-inline">I_A</span> 的最大可能收益就是 1。你花 <span class="math math-inline">p&gt;1</span> 买下它，那么最好的情况净收益是 <span class="math math-inline">1-p&lt;0</span>，最坏是 <span class="math math-inline">-p</span>，也就是无论如何都亏。于是</p>
+            <div class="math math-display">0\leq P(A)\leq 1.</div>
+            <p>归一化也很简单。必然事件 <span class="math math-inline">\Omega</span> 对应的彩票无论如何都支付 1，所以它的公平价格应该是</p>
+            <div class="math math-display">P(\Omega)=1.</div>
+            <p>理由和上面一样：定价低于 1 的话，对方买下来稳赚 <span class="math math-inline">1-P(\Omega)&gt;0</span>；定价高于 1 的话，你自己买下来稳亏。两边一夹就只剩 1 这一个数。同理，不可能事件的彩票恒支付 0，价格只能是 0。</p>
+            <p>至于可加性，假设 <span class="math math-inline">A</span> 和 <span class="math math-inline">B</span> 互斥，那么</p>
+            <div class="math math-display">I_{A\cup B}=I_A+I_B.</div>
+            <p>买一张“<span class="math math-inline">A</span> 或 <span class="math math-inline">B</span> 发生就支付 1”的彩票，与分别买一张 <span class="math math-inline">A</span> 彩票和一张 <span class="math math-inline">B</span> 彩票，在每一种可能状态下的总收益完全相同。</p>
+            <p>既然两个投资组合的收益完全一样，它们的价格也应该一样，否则就可以通过买便宜的、卖贵的获得无风险收益。因此</p>
+            <div class="math math-display">P(A\cup B)=P(A)+P(B), \qquad A\cap B=\varnothing.</div>
+            <p>所以，概率公理在这里并不是凭空写出来的，而是来自“不要让价格体系内部出现明显套利”的要求。</p>
+            <p>当然，这种解释是否真的比直接接受概率公理更直观，见仁见智。对我来说，它更像是给概率公理提供了一种行为学包装，而不是概率本身唯一正确的哲学解释。真正让我觉得它有用的地方只有一个：它给“放宽”提供了一个明确的位置。经典理论要求买价和卖价必须相等（否则就有套利），不精确概率就是把这一条松掉，允许买价严格低于卖价，中间空出来的那一段就是你的无知。从这个角度看，credal set 不是凭空多出来的一个集合，而是“买卖价差”这件事在几何上的样子。</p>
+            <h2 id="用期望约束-credal-set">用期望约束 credal set</h2>
+            <p>说实在的，这一段我上课时几乎整段都没听懂，我觉得这是不精确概率小众的原因之一，门槛比机器学习高。概念、符号和赌博解释一起往上堆，我是真没明白，所以这一部分我打算完全从头写，至少先让它符合我的直觉，我也不会提及所有的细节。</p>
+            <h3 id="只用上下概率约束有什么局限">只用上下概率约束有什么局限？</h3>
+            <p>前面学到的上下概率很好理解。例如：</p>
+            <div class="math math-display">\underline P(\{\omega_1\})\leq p_1\leq \overline P(\{\omega_1\}).</div>
+            <p>在三元概率单纯形里，<span class="math math-inline">p_1=c</span> 是一条与三角形某条边平行的直线。同理，<span class="math math-inline">p_2=c</span> 和 <span class="math math-inline">p_3=c</span> 也分别平行于另外两条边。这种形式在统计学上有些方法能构造出来。</p>
+            <p>而三元空间中的任意事件只有这些基本形式：单个结果、两个结果的并、全集和空集。由于</p>
+            <div class="math math-display">p_1+p_2=1-p_3,</div>
+            <p>所以对两个结果之并进行概率约束，本质上仍然只是对另一个坐标进行约束。</p>
+            <p>这就意味着，在三元情况下，如果只使用事件的上下概率来切割三角形，得到的边基本都和原三角形的边平行。图形会很规整，但表达能力也受到限制。三个方向，最多六条边，六边形就到头了（线性情况）。前面那张模型对比图里所有形状都逃不出这个范围。那么问题来了，一些边是斜着的、不那么规则的 convex credal set，仅靠这种约束很难直接写出来。</p>
+            <h3 id="从事件指示函数推广到一般-gamble">从事件指示函数推广到一般 gamble</h3>
+            <p>这时最自然的想法是：不要只使用系数为 0 或 1 的事件指示函数，而是允许任意收益函数。</p>
+            <p>设一个 gamble 为</p>
+            <div class="math math-display">f=(f_1,f_2,f_3),</div>
+            <p>其中 <span class="math math-inline">f_i</span> 表示结果 <span class="math math-inline">\omega_i</span> 发生时得到的收益，这个东西我最最开始看的时候根本不明白，现在我发现其实这个就是个离散的函数，针对不同次的输出有函数值。</p>
+            <p>在概率分布 <span class="math math-inline">p=(p_1,p_2,p_3)</span> 下，它的期望是</p>
+            <div class="math math-display">E_p[f] =f_1p_1+f_2p_2+f_3p_3 =p\cdot f.</div>
+            <p>这个东西就相当于下面这个</p>
+            <div class="math math-display">ap_1+bp_2+cp_3.</div>
+            <p>这里的 <span class="math math-inline">a,b,c</span> 不再是几个来历不明的系数，而是 gamble 在三个结果下的收益，只要调abc可以在空间中表示不同斜率的直线了。</p>
+            <p>于是，我们可以对期望设置上下界：</p>
+            <div class="math math-display">\underline E(f) \leq f_1p_1+f_2p_2+f_3p_3 \leq \overline E(f).</div>
+            <p>几何上，一个等式</p>
+            <div class="math math-display">f_1p_1+f_2p_2+f_3p_3=c</div>
+            <p>在归一化平面内是一条直线；一个不等式对应直线一侧的半平面。</p>
+            <p>因为 <span class="math math-inline">f_1,f_2,f_3</span> 可以是任意系数，所以这条线不必再与三角形的边平行。它可以以各种角度切割概率单纯形。</p>
+            <figure class="note-figure"><a href="/assets/notes/attachments/fig5-gamble-cut.png" target="_blank" rel="noopener"><img src="/assets/notes/attachments/fig5-gamble-cut.png" alt="fig5 gamble cut" loading="lazy" decoding="async"></a></figure>
+            <p>左边是只用事件上下概率能做到的事：所有边都平行于三角形的某条边。右边是加了一个 gamble <span class="math math-inline">f=(2,-1,0)</span> 的期望约束之后的样子，斜边就出来了，虚线是原来的形状。顺带一提，<span class="math math-inline">f</span> 加上一个常数不会改变直线的方向（只是把两条边界一起平移），<span class="math math-inline">f</span> 乘上一个正的常数也不改变方向（只是把上下界一起缩放）。所以真正决定“切割角度”的只是 <span class="math math-inline">f</span> 各分量之间的<strong>相对差</strong>，<span class="math math-inline">f=(2,-1,0)</span> 和 <span class="math math-inline">f=(4,-2,0)</span>、<span class="math math-inline">f=(3,0,1)</span> 切出来的方向是同一个。这个我觉得挺重要的：不是每写一个 <span class="math math-inline">f</span> 就多一个新方向。</p>
+            <p>因此，用多组上下期望约束，就能得到更加灵活的 credal set：</p>
+            <div class="math math-display">K= \left\{ p\in\Delta_2: \underline E(f^{(j)}) \leq p\cdot f^{(j)} \leq \overline E(f^{(j)}), \ j=1,\ldots,m \right\}.</div>
+            <p>每一个 gamble 至多提供两条可能的边界；把这些半平面与概率单纯形相交，就会得到一个凸多边形。</p>
+            <p>事件概率约束其实只是这里的特殊情况。若 <span class="math math-inline">f=I_A</span>，那么</p>
+            <div class="math math-display">E_p[I_A]=P_p(A).</div>
+            <p>所以，从上下概率推广到上下期望，不是在另起炉灶，而是把只含 0、1 系数的约束推广成一般线性约束。</p>
+            <p>从凸几何角度看，这件事更直接：一个闭凸集合可以由支撑半空间描述；如果 credal set 本身是一个多面体，那么有限组线性期望约束就足以把它表示出来。反过来说，如果你想要的那个凸集不是多面体（比如一个圆），那么有限个 gamble 是写不出来的，得用无穷多个——每个方向一个支撑超平面。这也说明了为什么这套语言的“上限”就是凸集：再怎么加 gamble，你也造不出一个凹的 credal set。</p>
+            <p>这才是我觉得这部分真正应该先讲的东西。至于后面的赌博解释，是第二层的东西，不应该一上来就把初学者吓到。</p>
+            <h2 id="下期望和上期望的买卖解释">下期望和上期望的买卖解释</h2>
+            <p>讲到这里，不精确概率理论通常又会把 gamble 拉回买卖解释。</p>
+            <p>假设 <span class="math math-inline">f</span> 是一张彩票。下期望或者下预期 <span class="math math-inline">\underline E(f)</span>，可以理解为你愿意为得到 <span class="math math-inline">f</span> 支付的最高价格：</p>
+            <div class="math math-display">\underline E(f) = \sup\{\mu:f-\mu\text{ 是你愿意接受的 gamble}\}.</div>
+            <p>如果你支付 <span class="math math-inline">\mu</span> 买下 <span class="math math-inline">f</span>，最终净收益就是</p>
+            <div class="math math-display">f-\mu.</div>
+            <p>价格越高，这个 gamble 对你越不利。<span class="math math-inline">\underline E(f)</span> 就是你还能接受的价格极限。</p>
+            <p>上期望或者上预期 <span class="math math-inline">\overline E(f)</span>，可以理解为你愿意卖出 <span class="math math-inline">f</span> 时接受的最低价格：</p>
+            <div class="math math-display">\overline E(f) = \inf\{\mu:\mu-f\text{ 是你愿意接受的 gamble}\}.</div>
+            <p>它们满足共轭关系</p>
+            <div class="math math-display">\overline E(f)=-\underline E(-f).</div>
+            <p>当上下期望相等时，就退化成一个精确的公平价格；当两者之间存在区间时，可以把它类比成买入价和卖出价之间的 spread。</p>
+            <p>在我的理解看来，抛开什么彩票不谈，这个东西就是在说，我现在有个函数f，对于不同的结果会有不同的收益，那么，你应该确定函数期望的范围（不管通过什么方法），那从最最精确的角度考虑，区间越紧越好，那么下界的最大值和上界的最小值自然就出来了。</p>
+            <p>说实话我仍然不觉得这套解释特别直观。至少对我来说，先讲线性约束、半平面和凸集，再补一句“这些上下界也可以解释成买卖价格”，会比从一开始就围绕赌博讲容易得多。不过，这套解释并不是完全没用。它至少给出了一个一致性标准：你提供的上下价格不能组合出必然亏损或者无风险套利。所谓 coherence，主要就是在约束这种内部矛盾。而且如果 credal set <span class="math math-inline">K</span> 已经给定了，这两个量其实有一个很干净的几何意义：</p>
+            <div class="math math-display">\underline E(f)=\min_{p\in K}\,p\cdot f,\qquad \overline E(f)=\max_{p\in K}\,p\cdot f.</div>
+            <p>也就是在 <span class="math math-inline">K</span> 上沿着方向 <span class="math math-inline">f</span> 做线性规划，取最小和最大。既然是线性规划，最优解一定落在 <span class="math math-inline">K</span> 的某个顶点上，所以只要你手里有 <span class="math math-inline">K</span> 的顶点列表，任何 gamble 的上下期望都是遍历一遍顶点取 min/max 的事情。这一条对我来说比买卖价格的说法有用得多——它把“上下期望”和“credal set”变成了同一个对象的两种写法：一个是支撑函数，一个是集合本身。</p>
+            <h2 id="这些约束到底从哪里来">这些约束到底从哪里来？</h2>
+            <p>你可能会说：gamble 有无数个，难道每一个都要找专家问一遍上下价格吗？</p>
+            <p>我觉得当然不能这么干。</p>
+            <p>在具体问题里，应该只选择那些与任务真正相关的 gamble 或统计量。例如：</p>
+            <ul><li>某种决策在不同状态下的收益；</li><li>某个损失函数；</li><li>某个特征或指标的期望范围；</li><li>专家能够理解并且愿意判断的少量情景。</li></ul>
+            <p>然后，根据这些有限的策略、收益函数或者矩约束，构造一个 credal set。</p>
+            <p>从这个角度看，它确实是一种专家知识建模方式。你不是让专家直接在概率三角形里画一个多边形，而是问他：“对于这个具体收益函数，你认为合理的期望范围是什么？”多个回答共同切出一个概率集合。</p>
+            <p>而且这里还有一个偷懒的地方：你给的约束越少，切出来的集合越大，模型越“无知”，但至少不会说谎。这在理论上叫 natural extension——从你真正愿意承诺的那几条约束出发，取所有与之相容的概率分布，得到的就是最保守的那个 credal set。多问一个 gamble，集合就小一点（或者说至少不会变大）；不问，就默认 vacuous。这套东西的好处是不用假装自己知道得比实际多，坏处是很容易停在“什么都说不出来”的状态。</p>
+            <p>如果这些约束主要来自主观专家判断，那么模型最后长什么样，很大程度上取决于你选择问哪些 gamble、怎么问、专家能不能稳定回答。机器学习背景的人可能会觉得这套东西有点扯，我也是：它很容易让人产生一种“是不是又在手工设计约束”的反感。</p>
+            <p>但至少现在我能把它理解成一件比较具体的事：</p>
+            <blockquote><p>用一组任务相关的线性期望约束，在概率单纯形里切出一个凸的可信概率集合。</p></blockquote>
+            <p>至于这些约束是否可靠、是否可复现、是否值得获取，那是建模和知识获取层面的另一个问题，另外的角度是：目前没有一个非线性特征出现，全是在画直线，直线带来干净与易于计算的几何结构，非线性之后有机会讨论。</p>
+            <h2 id="总结">总结</h2>
+            <p>这一篇真正想说明的其实只有几件事：</p>
+            <p>第一，三元概率单纯形之所以是三角形，是因为</p>
+            <div class="math math-display">p_1+p_2+p_3=1</div>
+            <p>这个平面被</p>
+            <div class="math math-display">p_1,p_2,p_3\geq0</div>
+            <p>截成了一个三角形。三角形里读坐标，读的就是到对边的归一化垂距，三条垂距之和恒为 1。</p>
+            <p>第二，linear-vacuous credal set 之所以仍然是三角形，是因为它是完整概率单纯形的仿射缩放：</p>
+            <div class="math math-display">K_\varepsilon=(1-\varepsilon)p^0+\varepsilon\Delta_2.</div>
+            <p>更直观地说，它就是以 <span class="math math-inline">p^0</span> 为中心、比例为 <span class="math math-inline">\varepsilon</span> 的一次位似。别的模型（pari-mutuel、TV、COR、概率区间）画出来则是各种三角形和六边形，全都是凸多边形，因为它们的约束全是线性不等式。</p>
+            <p>第三，普通上下概率约束对应的是系数为 0、1 的特殊期望约束，因此切割方向比较有限；一般上下期望约束</p>
+            <div class="math math-display">\underline E(f)\leq p\cdot f\leq\overline E(f)</div>
+            <p>可以产生任意方向的线性边界，从而构造更灵活的凸 credal set。反过来，给定 <span class="math math-inline">K</span>，上下期望就是在 <span class="math math-inline">K</span> 上做线性规划取 min/max，两者是同一个东西的两种写法。</p>
+            <p>第四，赌博和买卖价格提供了一种行为解释。但它不是理解几何结构的唯一入口。至少对我来说，先看向量、平面和凸集，再回头看 gamble，要顺得多。</p>
+            <p>这套东西并没有课程里显得那么高深。说到底，就是在概率单纯形上做凸几何，只不过不精确概率领域喜欢给它再套上一层赌博语言，用于做决策。越General的东西包括的东西越广，越不容易实操，之后慢慢理解后面的内容，下一篇的标题暂定为：决策哲学与选择函数。</p>
+          </details>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

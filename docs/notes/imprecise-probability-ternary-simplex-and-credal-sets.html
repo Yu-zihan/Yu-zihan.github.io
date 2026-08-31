@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en-US" class="notes-site notes-article notes-article-legacy">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notes on Imprecise Probability (I): The Ternary Probability Simplex and Credal Sets</title>
+    <link rel="icon" href="/assets/favicon.ico">
+    <template id="theme-option-template"><input type="radio" name="theme"><label></label></template>
+    <script src="/main.js"></script>
+    <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+
+<style>
+  html {
+    font-size: 18px;
+  }
+
+  :root body {
+    color-scheme: light dark;
+    --content-gap: 15px;
+    --radius: 5px;
+    --article-max-width: 90ex;
+    --toc-max-width: 90ex;
+    --text-font-family: "Inria Sans", sans-serif;
+    --kaiti-font-family: "LXGW WenKai TC", "FandolKai", "KaiTi", "SimKai", "STKaiti", "Kaiti SC", "Kaiti TC", "华文楷体", "楷体", serif;
+    --pre-font-size: 1rem;
+    --code-font-size: 1rem;
+    --katex-font-size: 1em;
+    --katex-frac-line-font-size: 1.25em;
+    --details-h1-font-size: 1.2rem;
+    --article-details-h1-font-size: 1.5rem;
+    --article-details-h1-taxon-font-size: 1.35rem;
+    --logo-font-size: 1.5rem;
+    --p-line-height: 1.55rem;
+    --text-color: black;
+    --toc-link-color: #555;
+    --background-color: white;
+    --background-color-pre: rgba(0, 100, 100, 0.04);
+    --background-color-code: rgba(0, 100, 100, 0.04);
+    --hover-color-block: rgba(0, 100, 255, 0.04);
+    --hover-color-link: rgba(0, 100, 255, 0.1);
+    --target-color: rgb(67, 92, 255);
+    --link-color: black;
+    --slug-color: gray;
+    --logo-color: #666;
+    --logo-hover-color: #aaa;
+    --span-taxon-color: #444;
+    --article-taxon-color: #888;
+    --mark-color: rgb(255, 255, 151);
+    --em-color: var(--text-color);
+    --alert-border-color: gray;
+  }
+
+  body {
+    color: var(--text-color);
+    font-optical-sizing: auto;
+    font-size: 1rem;
+    font-family: var(--text-font-family);
+    hyphens: auto;
+    background-color: var(--background-color);
+  }
+
+  p,
+  pre {
+    line-height: var(--p-line-height);
+  }
+
+  pre {
+    border-radius: var(--radius);
+    background-color: var(--background-color-pre);
+    padding: 0.5rem;
+    font-size: var(--pre-font-size);
+    margin-top: 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  code {
+    border-radius: var(--radius);
+    background-color: var(--background-color-code);
+    padding: 0.1rem;
+    font-size: var(--code-font-size);
+  }
+
+  pre,
+  code {
+    font-family: monospace;
+  }
+
+  .table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0 5px;
+    margin-bottom: 1rem;
+    display: block;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  th {
+    font-weight: normal;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: 0 15px;
+    vertical-align: top;
+  }
+
+  pre > code {
+    border-radius: 0;
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .math.math-display,
+  .katex-display {
+    display: block;
+    margin: 0.55rem 0 0.65rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.05rem 0.1rem 0.12rem;
+  }
+
+  .katex-display > .katex {
+    min-width: fit-content;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin-top: 0.5em;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 500;
+    margin-bottom: 0;
+  }
+
+  h5,
+  h6,
+  p {
+    margin-top: 0;
+  }
+
+  details > summary {
+    list-style-type: none;
+    outline: none;
+  }
+
+  details > summary > header {
+    display: inline;
+  }
+
+  details > summary::marker,
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details h1 {
+    font-size: var(--details-h1-font-size);
+    display: inline;
+  }
+
+  span.taxon {
+    color: var(--span-taxon-color);
+    font-weight: 500;
+  }
+
+  article > section > details > summary > header > h1 {
+    font-size: var(--article-details-h1-font-size);
+  }
+
+  article > section > details > summary > header {
+    display: block;
+    margin-bottom: 0.5em;
+  }
+
+  section.block > details {
+    margin-bottom: 0.4em;
+  }
+
+  section.block > details[open] {
+    margin-bottom: 1em;
+  }
+
+  .block {
+    padding-left: 5px;
+    padding-right: 10px;
+    padding-bottom: 2px;
+    border-radius: var(--radius);
+  }
+
+  .block:hover {
+    background-color: var(--hover-color-block);
+  }
+
+  img {
+    object-fit: cover;
+    max-width: 100%;
+  }
+
+  hr {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    background-color: gray;
+    border: 0 none;
+    width: 100%;
+    height: 1pt;
+  }
+
+  ul,
+  ol {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .metadata ul {
+    padding-left: 0;
+    display: inline;
+  }
+
+  .metadata li::after {
+    content: " · ";
+  }
+
+  .metadata li:last-child::after {
+    content: "";
+  }
+
+  .metadata * {
+    display: inline;
+  }
+
+  a {
+    color: var(--link-color);
+    text-decoration: inherit;
+  }
+
+  .slug,
+  .edit {
+    color: var(--slug-color);
+    font-weight: 200;
+  }
+
+  #grid-wrapper > article {
+    max-width: var(--article-max-width);
+    margin-right: auto;
+    grid-area: article;
+  }
+
+  nav#toc ul {
+    list-style-type: none;
+  }
+
+  nav#toc li > ul {
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  nav#toc,
+  nav#toc a {
+    color: var(--toc-link-color);
+  }
+
+  nav#toc {
+    grid-area: toc;
+  }
+
+  @media only screen and (min-width: 1000px) {
+    body {
+      margin-top: 2rem;
+      margin-left: 2rem;
+      transition: ease all 0.2s;
+    }
+
+    #grid-wrapper {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-columns: var(--article-max-width) var(--toc-max-width);
+    }
+
+    .sticky-nav {
+      position: sticky;
+      top: 0;
+      max-height: 100vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    nav#toc {
+      max-width: 45ex;
+    }
+  }
+
+  @media only screen and (max-width: 1000px) {
+    :root body {
+      --code-font-size: 0.9rem;
+    }
+
+    .block {
+      padding-left: 2px;
+      padding-right: 2px;
+      padding-bottom: 2px;
+      border-radius: 5px;
+    }
+
+    .mobile-sticky-nav {
+      position: sticky;
+      top: 0;
+      max-height: 100vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      background-color: var(--background-color);
+      z-index: 7;
+      border-bottom: solid var(--text-color);
+    }
+  }
+
+  article {
+    font-size: 19px;
+    line-height: 1.78;
+  }
+
+  article h1 {
+    font-size: 2.35rem;
+    line-height: 1.15;
+  }
+
+  article h2 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  article h3 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+
+  article p,
+  article li {
+    margin-bottom: 0.72em;
+  }
+
+  article pre {
+    padding: 1.2rem;
+  }
+</style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/notes.css?v=notes-mobile">
+    <script defer src="/assets/notes.js?v=notes-mobile"></script>
+    <script defer src="/assets/vendor/katex/katex.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/auto-render.min.js"></script>
+    <script defer src="/assets/vendor/katex/contrib/copy-tex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.katex) return;
+
+        document.querySelectorAll(".math.math-inline").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: false,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        document.querySelectorAll(".math.math-display").forEach(function (el) {
+          katex.render(el.textContent, el, {
+            displayMode: true,
+            throwOnError: false,
+            strict: false
+          });
+        });
+
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false },
+              { left: "\\(", right: "\\)", display: false },
+              { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
+    <script data-goatcounter="https://zihanyu.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+  </head>
+  <body>
+    <div id="grid-wrapper" style="grid-template-areas: 'article toc';" data-base-url="/">
+      <nav id="toc" class="sticky-nav mobile-sticky-nav"><div id="theme-options"></div></nav>
+
+      <article>
+        <section class="block" data-taxon="">
+          <details open>
+            <summary id="en-notes-imprecise-probability-ternary-simplex-and-credal-sets">
+              <header>
+                <h1><span class="taxon"></span>Notes on Imprecise Probability (I): The Ternary Probability Simplex and Credal Sets <a class="slug" href="/notes/imprecise-probability-ternary-simplex-and-credal-sets.html">[imprecise-probability-ternary-simplex-and-credal-sets]</a></h1>
+                <div class="metadata">
+                  <ul>
+                    <li class="meta-item meta-date">2026-08-31</li>
+                    <li class="meta-item meta-kind">note</li>
+                    <li class="meta-item meta-tags">Imprecise probability</li>
+                    <li class="meta-item meta-summary">A geometric introduction to ternary probability simplices, linear-vacuous models, gambles, and expectation constraints</li>
+                  </ul>
+                </div>
+              </header>
+            </summary>
+
+            <p>At the end of last month, I attended the biennial Summer School on Imprecise Probabilities in Munich, Germany. Overall, I found the course very interesting. I did feel, however, that some concepts were not emphasized or explained as thoroughly as they could have been. A great many details were introduced all at once, and in quite a few places I simply could not make sense of an idea after hearing it only once.</p>
+            <p>I have therefore decided to work through what I learned and reorganize it in a way that suits me better. Starting from the existing slides, I will try to explain the points that interested or confused me in a more intuitive way. These notes will give me something to revisit later and may also offer beginners a useful route into the subject. Today is the last day of August; from now on, I will try to publish at least one note every month. This should become a series of four or five posts, which I hope to finish by the end of the year :)</p>
+            <p>The course materials are available <a href="https://www.ifi.lmu.de/kiml/en/school26/materials/">here</a>. Videos from the previous summer school can also be found on YouTube <a href="https://www.youtube.com/watch?v=gyDqpSY5B5s">here</a>.</p>
+            <h2 id="a-geometric-interpretation-of-the-ternary-probability-simplex">A geometric interpretation of the ternary probability simplex</h2>
+            <p>Early in the course, the ternary probability simplex was introduced geometrically. This triangle appears constantly in papers about credal sets, usually accompanied by an appeal to some kind of “geometric intuition.”</p>
+            <p>I do not think that many written explanations make the simplex sufficiently transparent. When I first encountered the idea, for example, I could see the triangle but could not immediately understand where it had come from, let alone quickly plot a probability distribution inside it. Here is my attempt to explain it from the beginning.</p>
+            <h3 id="why-does-a-ternary-probability-distribution-become-a-triangle">Why does a ternary probability distribution become a triangle?</h3>
+            <p>First, why is the ternary probability simplex a triangle?</p>
+            <p>At first glance the association seems almost self-evident: three outcomes, therefore a triangle. It is then tempting to assume that four outcomes should give a quadrilateral and five outcomes a pentagon. But that is not what happens.</p>
+            <p>Suppose the sample space contains only three elementary outcomes:</p>
+            <div class="math math-display">\Omega=\{\omega_1,\omega_2,\omega_3\}.</div>
+            <p>A probability distribution can be represented by a vector <span class="math math-inline">p=(p_1,p_2,p_3)</span>, where <span class="math math-inline">p_i=P(\omega_i)</span>.</p>
+            <p>Probabilities must first satisfy the normalization condition</p>
+            <div class="math math-display">p_1+p_2+p_3=1.</div>
+            <p>If we regard <span class="math math-inline">p_1,p_2,p_3</span> as coordinates in three-dimensional space, this equation describes a plane.</p>
+            <p>So normalization alone does not initially give us a triangle; it gives us a plane. Clearly, however, not every point on that plane is a valid probability distribution. Probabilities must also be nonnegative:</p>
+            <div class="math math-display">p_1\geq 0,\qquad p_2\geq 0,\qquad p_3\geq 0.</div>
+            <p>These three inequalities restrict us to the first octant. The intersection of that octant with the normalization plane</p>
+            <div class="math math-display">p_1+p_2+p_3=1</div>
+            <p>is exactly a triangle. Its three vertices are</p>
+            <div class="math math-display">(1,0,0),\qquad(0,1,0),\qquad(0,0,1),</div>
+            <p>corresponding to distributions that place all their probability mass on <span class="math math-inline">\omega_1</span>, <span class="math math-inline">\omega_2</span>, and <span class="math math-inline">\omega_3</span>, respectively.</p>
+            <p>Here is an illustration:</p>
+            <figure class="note-figure"><a href="/assets/notes/enattachment/fig1-simplex.png" target="_blank" rel="noopener"><img src="/assets/notes/enattachment/fig1-simplex.png" alt="fig1 simplex" loading="lazy" decoding="async"></a></figure>
+            <p>The panel on the left shows the construction I have in mind. The gray region is the entire normalization plane, which extends infinitely in every direction. The red part is all that remains after imposing nonnegativity. Viewed from the right angle, the red triangle faces us directly and becomes the familiar two-dimensional diagram. The triangle is therefore not an arbitrary drawing motivated by the fact that there are three events; it is the geometric result of normalization and nonnegativity acting together.</p>
+            <p>The same reasoning extends immediately. With <span class="math math-inline">n</span> elementary outcomes, the probability vector satisfies</p>
+            <div class="math math-display">p_1+\cdots+p_n=1,\qquad p_i\geq 0.</div>
+            <p>The result is an <span class="math math-inline">(n-1)</span>-dimensional simplex. A distribution over four outcomes corresponds to a three-dimensional tetrahedron, not a quadrilateral in the plane. Five outcomes give a four-dimensional simplex, which can no longer be drawn in full in ordinary three-dimensional space.</p>
+            <p>This also explains why papers on imprecise probability so often use ternary examples: three outcomes are the only case that is both nontrivial and easy to draw on paper. The binary simplex is merely a line segment, and a credal set is just an interval on that segment—not much to look at. From four outcomes onward, the picture becomes three-dimensional and harder to reason about visually.</p>
+            <h3 id="how-should-we-read-coordinates-inside-the-triangle">How should we read coordinates inside the triangle?</h3>
+            <p>The course slides say that the coordinate associated with a vertex should be measured from the edge opposite that vertex. The rule is convenient and easy to apply, but when I first read it, it felt rather abrupt: I could see that this was how the diagram worked, but not why.</p>
+            <p>From the construction above, the answer becomes clearer. Each probability is simply the corresponding coordinate in three-dimensional space. When the normalization plane is represented as a flat triangle, that coordinate turns into a distance. Similar triangles show that the ratio of distances is exactly the ratio of probabilities.</p>
+            <p>More concretely, fix <span class="math math-inline">p_1=c</span>. The remaining constraints are</p>
+            <div class="math math-display">p_2+p_3=1-c,\qquad p_2,p_3\geq 0.</div>
+            <p>Within the normalization plane, these conditions describe a line segment. When <span class="math math-inline">c=0</span>, the segment is the edge opposite <span class="math math-inline">\omega_1</span>, namely the edge on which <span class="math math-inline">p_1=0</span>. When <span class="math math-inline">c=1</span>, it collapses to the vertex <span class="math math-inline">\omega_1</span>. Intermediate values of <span class="math math-inline">c</span> interpolate proportionally between these two cases: the segment has <span class="math math-inline">(1-c)</span> times the length of the opposite edge, and it lies a fraction <span class="math math-inline">c</span> of the way from that edge toward the vertex. Thus <span class="math math-inline">p_1</span> is represented by the distance from the point to the edge opposite <span class="math math-inline">\omega_1</span>, normalized by the height of the whole triangle.</p>
+            <figure class="note-figure"><a href="/assets/notes/enattachment/fig2-read-coords.png" target="_blank" rel="noopener"><img src="/assets/notes/enattachment/fig2-read-coords.png" alt="fig2 read coords" loading="lazy" decoding="async"></a></figure>
+            <p>The left panel shows a point <span class="math math-inline">p=(0.5,0.3,0.2)</span>. Draw a perpendicular from the point to each edge. After normalizing those three distances by the height of the triangle, they are exactly <span class="math math-inline">0.5</span>, <span class="math math-inline">0.3</span>, and <span class="math math-inline">0.2</span>. Their sum is constant—equal to the triangle&#x27;s height—a fact known in geometry as Viviani&#x27;s theorem (or so AI tells me). Here it is simply the condition <span class="math math-inline">p_1+p_2+p_3=1</span> in different clothing. In three-dimensional coordinates, normalization is a plane equation; inside the triangle, it says that the three perpendicular distances have a constant sum. To me, this is the real meaning of the rule stated in the slides.</p>
+            <p>The right panel gives another way to read the same geometry. The equation <span class="math math-inline">p_1=c</span> describes a family of lines parallel to the edge opposite <span class="math math-inline">\omega_1</span>, and <span class="math math-inline">p_1</span> grows as the line moves toward the vertex <span class="math math-inline">\omega_1</span>. In practice, there is no need to measure perpendicular distances. To plot <span class="math math-inline">(0.5,0.3,0.2)</span>, simply intersect the line <span class="math math-inline">p_1=0.5</span> with the line <span class="math math-inline">p_2=0.3</span>; <span class="math math-inline">p_3</span> will automatically be correct, because only two of the three constraints are independent.</p>
+            <h2 id="the-linear-vacuous-model-in-the-ternary-probability-simplex">The linear-vacuous model in the ternary probability simplex</h2>
+            <p>Next consider the linear-vacuous model in the ternary probability simplex. The course sometimes described this as a kind of neighborhood, but more precisely it is a linear-vacuous mixture, also commonly called an <span class="math math-inline">\varepsilon</span>-contamination model.</p>
+            <p>The slides show that its credal set is a triangle. That immediately raised a question for me: why does the credal set remain triangular? I did not find a written explanation, but after thinking about it, I believe the answer is simply vector arithmetic.</p>
+            <p>Start with a reference probability distribution</p>
+            <div class="math math-display">p^0=(p^0_1,p^0_2,p^0_3),</div>
+            <p>and allow a proportion <span class="math math-inline">\varepsilon</span> of the probability mass to come from a completely unknown distribution <span class="math math-inline">q</span>. A resulting distribution then takes the form</p>
+            <div class="math math-display">p=(1-\varepsilon)p^0+\varepsilon q,\qquad q\in\Delta_2,</div>
+            <p>where <span class="math math-inline">\Delta_2</span> is the full ternary probability simplex.</p>
+            <p>The corresponding credal set is therefore</p>
+            <div class="math math-display">K_\varepsilon
+=\left\{(1-\varepsilon)p^0+\varepsilon q:q\in\Delta_2\right\}.</div>
+            <p>Geometrically, this is an operation on the vector <span class="math math-inline">p^0</span>.</p>
+            <p>Represent <span class="math math-inline">p^0</span> by the directed segment from the origin to the point <span class="math math-inline">p^0=(p^0_1,p^0_2,p^0_3)</span>. Multiplication by <span class="math math-inline">(1-\varepsilon)</span> scales that vector: it still points in the same direction but becomes shorter, with an <span class="math math-inline">\varepsilon</span> fraction removed by the “contamination.” Notice that the components of <span class="math math-inline">(1-\varepsilon)p^0</span> now sum to only <span class="math math-inline">1-\varepsilon</span>. The vector no longer lies in the normalization plane; it is short of <span class="math math-inline">\varepsilon</span> units of probability mass. The term <span class="math math-inline">\varepsilon q</span> restores the missing mass. Since <span class="math math-inline">q</span> may be any point in the simplex, <span class="math math-inline">\varepsilon q</span> is the whole triangle <span class="math math-inline">\Delta_2</span> scaled down by a factor of <span class="math math-inline">\varepsilon</span>.</p>
+            <p>Adding a fixed vector to a small triangle gives the same small triangle translated to a new position. This is why the linear-vacuous credal set remains a triangle: it is the image of <span class="math math-inline">\Delta_2</span> under an affine transformation—first a scaling by <span class="math math-inline">\varepsilon</span>, then a translation by <span class="math math-inline">(1-\varepsilon)p^0</span>. Affine transformations map triangles to triangles without adding any edges.</p>
+            <p>There is another form of the equation that is even easier to see in the diagram:</p>
+            <div class="math math-display">p-p^0=\varepsilon(q-p^0).</div>
+            <p>Starting from <span class="math math-inline">p^0</span>, we may move in any direction, but only by an <span class="math math-inline">\varepsilon</span> fraction of the distance we could originally travel. In other words, the entire simplex <span class="math math-inline">\Delta_2</span> undergoes a homothety centered at <span class="math math-inline">p^0</span> with scale factor <span class="math math-inline">\varepsilon</span>. When <span class="math math-inline">\varepsilon=0</span>, the set collapses to a single point, giving a precise probability distribution. When <span class="math math-inline">\varepsilon=1</span>, it fills the entire simplex, representing complete ignorance—the vacuous model.</p>
+            <figure class="note-figure"><a href="/assets/notes/enattachment/fig3-linear-vacuous.png" target="_blank" rel="noopener"><img src="/assets/notes/enattachment/fig3-linear-vacuous.png" alt="fig3 linear vacuous" loading="lazy" decoding="async"></a></figure>
+            <p>The left panel shows the result, while the right panel shows the construction. The three thick arrows point from <span class="math math-inline">p^0</span> toward the three vertices; the dotted extensions indicate where they would end without the scaling. The three edges of the small triangle are parallel to their counterparts in the large one, and corresponding vertices point in the same directions—the signature of a homothety. This also answers a question I initially had: why is the “center” of the small triangle not in the middle of the large one? Because its center is <span class="math math-inline">p^0</span>, not the uniform distribution. Wherever <span class="math math-inline">p^0</span> is displaced, the whole small triangle is displaced with it.</p>
+            <h2 id="the-gambling-interpretation-of-imprecise-probability">The gambling interpretation of imprecise probability</h2>
+            <p>While learning imprecise probability theory, I noticed that gambling is used constantly to explain probability. This makes historical sense, since probability theory itself has deep roots in games of chance. The kind of gambling meant here, however, is rather different from the mahjong or card games I had previously associated with the word.</p>
+            <p>In this interpretation, the bet concerns whether some event <span class="math math-inline">A</span> occurs.</p>
+            <p>Define a ticket by</p>
+            <div class="math math-display">I_A(\omega)=
+\begin{cases}
+1,&amp;\omega\in A,\\
+0,&amp;\omega\notin A.
+\end{cases}</div>
+            <p>If <span class="math math-inline">A</span> occurs, the ticket pays one unit of money; otherwise it pays nothing. The particular monetary unit does not matter. Its only purpose is to normalize the payoff to either <span class="math math-inline">0</span> or <span class="math math-inline">1</span>.</p>
+            <p>Suppose you buy the ticket for a price <span class="math math-inline">p</span>. Your net payoff is</p>
+            <div class="math math-display">I_A-p.</div>
+            <p>If the event occurs, you receive <span class="math math-inline">1-p</span>; if it does not, you receive <span class="math math-inline">-p</span>.</p>
+            <p>We can also view the same transaction from the seller&#x27;s side. You sell the contract for <span class="math math-inline">p</span>, receiving <span class="math math-inline">p</span> now, but later must pay out according to <span class="math math-inline">I_A</span>: one unit if <span class="math math-inline">A</span> occurs and zero otherwise. The seller&#x27;s net payoff is</p>
+            <div class="math math-display">p-I_A.</div>
+            <p>Here “selling” means taking the seller&#x27;s side of this gambling contract, not merely reselling a lottery ticket that you received for free.</p>
+            <p>Considering both the buying and selling sides gives a behavioral interpretation of probability.</p>
+            <p>There is a crucial idealization hidden here. If <span class="math math-inline">p</span> is called your “fair price” for <span class="math math-inline">A</span>, then around that price you must be willing to take either side of the transaction. In other words, your opponent is allowed to choose which direction to bet against you. Dutch-book arguments for precise subjective probability operate under exactly this assumption.</p>
+            <p>Thus <span class="math math-inline">p</span> is not merely your informal guess at what the ticket might be worth. It is a betting quotient that constrains the choices you are prepared to make. If your quoted prices are mutually inconsistent, an opponent may be able to combine several transactions—each acceptable on its own—into a portfolio that makes you lose regardless of the outcome.</p>
+            <h3 id="where-do-nonnegativity-normalization-and-additivity-come-from">Where do nonnegativity, normalization, and additivity come from?</h3>
+            <p>Nonnegativity is straightforward. The ticket <span class="math math-inline">I_A</span> never pays less than zero, so receiving it for free can never hurt you. If you assign it a negative price <span class="math math-inline">p&lt;0</span>, you are effectively willing to pay someone to take it from you: the opponent receives both <span class="math math-inline">I_A</span> and the additional amount <span class="math math-inline">|p|</span>. Their net payoff is at least <span class="math math-inline">I_A+|p|\geq|p|&gt;0</span> in every state. That is an immediate Dutch book. A coherent price therefore cannot be negative.</p>
+            <p>Nor should the price of an event ticket exceed <span class="math math-inline">1</span>, because the largest possible payoff of <span class="math math-inline">I_A</span> is <span class="math math-inline">1</span>. If you buy it for <span class="math math-inline">p&gt;1</span>, your best possible net payoff is <span class="math math-inline">1-p&lt;0</span> and your worst is <span class="math math-inline">-p</span>. You lose in every case. Hence</p>
+            <div class="math math-display">0\leq P(A)\leq 1.</div>
+            <p>Normalization is equally simple. The ticket associated with the certain event <span class="math math-inline">\Omega</span> always pays <span class="math math-inline">1</span>, so its fair price must be</p>
+            <div class="math math-display">P(\Omega)=1.</div>
+            <p>If its price were below <span class="math math-inline">1</span>, an opponent could buy it and lock in a profit of <span class="math math-inline">1-P(\Omega)&gt;0</span>. If its price were above <span class="math math-inline">1</span>, buying it would guarantee a loss. The two sides leave only the price <span class="math math-inline">1</span>. By the same reasoning, the ticket for the impossible event always pays zero and must have price zero.</p>
+            <p>For additivity, suppose that <span class="math math-inline">A</span> and <span class="math math-inline">B</span> are disjoint. Then</p>
+            <div class="math math-display">I_{A\cup B}=I_A+I_B.</div>
+            <p>Buying one ticket that pays <span class="math math-inline">1</span> when either <span class="math math-inline">A</span> or <span class="math math-inline">B</span> occurs produces exactly the same payoff in every state as buying one <span class="math math-inline">A</span> ticket and one <span class="math math-inline">B</span> ticket separately.</p>
+            <p>Two portfolios with identical state-by-state payoffs should have the same price. Otherwise, one could buy the cheaper portfolio and sell the more expensive one for a risk-free profit. Therefore</p>
+            <div class="math math-display">P(A\cup B)=P(A)+P(B),\qquad A\cap B=\varnothing.</div>
+            <p>From this perspective, the axioms of probability are not simply postulated; they follow from the requirement that a system of prices contain no obvious arbitrage.</p>
+            <p>Whether this is genuinely more intuitive than accepting the probability axioms directly is a matter of taste. To me, it feels more like a behavioral wrapper around those axioms than the one uniquely correct philosophy of probability. The one place where I do find it useful is that it tells us exactly where the theory can be relaxed. Classical theory requires the buying and selling prices to coincide; imprecise probability drops this requirement and allows the buying price to be strictly lower than the selling price. The gap between them represents your ignorance. Viewed this way, a credal set is not an arbitrary extra set attached to probability theory: it is the geometry of a bid–ask spread.</p>
+            <h2 id="constraining-a-credal-set-with-expectations">Constraining a credal set with expectations</h2>
+            <p>To be honest, I understood almost none of this part during the course. This may be one reason why imprecise probability remains a niche subject: the entry barrier feels higher than in machine learning. The concepts, notation, and gambling interpretation were all piled on at once, and I genuinely could not follow them. I will therefore rebuild this part from the ground up, at least far enough to make it fit my intuition. I will not try to cover every detail.</p>
+            <h3 id="what-are-the-limitations-of-lower-and-upper-probabilities-alone">What are the limitations of lower and upper probabilities alone?</h3>
+            <p>The lower and upper probabilities introduced earlier are easy to understand. For example,</p>
+            <div class="math math-display">\underline P(\{\omega_1\})
+\leq p_1
+\leq \overline P(\{\omega_1\}).</div>
+            <p>In the ternary probability simplex, <span class="math math-inline">p_1=c</span> is a line parallel to one edge of the triangle. Likewise, <span class="math math-inline">p_2=c</span> and <span class="math math-inline">p_3=c</span> are parallel to the other two edges. Some statistical methods can produce constraints of this form.</p>
+            <p>In a three-outcome space, every event has one of only a few basic forms: a single outcome, a union of two outcomes, the full space, or the empty set. Since</p>
+            <div class="math math-display">p_1+p_2=1-p_3,</div>
+            <p>constraining the probability of a union of two outcomes is still, in essence, just constraining the remaining coordinate.</p>
+            <p>Consequently, if we cut the ternary simplex using only lower and upper probabilities of events, the resulting edges are all parallel to edges of the original triangle. The shapes are regular, but their expressive power is limited. There are only three directions and at most six edges, so in the linear case a hexagon is the most complicated shape we can obtain. All the shapes in the earlier model-comparison figure fall within this limit. But what if we want a convex credal set with slanted or less regular edges? Such a set is difficult to describe using only these constraints.</p>
+            <h3 id="from-event-indicators-to-general-gambles">From event indicators to general gambles</h3>
+            <p>The natural next step is to stop restricting ourselves to event indicators with coefficients only <span class="math math-inline">0</span> or <span class="math math-inline">1</span>, and instead allow arbitrary payoff functions.</p>
+            <p>Represent a gamble by</p>
+            <div class="math math-display">f=(f_1,f_2,f_3),</div>
+            <p>where <span class="math math-inline">f_i</span> is the payoff when outcome <span class="math math-inline">\omega_i</span> occurs. When I first encountered this object, I had no idea what it was supposed to mean. I now realize that it is simply a discrete function assigning a value to each possible outcome.</p>
+            <p>Under a probability distribution <span class="math math-inline">p=(p_1,p_2,p_3)</span>, its expectation is</p>
+            <div class="math math-display">E_p[f]
+=f_1p_1+f_2p_2+f_3p_3
+=p\cdot f.</div>
+            <p>This is just an expression of the form</p>
+            <div class="math math-display">ap_1+bp_2+cp_3.</div>
+            <p>The coefficients <span class="math math-inline">a,b,c</span> are no longer mysterious constants: they are the payoffs of the gamble in the three possible outcomes. By changing them, we obtain lines with different slopes in the simplex.</p>
+            <p>We can therefore impose lower and upper bounds on the expectation:</p>
+            <div class="math math-display">\underline E(f)
+\leq f_1p_1+f_2p_2+f_3p_3
+\leq \overline E(f).</div>
+            <p>Geometrically, the equation</p>
+            <div class="math math-display">f_1p_1+f_2p_2+f_3p_3=c</div>
+            <p>describes a line within the normalization plane, while an inequality describes the half-plane on one side of that line.</p>
+            <p>Because <span class="math math-inline">f_1,f_2,f_3</span> may be arbitrary, the line need not be parallel to an edge of the triangle. It can cut the probability simplex at any angle.</p>
+            <figure class="note-figure"><a href="/assets/notes/enattachment/fig5-gamble-cut.png" target="_blank" rel="noopener"><img src="/assets/notes/enattachment/fig5-gamble-cut.png" alt="fig5 gamble cut" loading="lazy" decoding="async"></a></figure>
+            <p>The left panel shows what can be achieved using only lower and upper probabilities of events: every edge is parallel to one of the triangle&#x27;s sides. The right panel adds an expectation constraint for the gamble <span class="math math-inline">f=(2,-1,0)</span>, producing a slanted edge; the dashed outline shows the previous shape. Incidentally, adding a constant to <span class="math math-inline">f</span> does not change the direction of the line—it merely translates both boundaries together. Multiplying <span class="math math-inline">f</span> by a positive constant also leaves the direction unchanged, provided the bounds are scaled as well. The direction of the cut is therefore determined only by the <strong>relative differences</strong> among the components of <span class="math math-inline">f</span>. The gambles <span class="math math-inline">f=(2,-1,0)</span>, <span class="math math-inline">f=(4,-2,0)</span>, and <span class="math math-inline">f=(3,0,1)</span> all produce the same direction. I find this point quite important: writing down another <span class="math math-inline">f</span> does not necessarily introduce a new direction.</p>
+            <p>With several lower and upper expectation constraints, we can construct much more flexible credal sets:</p>
+            <div class="math math-display">K=\left\{
+p\in\Delta_2:
+\underline E(f^{(j)})
+\leq p\cdot f^{(j)}
+\leq \overline E(f^{(j)}),
+\ j=1,\ldots,m
+\right\}.</div>
+            <p>Each gamble supplies at most two potential boundaries. Intersecting all these half-planes with the probability simplex produces a convex polygon.</p>
+            <p>Constraints on event probabilities are merely a special case. If <span class="math math-inline">f=I_A</span>, then</p>
+            <div class="math math-display">E_p[I_A]=P_p(A).</div>
+            <p>Moving from lower and upper probabilities to lower and upper expectations is therefore not a completely new construction. It is a generalization from linear constraints with only <span class="math math-inline">0</span>–<span class="math math-inline">1</span> coefficients to arbitrary linear constraints.</p>
+            <p>From the viewpoint of convex geometry, the conclusion is even more direct. A closed convex set can be represented as an intersection of supporting half-spaces. If the credal set is a polytope, a finite collection of linear expectation constraints is enough to describe it. Conversely, if the desired convex set is not a polytope—consider a circle, for example—no finite collection of gambles can describe it exactly. We would need infinitely many, one supporting hyperplane in every direction. This also reveals the upper limit of the language: it describes convex sets. No matter how many gambles we add, they cannot produce a nonconvex credal set.</p>
+            <p>This, in my view, is what should be explained first. The gambling interpretation comes at a second level and should not be used to frighten beginners at the outset.</p>
+            <h2 id="buying-and-selling-interpretations-of-lower-and-upper-expectations">Buying and selling interpretations of lower and upper expectations</h2>
+            <p>At this point, imprecise probability theory usually returns to the buying and selling interpretation of a gamble.</p>
+            <p>Suppose <span class="math math-inline">f</span> is a lottery ticket. The lower expectation, or lower prevision, <span class="math math-inline">\underline E(f)</span> can be understood as the highest price you are willing to pay to receive <span class="math math-inline">f</span>:</p>
+            <div class="math math-display">\underline E(f)
+=\sup\{\mu:f-\mu\text{ is a gamble you are willing to accept}\}.</div>
+            <p>If you pay <span class="math math-inline">\mu</span> to buy <span class="math math-inline">f</span>, your eventual net payoff is</p>
+            <div class="math math-display">f-\mu.</div>
+            <p>The higher the price, the less favorable the gamble becomes. The lower expectation is the limiting price you are still willing to accept.</p>
+            <p>The upper expectation, or upper prevision, <span class="math math-inline">\overline E(f)</span> can be understood as the lowest price at which you are willing to sell <span class="math math-inline">f</span>:</p>
+            <div class="math math-display">\overline E(f)
+=\inf\{\mu:\mu-f\text{ is a gamble you are willing to accept}\}.</div>
+            <p>The two are related by conjugacy:</p>
+            <div class="math math-display">\overline E(f)=-\underline E(-f).</div>
+            <p>When the lower and upper expectations agree, they reduce to a single precise fair price. When they leave an interval between them, the gap can be compared to a bid–ask spread.</p>
+            <p>My own way of understanding this, after setting the lottery language aside, is much simpler. We have a function <span class="math math-inline">f</span> whose payoff depends on the outcome, and we need to determine a plausible range for its expectation, by whatever method is available. If we want the most informative range, it should be as tight as possible. This naturally leads us to the greatest valid lower bound and the smallest valid upper bound.</p>
+            <p>I still do not find the buying-and-selling story especially intuitive. For me, it is much easier to begin with linear constraints, half-planes, and convex sets, and only then add that these bounds may also be interpreted as buying and selling prices. The interpretation is not useless, however. At least it supplies a consistency criterion: the lower and upper prices we quote must not combine to produce a guaranteed loss or a risk-free arbitrage. The notion of coherence is largely concerned with ruling out such internal contradictions.</p>
+            <p>Moreover, once a credal set <span class="math math-inline">K</span> has been specified, the two quantities have a particularly clean geometric meaning:</p>
+            <div class="math math-display">\underline E(f)=\min_{p\in K}p\cdot f,
+\qquad
+\overline E(f)=\max_{p\in K}p\cdot f.</div>
+            <p>We are simply optimizing a linear functional in the direction <span class="math math-inline">f</span> over <span class="math math-inline">K</span>. Since this is a linear program, an optimum occurs at a vertex of <span class="math math-inline">K</span>. If we have a list of those vertices, finding the lower and upper expectation of any gamble is just a matter of evaluating it at every vertex and taking the minimum and maximum. I find this far more useful than the language of buying and selling prices. It shows that lower and upper expectations and credal sets are two descriptions of the same object: one in terms of support values, the other in terms of the set itself.</p>
+            <h2 id="where-do-these-constraints-come-from">Where do these constraints come from?</h2>
+            <p>One might object that there are infinitely many gambles. Are we supposed to ask an expert for lower and upper prices for every one of them?</p>
+            <p>Of course not.</p>
+            <p>In a concrete problem, we should choose only gambles or statistics that genuinely matter to the task. Examples include:</p>
+            <ul><li>the payoff of a particular decision in each state;</li><li>a loss function;</li><li>a plausible range for the expectation of a feature or indicator;</li><li>a small number of scenarios that an expert can understand and assess.</li></ul>
+            <p>From these finitely many policies, payoff functions, or moment constraints, we can construct a credal set.</p>
+            <p>In this sense, the framework is indeed a way to model expert knowledge. Rather than asking an expert to draw a polygon directly inside the probability triangle, we ask: “For this particular payoff function, what range of expected values do you consider reasonable?” Several answers then cut out a set of plausible probability distributions.</p>
+            <p>There is also a conservative shortcut built into the framework. The fewer constraints we provide, the larger and more “ignorant” the resulting set will be—but at least it will not pretend that we know more than we do. In the theory, this is called natural extension: begin with the few commitments we are genuinely prepared to make, then take all probability distributions compatible with them. The result is the most conservative credal set consistent with those commitments. Asking about one more gamble makes the set smaller, or at least never larger. Asking nothing leaves us with the vacuous model. The virtue of this approach is that it does not force us to claim knowledge we do not possess; the drawback is that it can easily leave us unable to say anything useful.</p>
+            <p>If the constraints come mainly from subjective expert judgments, the final model will depend heavily on which gambles we choose to ask about, how we phrase the questions, and whether the expert can answer consistently. Anyone with a machine-learning background may find this a little dubious—I do too. It can feel suspiciously like hand-designing constraints all over again.</p>
+            <p>At least I can now reduce the idea to something concrete:</p>
+            <blockquote><p>Use a collection of task-relevant linear expectation constraints to cut a convex set of plausible probability distributions out of the probability simplex.</p></blockquote>
+            <p>Whether those constraints are reliable, reproducible, or worth eliciting is a separate question about modeling and knowledge acquisition. Another way to view the issue is that no nonlinear feature has appeared anywhere yet: everything consists of straight-line cuts. Linearity provides clean geometry and tractable computation. Nonlinear extensions can wait for a future discussion.</p>
+            <h2 id="summary">Summary</h2>
+            <p>This note is really trying to make only a few points.</p>
+            <p>First, the ternary probability simplex is a triangle because the plane</p>
+            <div class="math math-display">p_1+p_2+p_3=1</div>
+            <p>is cut by the constraints</p>
+            <div class="math math-display">p_1,p_2,p_3\geq0.</div>
+            <p>Coordinates inside the triangle are normalized perpendicular distances to the opposite edges, and the three distances always sum to <span class="math math-inline">1</span>.</p>
+            <p>Second, a linear-vacuous credal set remains a triangle because it is an affine scaling of the full probability simplex:</p>
+            <div class="math math-display">K_\varepsilon=(1-\varepsilon)p^0+\varepsilon\Delta_2.</div>
+            <p>More intuitively, it is a homothety centered at <span class="math math-inline">p^0</span> with scale factor <span class="math math-inline">\varepsilon</span>. Other models—pari-mutuel, total-variation, COR, and probability-interval models—produce various triangles and hexagons. They are all convex polygons because all their constraints are linear inequalities.</p>
+            <p>Third, ordinary lower and upper probability constraints are special expectation constraints whose coefficients are only <span class="math math-inline">0</span> or <span class="math math-inline">1</span>, so the available cutting directions are limited. General lower and upper expectation constraints,</p>
+            <div class="math math-display">\underline E(f)\leq p\cdot f\leq\overline E(f),</div>
+            <p>can produce linear boundaries in any direction and hence much more flexible convex credal sets. Conversely, once <span class="math math-inline">K</span> is given, lower and upper expectations are obtained by minimizing and maximizing a linear functional over <span class="math math-inline">K</span>. They are two ways to describe the same object.</p>
+            <p>Fourth, gambling and buying or selling prices provide a behavioral interpretation, but they are not the only route to understanding the geometry. For me, vectors, planes, and convex sets make a much better starting point; gambles become easier to understand afterward.</p>
+            <p>The subject is not as mysterious as it initially appeared in the course. At bottom, it is convex geometry on a probability simplex, wrapped in the language of gambling so that it can be used for decision making. The more general a theory becomes, the more broadly it applies—and often the harder it becomes to put into practice. I will continue working through the later material gradually. The tentative title of the next post is <strong>Decision Philosophy and Choice Functions</strong>.</p>
+          </details>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

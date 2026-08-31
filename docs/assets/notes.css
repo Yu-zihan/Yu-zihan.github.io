@@ -464,6 +464,22 @@ html.notes-article article hr {
   border-top: 1px solid rgba(31, 36, 48, 0.08);
 }
 
+html.notes-article article .note-figure {
+  margin: 1.35rem 0 1.55rem;
+}
+
+html.notes-article article .note-figure a {
+  display: block;
+  text-decoration: none !important;
+}
+
+html.notes-article article .note-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
 html.notes-article article .math.math-inline,
 html.notes-article article .katex {
   text-wrap: pretty;
