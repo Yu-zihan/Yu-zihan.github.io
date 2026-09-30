@@ -15,11 +15,13 @@ rm -rf \
   "$TARGET_DIR/blog/reading-math-papers.html" \
   "$TARGET_DIR/notes/cp_ot_foundations_en.html" \
   "$TARGET_DIR/notes/imprecise-probability-notes-1-ternary-simplex-and-credal-sets.html" \
+  "$TARGET_DIR/notes/imprecise-probability-notes-2-philosophy-of-decision-making-and-choice-functions.html" \
   "$TARGET_DIR/notes/Kantorovich 对偶.html" \
   "$TARGET_DIR/notes/从最小可计算模型开始.html" \
   "$TARGET_DIR/notes/元海战术行不行.html" \
   "$TARGET_DIR/notes/熵正则最优传输.html" \
   "$TARGET_DIR/notes/不精确概率学习笔记（一）：三元概率单纯形与 Credal Set.html" \
+  "$TARGET_DIR/notes/不精确概率学习笔记（二）：决策哲学与选择函数.html" \
   "$TARGET_DIR/notes/research-notes.html" \
   "$TARGET_DIR/assets/profile-placeholder.svg"
 

@@ -105,6 +105,11 @@ class Note:
 # trees/notes while staying unpublished if they are not listed here.
 NOTE_ENTRIES = [
     NoteEntry(
+        "imprecise-probability-notes-2-philosophy-of-decision-making-and-choice-functions.md",
+        "imprecise-probability-decision-philosophy-and-choice-functions.html",
+        "en",
+    ),
+    NoteEntry(
         "imprecise-probability-notes-1-ternary-simplex-and-credal-sets.md",
         "imprecise-probability-ternary-simplex-and-credal-sets.html",
         "en",
@@ -114,6 +119,11 @@ NOTE_ENTRIES = [
     NoteEntry("one_neuron_1.md", "one_neuron_1.html", "en"),
     NoteEntry("kantorovich_duality.md", "kantorovich_duality.html", "en"),
     NoteEntry("entropic_regularized_optimal_transport.md", "entropic_regularized_optimal_transport.html", "en"),
+    NoteEntry(
+        "不精确概率学习笔记（二）：决策哲学与选择函数.md",
+        "imprecise-probability-decision-philosophy-and-choice-functions.html",
+        "zh",
+    ),
     NoteEntry(
         "不精确概率学习笔记（一）：三元概率单纯形与 Credal Set.md",
         "imprecise-probability-ternary-simplex-and-credal-sets.html",
