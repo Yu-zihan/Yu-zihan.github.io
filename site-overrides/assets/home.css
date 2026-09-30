@@ -235,6 +235,23 @@ a {
   border-bottom: 0;
 }
 
+.home-list .news-item {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.home-list .news-item:last-child {
+  border-bottom: 0;
+}
+
+.home-list .news-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
 .home-list a:hover .item-title {
   text-decoration: underline;
 }
